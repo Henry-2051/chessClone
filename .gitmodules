@@ -1,0 +1,3 @@
+[submodule "src/nanosvg"]
+	path = src/nanosvg
+	url = https://github.com/memononen/nanosvg
