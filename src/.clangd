@@ -1,0 +1,12 @@
+CompileFlags:
+  Add:
+    - "-std=c++23"
+    - "-pedantic-errors"
+    - "-Wall"
+    - "-Weffc++"
+    # - "-Wextra"
+    # - "-Wconversion"
+    # - "-Wsign-conversion"
+    - "-O3"
+    - "-I./imgui"
+    - "-I./imgui-sfml"
