@@ -20,6 +20,49 @@ struct sfTexandWidthAndHeight {
     int h;
 };
 
+inline std::vector<sf::Sprite> makeChessPieceSprites(sf::Texture& chessPieceTexture, int pieceHeight) {
+
+    sf::Vector2i pieceSize{pieceHeight, pieceHeight};
+    // White pieces - top row (y = 0)
+    sf::Sprite white_king(chessPieceTexture);
+    white_king.setTextureRect({{0 * pieceHeight, 0}, pieceSize});
+
+    sf::Sprite white_queen(chessPieceTexture);
+    white_queen.setTextureRect({{1 * pieceHeight, 0}, pieceSize});
+
+    sf::Sprite white_bishop(chessPieceTexture);
+    white_bishop.setTextureRect({{2 * pieceHeight, 0}, pieceSize});
+
+    sf::Sprite white_knight(chessPieceTexture);
+    white_knight.setTextureRect({{3 * pieceHeight, 0}, pieceSize});
+
+    sf::Sprite white_rook(chessPieceTexture);
+    white_rook.setTextureRect({{4 * pieceHeight, 0}, pieceSize});
+
+    sf::Sprite white_pawn(chessPieceTexture);
+    white_pawn.setTextureRect({{5 * pieceHeight, 0}, pieceSize});
+
+    // Black pieces - bottom row (y = pieceHeight)
+    sf::Sprite black_king(chessPieceTexture);
+    black_king.setTextureRect({{0 * pieceHeight, pieceHeight}, pieceSize});
+
+    sf::Sprite black_queen(chessPieceTexture);
+    black_queen.setTextureRect({{1 * pieceHeight, pieceHeight}, pieceSize});
+
+    sf::Sprite black_bishop(chessPieceTexture);
+    black_bishop.setTextureRect({{2 * pieceHeight, pieceHeight}, pieceSize});
+
+    sf::Sprite black_knight(chessPieceTexture);
+    black_knight.setTextureRect({{3 * pieceHeight, pieceHeight}, pieceSize});
+
+    sf::Sprite black_rook(chessPieceTexture);
+    black_rook.setTextureRect({{4 * pieceHeight, pieceHeight}, pieceSize});
+
+    sf::Sprite black_pawn(chessPieceTexture);
+    black_pawn.setTextureRect({{5 * pieceHeight, pieceHeight}, pieceSize});
+
+    return {white_king, white_queen, white_bishop, white_knight, white_rook, white_pawn, black_king, black_queen, black_bishop, black_knight, black_rook, black_pawn};
+}
 inline maybeResult<sfTexandWidthAndHeight> loadChessPiecesTexture(float scale = 4.0f) {
 
     const char* filename = "../chess_assets.svg";
