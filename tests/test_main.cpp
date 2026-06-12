@@ -1,8 +1,10 @@
-
-#include <array>
-#include <cstdint>
 #define CATCH_CONFIG_MAIN  // This tells Catch2 to provide a main() function.
 #include <catch2/catch_test_macros.hpp>
+#include <array>
+#include <cstdint>
+#include <sys/types.h>
+#include "../src/readTextFile.hpp"
+#include "../src/algebraicChessParser.hpp"
 #include "../src/stackStack.hpp"
 
 // A helper function to build a default stackStack from an std::array.
@@ -85,6 +87,18 @@ TEST_CASE("PushItems with another stackStack works correctly", "[stackStack]") {
     REQUIRE_NOTHROW( mainStack.pushItems(anotherStack) );
 }
 
+TEST_CASE("Load chess game") {
+    auto game1 = readFromFile("../exampleGames/chessTestGame1.chess");
+    auto game2 = readFromFile("../exampleGames/chessTestGame2.chess");
+    auto game3 = readFromFile("../exampleGames/chessTestGame3.chess");
+
+    decodeChessGameBetter(game1, printCtx(PrintMode::WriteToFile, "./tests/game1Transcript.txt"));
+    decodeChessGameBetter(game2, printCtx(PrintMode::WriteToFile, "./tests/game2Transcript.txt"));
+    decodeChessGameBetter(game3, printCtx(PrintMode::WriteToFile, "./tests/game3Transcript.txt"));
+}
+
 TEST_CASE("test individual pawn moves") {
-    uint64_t blackPawn1 = 
+    uint64_t blackPawn1 = 0x400;
+    uint64_t expectedMove1 = 0x40000;
+    uint8_t pawnState = 0b00;
 }

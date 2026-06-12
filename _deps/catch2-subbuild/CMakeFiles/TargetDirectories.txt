@@ -1,0 +1,3 @@
+/home/quartz/sync/codingProjects/learning_cpp/chessClone/_deps/catch2-subbuild/CMakeFiles/catch2-populate.dir
+/home/quartz/sync/codingProjects/learning_cpp/chessClone/_deps/catch2-subbuild/CMakeFiles/edit_cache.dir
+/home/quartz/sync/codingProjects/learning_cpp/chessClone/_deps/catch2-subbuild/CMakeFiles/rebuild_cache.dir

@@ -9,24 +9,50 @@
 #include <cstdint>
 #include <functional>
 #include <iterator>
+#include <memory>
 #include <stdexcept>
 #include <string>
 #include <utility>
 
+#include "pieceMovements.hpp"
+#include "seperateBitboard.hpp"
+#include "stackStack.hpp"
 
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
 #include "maybeResult.hpp"
 #include "loadChessAssets.hpp"
-#include "pieceMovements.hpp"
-#include "stackStack.hpp"
+#include "boardState.hpp"
+
+
+enum PieceColor : bool {
+    White = true,
+    Black = false,
+};
+
 // there is a chess board that conains all the chess pieces 
 // there are also chess piece assets 
 // we will need to access the chess piece sprites and the chess board at the same time 
 // we can use int64 for each piece and xor with int64 as actions 
 // we need to read user input 
 
+// maybe we'll store the piece movements in a struct of stacks 
+struct pieceMovements {
+    singleColorChessMoveStack whiteMoves;
+    singleColorChessMoveStack blackMoves;
+};
+
+struct moveToExecute {
+    uint64_t moveBitboard;
+    PieceType pieceType;
+    PieceColor pieceColor;
+};
+
+struct validChessMoves {
+    singleColorChessMoveStack moveStack;
+    PieceColor colorToMove;
+};
 
 inline bool checkFlagsQualified(uint8_t state, uint8_t requiredFlags, uint8_t relevantBits) {
     state &= relevantBits;
@@ -47,8 +73,8 @@ std::vector<int> getOnes(uint64_t b) {
     return ones;
 }
 
-std::vector<std::pair<int, int>> getChessCoordinates(std::vector<int> ones) {
-    std::vector<std::pair<int, int>>   result = {};
+std::vector<std::pair<uint32_t, uint32_t>> getChessCoordinates(std::vector<int> ones) {
+    std::vector<std::pair<uint32_t, uint32_t>>   result = {};
     for (auto p : ones) {
         int row = p / 8;
         int col = p % 8;
@@ -56,9 +82,38 @@ std::vector<std::pair<int, int>> getChessCoordinates(std::vector<int> ones) {
     }
     return result;
 }
+ 
+struct bitboardMove {
+    using movetype = uint64_t;
+    movetype b_pawn {0b0};
+    movetype b_rook {0b0};
+    movetype b_bishop {0b0};
+    movetype b_knight {0b0};
+    movetype b_queen {0b0};
+
+    movetype w_pawn {0b0};
+    movetype w_rook {0b0};
+    movetype w_bishop {0b0};
+    movetype w_knight {0b0};
+    movetype w_queen {0b0};
 
 
-class chessBoard {
+    void applyMove(chessBoard& board) {
+        board.m_black_pawns ^= b_pawn;
+        board.m_black_rooks ^= b_rook;
+        board.m_black_knights ^= b_rook;
+        board.m_black_bishops ^= b_bishop;
+        board.m_black_queens ^= b_queen;
+
+        board.m_white_pawns ^= w_pawn;
+        board.m_white_rooks ^= w_rook;
+        board.m_white_knights ^= w_knight;
+        board.m_white_bishops ^= w_bishop;
+        board.m_white_queens ^= w_queen;
+    }
+};
+
+struct chessBoard {
     uint64_t m_pawn_bitshift = 40;
     uint64_t m_piece_bitshift = 56;
     uint64_t m_black_pawns = 0xff00;
@@ -68,7 +123,7 @@ class chessBoard {
     uint64_t m_black_queens = 0x8;
     uint64_t m_black_king = 0x10;
 
-uint64_t m_white_pawns = m_black_pawns << m_pawn_bitshift;
+    uint64_t m_white_pawns = m_black_pawns << m_pawn_bitshift;
     uint64_t m_white_rooks = m_black_rooks << m_piece_bitshift;
     uint64_t m_white_knights = m_black_knights << m_piece_bitshift;
     uint64_t m_white_bishops = m_black_bishops << m_piece_bitshift;
@@ -77,37 +132,34 @@ uint64_t m_white_pawns = m_black_pawns << m_pawn_bitshift;
 
     uint64_t m_black_pieces = m_black_pawns | m_black_rooks | m_black_knights | m_black_bishops | m_black_queens | m_black_king;
     uint64_t m_white_pieces = m_white_pawns | m_white_rooks | m_white_knights | m_white_bishops | m_white_queens | m_white_king;
-    
-    enum State : uint8_t{
-        WhiteTurn = 0b1,
-        WhiteCastledRight = 0b10,
-        WhiteCastledLeft = 0b100,
-        BlackCastledRight = 0b1000,
-        BlackCastledLeft = 0b10000,
-        HasEnPassant = 0b100000
-    };
 
-    uint8_t m_board_state = 0b1;
+    std::array<std::unique_ptr<uint64_t>, 12> m_piece_bitboard_lookup_table = {
+        std::make_unique<uint64_t>(m_black_pawns),
+        std::make_unique<uint64_t>(m_black_rooks),
+        std::make_unique<uint64_t>(m_black_knights),
+        std::make_unique<uint64_t>(m_black_bishops),
+        std::make_unique<uint64_t>(m_black_queens),
+        std::make_unique<uint64_t>(m_black_king),
 
-    using annoying_return_type = std::vector<std::vector<std::pair<int, int>>>;
+        std::make_unique<uint64_t>(m_white_pawns),
+        std::make_unique<uint64_t>(m_white_rooks),
+        std::make_unique<uint64_t>(m_white_knights),
+        std::make_unique<uint64_t>(m_white_bishops),
+        std::make_unique<uint64_t>(m_white_queens),
+        std::make_unique<uint64_t>(m_white_king),
+    }; 
     
-    // std::vector<uint64_t> m_white_queen_moves{std::vector<uint64_t> (8)};
-    // std::vector<uint64_t> m_white_pawn_moves{std::vector<uint64_t>(8)};
-    // std::vector<uint64_t> m_white_rook_moves{std::vector<uint64_t>(8)};
-    // std::vector<uint64_t> m_white_knight_moves{std::vector<uint64_t>(8)};
-    // std::vector<uint64_t> m_white_bishop_moves{std::vector<uint64_t>(8)};
-    // uint64_t white_king_moves = 0;
-    //
-    //
-    // std::vector<uint64_t> m_black_queen_moves{std::vector<uint64_t> (8)};
-    // std::vector<uint64_t> m_black_pawn_moves{std::vector<uint64_t>(8)};
-    // std::vector<uint64_t> m_black_rook_moves{std::vector<uint64_t>(8)};
-    // std::vector<uint64_t> m_black_knight_moves{std::vector<uint64_t>(8)};
-    // std::vector<uint64_t> m_black_bishop_moves{std::vector<uint64_t>(8)};
-    // uint64_t black_king_moves = 0;
+    uint8_t m_board_state = board_state::WhiteTurn;
+    uint32_t m_turn {};
+    uint32_t m_last_generated_moves{};
+
+    pieceMovements m_chess_moves;
+
+    using annoying_return_type = std::vector<std::vector<std::pair<uint32_t, uint32_t>>>;
+    
 
 public:
-    chessBoard() = default;
+    chessBoard () : m_chess_moves(singleColorChessMoveStack({}, 0), singleColorChessMoveStack({}, 0)) {}  
 
     annoying_return_type piecePositions() {
         annoying_return_type result = {};
@@ -127,59 +179,141 @@ public:
         return result;
     }
 
-    stackStack<uint64_t, 80> boardKnightMoves() {
-        bool isWhiteTurn  = m_board_state & WhiteTurn;
+    singleColorChessMoveStack& boardKnightMoves(singleColorChessMoveStack& currentMoveStack, uint8_t boardState) {
+        bool isWhiteTurn  = boardState & board_state::WhiteTurn;
         uint64_t knights  = isWhiteTurn ? m_white_knights: m_black_knights;
         uint64_t enemies  = isWhiteTurn ? m_black_pieces : m_white_pieces;
         uint64_t friendly = isWhiteTurn ? m_white_pieces : m_black_pieces;
         
-        stackStack knightStack = chessMoves::seperateBitboardIntoStack<10>(knights); 
-        stackStack<uint64_t, 80> knightMoveStack({}, 0);
+        stackStack knightStack = seperateBitboardIntoStack<10>(knights); 
 
         while (!knightStack.isEmpty()) {
             uint64_t knight = knightStack.pop();
             uint64_t knightMove = chessMoves::knightMove(knight, enemies, friendly);
-            auto knightTransform = [knight](uint64_t knightInStack){ return knightInStack| knight; };
-            knightMoveStack.pushItems(chessMoves::seperateBitboardIntoStack<8>(knightMove)).stackTransorm(knightTransform);
+            currentMoveStack.pushMoves(knight, knightMove, PieceType::Knight);
         }
-        return knightMoveStack;
+        return currentMoveStack;
     }
 
-    stackStack<uint64_t, 24> boardPawnMoves() {
-        using PawnMoveFunc = uint64_t(*)(uint64_t, uint64_t, uint64_t);
-        uint8_t pawnState = ((WhiteTurn & m_board_state) ? 0b10 : 0b00) | ((HasEnPassant & m_board_state) ? 0b01 : 0b00); 
+    singleColorChessMoveStack& boardPawnMoves(singleColorChessMoveStack& currentMoveStack, uint8_t boardState) {
+        uint8_t pawnState = board_state::mapBoardToPawnState(m_board_state); 
 
-        std::array<PawnMoveFunc, 4> functionLookup = {
-            chessMoves::blackPawnMove,
-            chessMoves::blackPawnMoveEPP,
-            chessMoves::whitePawnMove,
-            chessMoves::whitePawnMoveEPP
-        };
-
-        bool isWhiteTurn = m_board_state & WhiteTurn;
+        bool isWhiteTurn = boardState & board_state::WhiteTurn;
 
         uint64_t pawns = isWhiteTurn ? m_white_pawns : m_black_pawns;
         uint64_t enemies = isWhiteTurn ? m_black_pieces : m_white_pieces;
         uint64_t friendly = isWhiteTurn ? m_white_pieces : m_black_pieces;
         
-        stackStack pawnStack = chessMoves::seperateBitboardIntoStack<8>(pawns);
-        stackStack<uint64_t, 24> pawnMoveStack({}, 0);
+        stackStack pawnStack = seperateBitboardIntoStack<8>(pawns);
 
         while (!pawnStack.isEmpty()) {
             uint64_t pawn = pawnStack.pop();
-            uint64_t pawnMove = functionLookup[pawnState](pawn, enemies, friendly);
-            auto makePawnMove = [pawn](uint64_t pawnMoved){ return pawnMoved | pawn; };
-            pawnMoveStack.pushItems(chessMoves::seperateBitboardIntoStack<3>(pawnMove).stackTransorm(makePawnMove));
+            uint64_t pawnMoves = chessMoves::singlePawnMoveInterface(pawn, enemies, friendly, pawnState);
+            currentMoveStack.pushMoves(pawn, pawnMoves, PieceType::Pawn);
         }
-        return pawnMoveStack;
+        return currentMoveStack;
     }
+
+    // the code duplication is intentional, using templates and guaranteing perfomance is more annoying than just writing 3 functions
+    singleColorChessMoveStack& boardRookMoves(singleColorChessMoveStack& currentMoveStack, uint8_t boardState) {
+        bool isWhiteTurn = board_state::WhiteTurn & boardState;
+
+        uint64_t rooks = isWhiteTurn ? m_white_rooks : m_black_rooks;
+        uint64_t enemies = isWhiteTurn ? m_black_pieces : m_white_pieces;
+        uint64_t friendly = isWhiteTurn ? m_white_pieces : m_black_pieces;
+
+        stackStack rookStack = seperateBitboardIntoStack<10>(rooks);
+
+        while (!rookStack.isEmpty()) {
+            uint64_t rook = rookStack.pop();
+            uint64_t rookMoves = chessMoves::singleRookMove(rook, enemies, friendly);
+            currentMoveStack.pushMoves(rook, rookMoves, PieceType::Rook);
+        }
+        return currentMoveStack;
+    }
+
+    singleColorChessMoveStack& boardBishopMoves(singleColorChessMoveStack& currentMoveStack, uint8_t boardState) {
+        bool isWhiteTurn = board_state::WhiteTurn & boardState;
+
+        uint64_t bishops = isWhiteTurn ? m_white_bishops: m_black_bishops;
+        uint64_t enemies = isWhiteTurn ? m_black_pieces : m_white_pieces;
+        uint64_t friendly = isWhiteTurn ? m_white_pieces : m_black_pieces;
+
+        stackStack bishopStack = seperateBitboardIntoStack<10>(bishops);
+
+        while (!bishopStack.isEmpty()) {
+            uint64_t bishop = bishopStack.pop();
+            uint64_t bishopMoves = chessMoves::singleBishopMove(bishop, enemies, friendly);
+            currentMoveStack.pushMoves(bishop, bishopMoves, PieceType::Bishop);
+        }
+        return currentMoveStack;
+    }
+    
+    singleColorChessMoveStack& boardQueenMoves(singleColorChessMoveStack& currentMoveStack, uint8_t boardState) {
+        bool isWhiteTurn = board_state::WhiteTurn & boardState;
+
+        uint64_t queens = isWhiteTurn ? m_white_queens : m_black_queens;
+        uint64_t enemies = isWhiteTurn ? m_black_pieces : m_white_pieces;
+        uint64_t friendly = isWhiteTurn ? m_white_pieces : m_black_pieces;
+
+        stackStack queenStack = seperateBitboardIntoStack<10>(queens);
+
+        while (!queenStack.isEmpty()) {
+            uint64_t queen = queenStack.pop();
+            uint64_t queenMoves = chessMoves::singleQueenMove(queen, enemies, friendly);
+            currentMoveStack.pushMoves(queen, queenMoves, PieceType::Queen);
+        }
+        return currentMoveStack;
+    }
+
+    singleColorChessMoveStack& boardKingMoves(singleColorChessMoveStack& currentMoveStack, uint64_t boardState) {
+        bool isWhiteTurn = board_state::WhiteTurn & boardState;
+
+        uint64_t king = isWhiteTurn ? m_white_king : m_black_king;
+        uint64_t enemies = isWhiteTurn ? m_black_pieces : m_white_pieces;
+        uint64_t friendly = isWhiteTurn ? m_white_pieces : m_black_pieces;
+
+        uint64_t kingMoves = chessMoves::naieveKingMove(king, enemies, friendly);
+
+        currentMoveStack.pushMoves(king, kingMoves, PieceType::King);
+
+        return currentMoveStack;
+    }
+    
 
     void generateMoves(){
-        auto pawnMoveStack = boardPawnMoves();
+        m_chess_moves = {singleColorChessMoveStack({}, 0), singleColorChessMoveStack({}, 0)};
+        bool isWhiteTurn = m_board_state & board_state::WhiteTurn;
+        singleColorChessMoveStack& attackingMoves = isWhiteTurn ? m_chess_moves.whiteMoves : m_chess_moves.blackMoves;
+
+        attackingMoves = boardPawnMoves(attackingMoves, m_board_state);
+        attackingMoves = boardKnightMoves(attackingMoves, m_board_state);
+        attackingMoves = boardRookMoves(attackingMoves, m_board_state);
+        attackingMoves = boardBishopMoves(attackingMoves, m_board_state);
+        attackingMoves = boardQueenMoves(attackingMoves, m_board_state);
+        attackingMoves = boardKingMoves(attackingMoves, m_board_state);
+    };
+
+    validChessMoves getMoves() {
+        if (m_turn != m_last_generated_moves) {
+            generateMoves();
+            m_last_generated_moves ++;
+        };     
+        bool isWhiteTurn = board_state::WhiteTurn & m_board_state;
+        return isWhiteTurn ? validChessMoves(m_chess_moves.whiteMoves, PieceColor::White) : validChessMoves(m_chess_moves.blackMoves, PieceColor::Black);
     }
 
-    
+    chessBoard& makeMove(moveToExecute theMove) {
+        size_t pieceIndex = (theMove.pieceColor ? 6 : 0) + theMove.pieceType;
+        *m_piece_bitboard_lookup_table[pieceIndex] ^= theMove.moveBitboard;
+        m_turn ++;
+        m_board_state ^= board_state::WhiteTurn;
+        
+        // we will need to to calculate the newly attacked squares
+        return *this;
+    }
 };
+
 
 sf::RectangleShape rectFromTopLeftAndBottomRight(sf::Vector2f topLeft, sf::Vector2f bottomRight) {
     sf::Vector2f diff = bottomRight - topLeft;
@@ -257,7 +391,7 @@ int main()
         h = maybeData.m_value.h;
     } else { return -1; }
 
-    int board_square_size = 50 * scale;
+    int board_square_size = static_cast<int>(50.0f * scale);
     int edge_padding = 100;
     ww =  8 * board_square_size + 2 * edge_padding;
     wh = ww;
@@ -266,7 +400,7 @@ int main()
 
     std::cout << "x,y : (" <<  chessPieceTexture.getSize().x << ", " << chessPieceTexture.getSize().y << ")\n";
     
-    sf::RectangleShape square{sf::Vector2f(board_square_size, board_square_size)};
+    sf::RectangleShape square{sf::Vector2f(static_cast<float>(board_square_size), static_cast<float>(board_square_size))};
     
 
     std::vector<sf::Sprite> chessPieceSprites = makeChessPieceSprites(chessPieceTexture, pieceHeight);
@@ -274,7 +408,7 @@ int main()
     chessBoard theChessBoard = chessBoard();
 
     // 7) Setup SFML window
-    sf::RenderWindow window(sf::VideoMode(ww, wh), "NanoSVG + SFML");
+    sf::RenderWindow window(sf::VideoMode(static_cast<uint32_t>(ww), static_cast<uint32_t>(wh)), "NanoSVG + SFML");
 
     window.setFramerateLimit(60); // Limit to 60 frames per second
 
@@ -320,16 +454,16 @@ int main()
             x = board_square_size * c + x_;
             for (int r = 0; r < 8; r++) {
                 y = r* board_square_size + y_;
-                square.setPosition(x,y);
+                square.setPosition(static_cast<float>(x),static_cast<float>(y));
                 square.setFillColor((c + r) % 2 == 0 ? lightColor : darkColor);
                 window.draw(square);
             }
         }
         // window.draw(chessPieceSprites[3]);
 
-        std::vector<std::vector<std::pair<int,int>>> pieceCoords = theChessBoard.piecePositions();
-        for (int i = 0; i < pieceCoords.size(); i ++) {
-            for (std::pair<int, int>& pieceCoord : pieceCoords[i]) {
+        std::vector<std::vector<std::pair<uint32_t,uint32_t>>> pieceCoords = theChessBoard.piecePositions();
+        for (uint32_t i = 0; i < pieceCoords.size(); i ++) {
+            for (std::pair<uint32_t, uint32_t>& pieceCoord : pieceCoords[i]) {
                 sf::Vector2f piecePosition = positionFromCoords(pieceCoord, pieceHeight, board_square_size, (board_square_size - pieceHeight));
                 chessPieceSprites[i].setPosition(piecePosition);
                 window.draw(chessPieceSprites[i]);

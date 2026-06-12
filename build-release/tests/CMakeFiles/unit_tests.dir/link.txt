@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/unit_tests.dir/test_main.cpp.o -o unit_tests  ../_deps/catch2-build/src/libCatch2Main.a -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lGL ../_deps/catch2-build/src/libCatch2.a

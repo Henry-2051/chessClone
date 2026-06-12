@@ -1,0 +1,1 @@
+/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ -g -Wl,--dependency-file=CMakeFiles/unit_tests.dir/link.d CMakeFiles/unit_tests.dir/test_main.cpp.o -o unit_tests  ../_deps/catch2-build/src/libCatch2Maind.a -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lGL ../_deps/catch2-build/src/libCatch2d.a

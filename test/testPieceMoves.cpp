@@ -23,16 +23,16 @@ void printPins(uint64_t attacking_pieces, uint64_t enemy_pieces, uint64_t enemy_
     printBitboard(enemy_pieces | enemy_king);
     std::cout << "\n enemy king \n";
     printBitboard(enemy_king);
-    std::cout << "\n";
+    std::cout << "\n pinned squares \n";
     printBitboard(operation(attacking_pieces, enemy_pieces, attacking_pieces, enemy_king));
     std::cout << "\n";
 }
 
 int main (int argc, char *argv[]) {
-    uint64_t sample_rookboard = 8796160147456;
+    uint64_t sample_rookboard = 8796160131072;
     uint64_t sample_bishops   = 2305843026393571328;
     uint64_t sample_queens    = 17592186044928;
-    uint64_t sample_pawns     = 847839232;
+    uint64_t sample_pawns     = 848101376;
 
     printAttacks(sample_rookboard, 0, chessMoves::rookMove, "rooks");
     printAttacks(sample_rookboard, sample_pawns, chessMoves::rookMove, "rooks");

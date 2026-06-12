@@ -4,6 +4,7 @@ project(chess_clone VERSION 1.0 LANGUAGES CXX)
 # Set the C++ standard globally.
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Set a default build type if none is specified.
 if(NOT CMAKE_BUILD_TYPE)

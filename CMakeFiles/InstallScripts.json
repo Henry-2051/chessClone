@@ -1,0 +1,10 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/quartz/sync/codingProjects/learning_cpp/chessClone/cmake_install.cmake",
+		"/home/quartz/sync/codingProjects/learning_cpp/chessClone/_deps/catch2-build/cmake_install.cmake",
+		"/home/quartz/sync/codingProjects/learning_cpp/chessClone/_deps/catch2-build/src/cmake_install.cmake",
+		"/home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

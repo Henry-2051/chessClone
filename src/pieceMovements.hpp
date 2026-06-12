@@ -5,6 +5,8 @@
 #include <sys/types.h>
 #include <utility>
 #include "stackStack.hpp"
+#include "boardState.hpp"
+
 namespace chessMoves {
 
 enum ScanState
@@ -15,7 +17,27 @@ enum ScanState
 };
 
 inline uint64_t
-identityMove(uint64_t)
+identityMove(uint64_t moving_pieces, uint64_t enemy_pieces, uint64_t friendly_pieces) {
+    return moving_pieces;
+};
+
+// doesnt consider pins ect
+inline uint64_t
+naieveKingMove(uint64_t the_king, uint64_t enemies, uint64_t friendly_pieces) {
+    uint64_t enemy_or_empty = ~friendly_pieces;
+    uint64_t king_move = 
+        ((the_king << 1) & enemy_or_empty) |
+        ((the_king << 7) & enemy_or_empty) |
+        ((the_king << 8) & enemy_or_empty) |
+        ((the_king << 9) & enemy_or_empty) |
+        ((the_king >> 1) & enemy_or_empty) | 
+        ((the_king >> 7) & enemy_or_empty) |
+        ((the_king >> 8) & enemy_or_empty) |
+        ((the_king >> 9) & enemy_or_empty) ;
+
+    return king_move;
+}
+
 
 inline uint64_t
 blackPawnMove(uint64_t black_pawns, uint64_t enemies, uint64_t friendly)
@@ -23,7 +45,7 @@ blackPawnMove(uint64_t black_pawns, uint64_t enemies, uint64_t friendly)
     uint64_t enemy_or_empty = ~friendly;
     uint64_t front_pawn_row = 0xff00;
     uint64_t black_pawns_move =
-       (((black_pawns << 8) | 
+       ((((black_pawns << 8) & enemy_or_empty) | 
         ((black_pawns & front_pawn_row) << 16)) & enemy_or_empty) |
         ((1ULL << 7) & enemies ? (1ULL << 7) : 0ULL) |
         ((1ULL << 9) & enemies ? (1ULL << 9) : 0ULL);
@@ -47,7 +69,7 @@ whitePawnMove(uint64_t white_pawns, uint64_t enemies, uint64_t friendly)
     uint64_t enemy_or_empty = ~friendly;
     uint64_t front_pawn_row = 0xff000000000000;
     uint64_t white_pawns_move =
-        ((white_pawns >> 8) |
+        (((white_pawns >> 8) & enemy_or_empty) |
         (((white_pawns & front_pawn_row) >> 16) & enemy_or_empty)) |
         ((1ULL >> 7) & enemies ? (1ULL >> 7) : 0ULL) |
         ((1ULL >> 9) & enemies ? (1ULL) >> 9 : 0ULL);
@@ -74,6 +96,18 @@ whitePawnMoveEPP(uint64_t white_pawns, uint64_t enemies, uint64_t friendly) {
 inline uint64_t
 blackPawnMoveEPP(uint64_t black_pawns, uint64_t enemies, uint64_t friendly) {
     return blackPawnMove(black_pawns, enemies, friendly) | _blackPawnMoveEPP(black_pawns, enemies);
+}
+
+inline uint64_t 
+singlePawnMoveInterface(uint64_t attacking_pawns, uint64_t enemies, uint64_t friendly, uint8_t pawnState) {
+
+    using PawnMoveFunc = uint64_t(*)(uint64_t, uint64_t, uint64_t);
+
+    static constexpr std::array<PawnMoveFunc, 4> functionLookup = {
+        blackPawnMove, blackPawnMoveEPP, whitePawnMove, whitePawnMoveEPP
+    };
+    
+    return functionLookup[pawnState](attacking_pawns, enemies, friendly);
 }
 
 template<typename LoopingFunction>
@@ -108,11 +142,12 @@ uint64_t scanPinRay(uint64_t friendly, uint64_t enemy_king, int rook_rank, int r
 }
 
 inline uint64_t
-singleRookPin(int rook_place,
+singleRookPin(uint64_t theRook,
               uint64_t enemy,
               uint64_t friendly,
               uint64_t enemy_king)
 {
+    int rook_place = __builtin_ctzll(theRook);
     int rook_rank = rook_place / 8;
     int rook_file = rook_place % 8;
 
@@ -131,8 +166,9 @@ singleRookPin(int rook_place,
 }
 
 inline uint64_t
-singleBishopPin(int bishop_place, uint64_t enemy, uint64_t friendly, uint64_t enemy_king) 
+singleBishopPin(uint64_t theBishop, uint64_t enemy, uint64_t friendly, uint64_t enemy_king) 
 {
+    int bishop_place = __builtin_ctzll(theBishop);
     int bishop_rank = bishop_place / 8;
     int bishop_file = bishop_place % 8;
 
@@ -147,8 +183,10 @@ singleBishopPin(int bishop_place, uint64_t enemy, uint64_t friendly, uint64_t en
 }
 
 inline uint64_t
-singleQueenPin(int queen_place, uint64_t enemy, uint64_t friendly, uint64_t enemy_king) 
+singleQueenPin(uint64_t theQueen, uint64_t enemy, uint64_t friendly, uint64_t enemy_king) 
 {
+    int queen_place = __builtin_ctzll(theQueen);
+
     int queen_rank = queen_place / 8;
     int queen_file = queen_place % 8;
 
@@ -167,12 +205,12 @@ singleQueenPin(int queen_place, uint64_t enemy, uint64_t friendly, uint64_t enem
 }
 
 inline uint64_t
-_singleRookMove(uint64_t the_ROOOOK,
-                int rook_place,
+singleRookMove(uint64_t theRook,
                 uint64_t enemy,
                 uint64_t friendly)
 {
     uint64_t attacked_squares = 0;
+    int rook_place = __builtin_ctzll(theRook);
 
     int rook_rank = rook_place / 8;
     int rook_file = rook_place % 8;
@@ -214,22 +252,15 @@ _singleRookMove(uint64_t the_ROOOOK,
     return attacked_squares;
 }
 
-inline uint64_t
-singleRookMove(int rook_place, uint64_t enemy, uint64_t friendly)
-{
-    uint64_t the_ROOOOK = 1ULL << rook_place;
-    uint64_t attacked_squares =
-        _singleRookMove(the_ROOOOK, rook_place, enemy, friendly);
-    return attacked_squares;
-}
 
 inline uint64_t
-_singleBishopMove(uint64_t the_bishop,
-                  int bishop_place,
+singleBishopMove(uint64_t the_bishop,
                   uint64_t enemy,
                   uint64_t friendly)
 {
     uint64_t attacked_squares = 0;
+
+    int bishop_place = __builtin_ctzll(the_bishop);
 
     int bishop_rank = bishop_place / 8;
     int bishop_file = bishop_place % 8;
@@ -274,16 +305,6 @@ _singleBishopMove(uint64_t the_bishop,
 
     return attacked_squares;
 }
-inline uint64_t
-singleBishopMove(int bishop_place, uint64_t enemy, uint64_t friendly)
-{
-    uint64_t the_bishop = 1ULL << bishop_place;
-
-    uint64_t attacked_squares =
-        _singleBishopMove(the_bishop, bishop_place, enemy, friendly);
-
-    return attacked_squares;
-}
 
 template<typename Function>
 uint64_t
@@ -295,7 +316,7 @@ iterateThroughBitboard(uint64_t pieces,
     uint64_t resultBitboard = 0;
     int ctz_result{ __builtin_ctzll(pieces) };
     while (pieces != 0) {
-        resultBitboard |= operation(ctz_result, enemy, friendly);
+        resultBitboard |= operation(1ULL << ctz_result, enemy, friendly);
         pieces &= (pieces - 1);
         ctz_result = __builtin_ctzll(pieces);
     }
@@ -314,7 +335,7 @@ iterateThroughBitboard_pin(uint64_t pieces,
     uint64_t resultBitboard = 0;
     int ctz_result{ __builtin_ctzll(pieces) };
     while (pieces != 0) {
-        resultBitboard |= operation(ctz_result, enemy, friendly, enemy_king);
+        resultBitboard |= operation(1ULL << ctz_result, enemy, friendly, enemy_king);
         pieces &= (pieces - 1);
         ctz_result = __builtin_ctzll(pieces);
     }
@@ -322,27 +343,6 @@ iterateThroughBitboard_pin(uint64_t pieces,
     return resultBitboard;
 }
 
-template <size_t N>
-std::pair<std::array<uint64_t, N>, std::size_t> 
-seperateBitboard(uint64_t pieces) {
-    std::array<uint64_t, N> resultSeperatedBitboard{};
-    int ctz_result{ __builtin_ctzll(pieces)};
-    size_t count {0};
-    while (pieces != 0) {
-        resultSeperatedBitboard[count] = 1ULL << ctz_result;
-        pieces &= (pieces - 1);
-        ctz_result = __builtin_ctzll(pieces);
-        ++ count;
-    }
-    return {resultSeperatedBitboard, count};
-}
-
-template <size_t Cap>
-stackStack<uint64_t, Cap>
-seperateBitboardIntoStack(uint64_t pieces) {
-    std::pair<std::array<uint64_t, Cap>, std::size_t> result = seperateBitboard<Cap>(pieces); 
-    return stackStack(result.first, result.second);
-}
 
 inline uint64_t
 rookPins(uint64_t rooks, uint64_t enemy, uint64_t friendly, uint64_t enemy_king)
@@ -361,13 +361,15 @@ bishopMove(uint64_t bishops, uint64_t enemy, uint64_t friendly)
 {
     return iterateThroughBitboard(bishops, enemy, friendly, singleBishopMove);
 }
+
+inline uint64_t 
+singleQueenMove (uint64_t queen, uint64_t enemies, uint64_t friendly) {
+    return singleRookMove(queen, enemies, friendly) | singleBishopMove(queen, enemies, friendly);
+}
+
 inline uint64_t
 queenMove(uint64_t black_queens, uint64_t enemy, uint64_t friendly)
 {
-    auto singleQueenMove = [](int count, uint64_t friendly, uint64_t enemy) {
-        return singleBishopMove(count, enemy, friendly) |
-               singleRookMove(count, enemy, friendly);
-    };
     return iterateThroughBitboard(
         black_queens, enemy, friendly, singleQueenMove);
 }

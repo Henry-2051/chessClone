@@ -15,7 +15,7 @@
 
         # devShells.default describes the default shell with C++, cmake, boost,
         # and catch2
-        devShells =
+        devShells = 
         let miscPackages = with pkgs; [
           boost
           cmake
@@ -27,7 +27,7 @@
           mesa
           libGL
           stb
-
+          
           sfml_2
           imgui
         ];
@@ -36,7 +36,7 @@
         ];
         lspAndTestPackages = with pkgs; [
           clang-tools
-          catch2
+          catch2_3
         ];
         myBuildInputs = with pkgs; [
           bashInteractive
