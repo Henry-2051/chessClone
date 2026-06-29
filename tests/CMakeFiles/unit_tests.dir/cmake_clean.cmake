@@ -1,5 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/unit_tests.dir/link.d"
+  "CMakeFiles/unit_tests.dir/__/src/chessBoard.cpp.o"
+  "CMakeFiles/unit_tests.dir/__/src/chessBoard.cpp.o.d"
   "CMakeFiles/unit_tests.dir/test_main.cpp.o"
   "CMakeFiles/unit_tests.dir/test_main.cpp.o.d"
   "unit_tests"

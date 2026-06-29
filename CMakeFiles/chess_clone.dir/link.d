@@ -2,11 +2,14 @@ bin/chess_clone: \
   /nix/store/daamdpmaz2vjvna55ccrc30qw3qb8h6d-glibc-2.40-66/lib/Scrt1.o \
   /nix/store/daamdpmaz2vjvna55ccrc30qw3qb8h6d-glibc-2.40-66/lib/crti.o \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/lib/gcc/x86_64-unknown-linux-gnu/14.3.0/crtbeginS.o \
+  CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o \
+  CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o \
   CMakeFiles/chess_clone.dir/src/main.cpp.o \
   /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/lib/libsfml-graphics.so \
   /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/lib/libsfml-window.so \
   /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/lib/libsfml-system.so \
   /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/lib/libsfml-audio.so \
+  /nix/store/a50b0mss1mfc7shghizipm8dy0w1p2dx-imgui-1.91.4-lib/lib/libimgui.a \
   /nix/store/as2rg79vk4z7frb7hy27nmadc3fp1a4j-libglvnd-1.7.0/lib/libGL.so \
   /nix/store/z7a34j3xnp66rpddayyxrxwsahxccbip-gcc-14.3.0-lib/lib/libstdc++.so \
   /nix/store/daamdpmaz2vjvna55ccrc30qw3qb8h6d-glibc-2.40-66/lib/libm.so \
@@ -82,6 +85,10 @@ bin/chess_clone: \
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/lib/gcc/x86_64-unknown-linux-gnu/14.3.0/crtbeginS.o:
 
+CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o:
+
+CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o:
+
 CMakeFiles/chess_clone.dir/src/main.cpp.o:
 
 /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/lib/libsfml-graphics.so:
@@ -91,6 +98,8 @@ CMakeFiles/chess_clone.dir/src/main.cpp.o:
 /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/lib/libsfml-system.so:
 
 /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/lib/libsfml-audio.so:
+
+/nix/store/a50b0mss1mfc7shghizipm8dy0w1p2dx-imgui-1.91.4-lib/lib/libimgui.a:
 
 /nix/store/as2rg79vk4z7frb7hy27nmadc3fp1a4j-libglvnd-1.7.0/lib/libGL.so:
 

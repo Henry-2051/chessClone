@@ -1,1 +1,0 @@
-/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/chess_clone.dir/src/main.cpp.o -o /home/henry/sync/codingProjects/learning_cpp/chessClone/bin/chess_clone  -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lGL

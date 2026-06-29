@@ -1,7 +1,19 @@
 [
 {
   "directory": "/home/quartz/sync/codingProjects/learning_cpp/chessClone",
-  "command": "/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ -DDEBUG_BUILD -I/home/quartz/sync/codingProjects/learning_cpp/chessClone/src -g -std=gnu++23 -Wall -pedantic-errors -O2 -o CMakeFiles/chess_clone.dir/src/main.cpp.o -c /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/main.cpp",
+  "command": "/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ -DDEBUG_BUILD -I/home/quartz/sync/codingProjects/learning_cpp/chessClone/src -I/home/quartz/sync/codingProjects/learning_cpp/chessClone/src/imgui-sfml -g -std=gnu++23 -Wall -pedantic-errors -O2 -o CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o -c /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/chessBoard.cpp",
+  "file": "/home/quartz/sync/codingProjects/learning_cpp/chessClone/src/chessBoard.cpp",
+  "output": "CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o"
+},
+{
+  "directory": "/home/quartz/sync/codingProjects/learning_cpp/chessClone",
+  "command": "/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ -DDEBUG_BUILD -I/home/quartz/sync/codingProjects/learning_cpp/chessClone/src -I/home/quartz/sync/codingProjects/learning_cpp/chessClone/src/imgui-sfml -g -std=gnu++23 -Wall -pedantic-errors -O2 -o CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o -c /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/imgui-sfml/imgui-SFML.cpp",
+  "file": "/home/quartz/sync/codingProjects/learning_cpp/chessClone/src/imgui-sfml/imgui-SFML.cpp",
+  "output": "CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o"
+},
+{
+  "directory": "/home/quartz/sync/codingProjects/learning_cpp/chessClone",
+  "command": "/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ -DDEBUG_BUILD -I/home/quartz/sync/codingProjects/learning_cpp/chessClone/src -I/home/quartz/sync/codingProjects/learning_cpp/chessClone/src/imgui-sfml -g -std=gnu++23 -Wall -pedantic-errors -O2 -o CMakeFiles/chess_clone.dir/src/main.cpp.o -c /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/main.cpp",
   "file": "/home/quartz/sync/codingProjects/learning_cpp/chessClone/src/main.cpp",
   "output": "CMakeFiles/chess_clone.dir/src/main.cpp.o"
 },
@@ -634,5 +646,11 @@
   "command": "/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ -DDEBUG_BUILD -DUNIT_TEST_BUILD -I/home/quartz/sync/codingProjects/learning_cpp/chessClone/src -I/home/quartz/sync/codingProjects/learning_cpp/chessClone/_deps/catch2-src/src/catch2/.. -I/home/quartz/sync/codingProjects/learning_cpp/chessClone/_deps/catch2-build/generated-includes -g -std=gnu++23 -Wall -pedantic-errors -O2 -o CMakeFiles/unit_tests.dir/test_main.cpp.o -c /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/test_main.cpp",
   "file": "/home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/test_main.cpp",
   "output": "tests/CMakeFiles/unit_tests.dir/test_main.cpp.o"
+},
+{
+  "directory": "/home/quartz/sync/codingProjects/learning_cpp/chessClone/tests",
+  "command": "/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ -DDEBUG_BUILD -DUNIT_TEST_BUILD -I/home/quartz/sync/codingProjects/learning_cpp/chessClone/src -I/home/quartz/sync/codingProjects/learning_cpp/chessClone/_deps/catch2-src/src/catch2/.. -I/home/quartz/sync/codingProjects/learning_cpp/chessClone/_deps/catch2-build/generated-includes -g -std=gnu++23 -Wall -pedantic-errors -O2 -o CMakeFiles/unit_tests.dir/__/src/chessBoard.cpp.o -c /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/chessBoard.cpp",
+  "file": "/home/quartz/sync/codingProjects/learning_cpp/chessClone/src/chessBoard.cpp",
+  "output": "tests/CMakeFiles/unit_tests.dir/__/src/chessBoard.cpp.o"
 }
 ]

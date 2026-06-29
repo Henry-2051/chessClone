@@ -3,6 +3,7 @@ unit_tests: \
   /nix/store/daamdpmaz2vjvna55ccrc30qw3qb8h6d-glibc-2.40-66/lib/crti.o \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/lib/gcc/x86_64-unknown-linux-gnu/14.3.0/crtbeginS.o \
   CMakeFiles/unit_tests.dir/test_main.cpp.o \
+  CMakeFiles/unit_tests.dir/__/src/chessBoard.cpp.o \
   ../_deps/catch2-build/src/libCatch2Maind.a \
   /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/lib/libsfml-graphics.so \
   /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/lib/libsfml-window.so \
@@ -85,6 +86,8 @@ unit_tests: \
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/lib/gcc/x86_64-unknown-linux-gnu/14.3.0/crtbeginS.o:
 
 CMakeFiles/unit_tests.dir/test_main.cpp.o:
+
+CMakeFiles/unit_tests.dir/__/src/chessBoard.cpp.o:
 
 ../_deps/catch2-build/src/libCatch2Maind.a:
 

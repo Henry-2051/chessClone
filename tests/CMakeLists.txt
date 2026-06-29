@@ -4,6 +4,7 @@ cmake_minimum_required(VERSION 3.16)
 # Create an executable for the unit tests.
 add_executable(unit_tests
   test_main.cpp
+  ../src/chessBoard.cpp
   # Add additional test source files below if necessary
   # test_module1.cpp
   # test_module2.cpp

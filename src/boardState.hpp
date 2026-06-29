@@ -5,23 +5,27 @@
 namespace board_state {
 
 enum BoardState : uint8_t{
-    WhiteTurn         = 0b000001,
-    WhiteCastledRight = 0b000010,
-    WhiteCastledLeft  = 0b000100,
-    BlackCastledRight = 0b001000,
-    BlackCastledLeft  = 0b010000,
-    HasEnPassant      = 0b100000,
+    EnPassantRight    = 0b00000010,
+    WhiteTurn         = 0b00000100,
+    WhiteLostCastlingRightsRight = 0b00001000,
+    WhiteLostCastlingRightsLeft  = 0b00010000,
+    BlacklostCastlingRightsRight = 0b00100000,
+    BlackLostCastlingRightsLeft  = 0b01000000,
+    HasEnPassant      = 0b10000000,
     VoidState         = 0
 };
 
 enum PawnState : uint8_t {
-    PawnWhiteTurn = 0b10,
-    PawnHasEnPassant = 0b01
+    PawnWhiteTurn = 0b100,
+    PawnHasEnPassant = 0b010,
+    PawnHasEnPassantRight = 0b001
 };
+
+
 
 inline uint8_t 
 mapBoardToPawnState(uint8_t boardState) {
-    return (boardState & WhiteTurn ? 0b10 : 0b00) | (boardState & HasEnPassant ? 0b01 : 0b00);
+    return (boardState & WhiteTurn ? PawnWhiteTurn : 0) | (boardState & HasEnPassant ? PawnHasEnPassant: 0) | (boardState & EnPassantRight ? PawnHasEnPassantRight : 0);
 }
 }
 

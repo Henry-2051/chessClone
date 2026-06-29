@@ -1,16 +1,18 @@
+#include <print>
 #define CATCH_CONFIG_MAIN  // This tells Catch2 to provide a main() function.
 #include <catch2/catch_test_macros.hpp>
 #include <array>
-#include <cstdint>
 #include <sys/types.h>
 #include "../src/readTextFile.hpp"
 #include "../src/algebraicChessParser.hpp"
 #include "../src/stackStack.hpp"
+#include "../src/pieceMovements.hpp"
+#include "../src/chessBoard.h"
 
 // A helper function to build a default stackStack from an std::array.
 template<typename T, std::size_t mN>
-stackStack<T, mN> makeStack(const std::array<T, mN>& arr, std::size_t topIndex) {
-    return stackStack<T, mN>(arr, topIndex);
+FastStack<T, mN> makeStack(const std::array<T, mN>& arr, std::size_t topIndex) {
+    return FastStack<T, mN>(arr, topIndex);
 }
 // A sample test case for demonstration.
 TEST_CASE("Addition works correctly, hello world", "[math]") {
@@ -97,8 +99,29 @@ TEST_CASE("Load chess game") {
     decodeChessGameBetter(game3, printCtx(PrintMode::WriteToFile, "./tests/game3Transcript.txt"));
 }
 
-TEST_CASE("test individual pawn moves") {
-    uint64_t blackPawn1 = 0x400;
-    uint64_t expectedMove1 = 0x40000;
-    uint8_t pawnState = 0b00;
+// TEST_CASE("test individual pawn moves") {
+//     uint64_t blackPawn1 = 0x400;
+//     uint64_t expectedMove1 = 0x40000;
+//     uint8_t pawnState = 0b00;
+// }
+
+TEST_CASE("Test king move for overflow / bitboard shenanigans") {
+    int king1[2] = {3,7};
+    size_t king1_bb = 1ULL << (king1[0] * 8 + king1[1]);
+    std::println("king1 initial position");
+    printBitboard(king1_bb);
+    chessBoard board{};
+    stackStack218 moveStack{};
+    board.m_white_king = king1_bb;
+    chessMoves::singleKingMove(king1_bb, board, moveStack);
+    pieceMovement king1mv{0ULL, 0ULL, PieceType::King, PieceType::King, false};
+
+    for (int i = 0; i < 5; ++i) {
+        printBitboard(moveStack.internalArray[i].movement);
+    }
+    for (const auto& mv : moveStack) {
+        king1mv = king1mv | mv;
+    }
+    std::println("king1 moves");
+    king1mv.printThis();
 }

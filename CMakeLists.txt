@@ -57,15 +57,15 @@ endif()
 # --------------------------------------------------------------------
 # Configure main executable target.
 file(GLOB SRC_FILES
-  "${CMAKE_SOURCE_DIR}/src/*.cpp")
+  "${CMAKE_SOURCE_DIR}/src/*.cpp"
   # "${CMAKE_SOURCE_DIR}/src/imgui/*.cpp"
-  # "${CMAKE_SOURCE_DIR}/src/imgui-sfml/*.cpp")
+  "${CMAKE_SOURCE_DIR}/src/imgui-sfml/*.cpp")
 
 add_executable(${PROJECT_NAME} ${SRC_FILES})
 target_include_directories(${PROJECT_NAME} PRIVATE
-  "${CMAKE_SOURCE_DIR}/src")
+  "${CMAKE_SOURCE_DIR}/src"
   # "${CMAKE_SOURCE_DIR}/src/imgui"
-  # "${CMAKE_SOURCE_DIR}/src/imgui-sfml")
+  "${CMAKE_SOURCE_DIR}/src/imgui-sfml")
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
@@ -75,6 +75,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
   sfml-window
   sfml-system
   sfml-audio
+  imgui
   GL
   )
 

@@ -36,7 +36,7 @@
         ];
         lspAndTestPackages = with pkgs; [
           clang-tools
-          catch2_3
+          catch2
         ];
         myBuildInputs = with pkgs; [
           bashInteractive

@@ -532,6 +532,30 @@ ContinuousSubmit/fast:
 	cd /home/quartz/sync/codingProjects/learning_cpp/chessClone && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/ContinuousSubmit.dir/build.make tests/CMakeFiles/ContinuousSubmit.dir/build
 .PHONY : ContinuousSubmit/fast
 
+__/src/chessBoard.o: __/src/chessBoard.cpp.o
+.PHONY : __/src/chessBoard.o
+
+# target to build an object file
+__/src/chessBoard.cpp.o:
+	cd /home/quartz/sync/codingProjects/learning_cpp/chessClone && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/unit_tests.dir/build.make tests/CMakeFiles/unit_tests.dir/__/src/chessBoard.cpp.o
+.PHONY : __/src/chessBoard.cpp.o
+
+__/src/chessBoard.i: __/src/chessBoard.cpp.i
+.PHONY : __/src/chessBoard.i
+
+# target to preprocess a source file
+__/src/chessBoard.cpp.i:
+	cd /home/quartz/sync/codingProjects/learning_cpp/chessClone && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/unit_tests.dir/build.make tests/CMakeFiles/unit_tests.dir/__/src/chessBoard.cpp.i
+.PHONY : __/src/chessBoard.cpp.i
+
+__/src/chessBoard.s: __/src/chessBoard.cpp.s
+.PHONY : __/src/chessBoard.s
+
+# target to generate assembly for a file
+__/src/chessBoard.cpp.s:
+	cd /home/quartz/sync/codingProjects/learning_cpp/chessClone && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/unit_tests.dir/build.make tests/CMakeFiles/unit_tests.dir/__/src/chessBoard.cpp.s
+.PHONY : __/src/chessBoard.cpp.s
+
 test_main.o: test_main.cpp.o
 .PHONY : test_main.o
 
@@ -594,6 +618,9 @@ help:
 	@echo "... NightlyTest"
 	@echo "... NightlyUpdate"
 	@echo "... unit_tests"
+	@echo "... __/src/chessBoard.o"
+	@echo "... __/src/chessBoard.i"
+	@echo "... __/src/chessBoard.s"
 	@echo "... test_main.o"
 	@echo "... test_main.i"
 	@echo "... test_main.s"

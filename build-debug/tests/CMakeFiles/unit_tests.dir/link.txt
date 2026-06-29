@@ -1,1 +1,0 @@
-/usr/bin/c++ -g CMakeFiles/unit_tests.dir/test_main.cpp.o -o unit_tests  ../_deps/catch2-build/src/libCatch2Maind.a -lsfml-graphics -lsfml-window -lsfml-system -lsfml-audio -lGL ../_deps/catch2-build/src/libCatch2d.a

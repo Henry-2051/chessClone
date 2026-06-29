@@ -555,6 +555,54 @@ ContinuousSubmit/fast:
 	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/ContinuousSubmit.dir/build.make tests/CMakeFiles/ContinuousSubmit.dir/build
 .PHONY : ContinuousSubmit/fast
 
+src/chessBoard.o: src/chessBoard.cpp.o
+.PHONY : src/chessBoard.o
+
+# target to build an object file
+src/chessBoard.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_clone.dir/build.make CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o
+.PHONY : src/chessBoard.cpp.o
+
+src/chessBoard.i: src/chessBoard.cpp.i
+.PHONY : src/chessBoard.i
+
+# target to preprocess a source file
+src/chessBoard.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_clone.dir/build.make CMakeFiles/chess_clone.dir/src/chessBoard.cpp.i
+.PHONY : src/chessBoard.cpp.i
+
+src/chessBoard.s: src/chessBoard.cpp.s
+.PHONY : src/chessBoard.s
+
+# target to generate assembly for a file
+src/chessBoard.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_clone.dir/build.make CMakeFiles/chess_clone.dir/src/chessBoard.cpp.s
+.PHONY : src/chessBoard.cpp.s
+
+src/imgui-sfml/imgui-SFML.o: src/imgui-sfml/imgui-SFML.cpp.o
+.PHONY : src/imgui-sfml/imgui-SFML.o
+
+# target to build an object file
+src/imgui-sfml/imgui-SFML.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_clone.dir/build.make CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o
+.PHONY : src/imgui-sfml/imgui-SFML.cpp.o
+
+src/imgui-sfml/imgui-SFML.i: src/imgui-sfml/imgui-SFML.cpp.i
+.PHONY : src/imgui-sfml/imgui-SFML.i
+
+# target to preprocess a source file
+src/imgui-sfml/imgui-SFML.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_clone.dir/build.make CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.i
+.PHONY : src/imgui-sfml/imgui-SFML.cpp.i
+
+src/imgui-sfml/imgui-SFML.s: src/imgui-sfml/imgui-SFML.cpp.s
+.PHONY : src/imgui-sfml/imgui-SFML.s
+
+# target to generate assembly for a file
+src/imgui-sfml/imgui-SFML.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_clone.dir/build.make CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.s
+.PHONY : src/imgui-sfml/imgui-SFML.cpp.s
+
 src/main.o: src/main.cpp.o
 .PHONY : src/main.o
 
@@ -621,6 +669,12 @@ help:
 	@echo "... Catch2WithMain"
 	@echo "... chess_clone"
 	@echo "... unit_tests"
+	@echo "... src/chessBoard.o"
+	@echo "... src/chessBoard.i"
+	@echo "... src/chessBoard.s"
+	@echo "... src/imgui-sfml/imgui-SFML.o"
+	@echo "... src/imgui-sfml/imgui-SFML.i"
+	@echo "... src/imgui-sfml/imgui-SFML.s"
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
