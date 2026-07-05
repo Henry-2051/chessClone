@@ -331,7 +331,6 @@ CMakeFiles/chess_clone.dir/src/main.cpp.o: \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/utility \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_relops.h \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/pieceMovements.hpp \
- /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/stackStack.hpp \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/functional \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/std_function.h \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/unordered_map \
@@ -343,6 +342,7 @@ CMakeFiles/chess_clone.dir/src/main.cpp.o: \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/erase_if.h \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/move_only_function.h \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/mofunc_impl.h \
+ /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/stackStack.hpp \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ranges \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/elements_of.h \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/iostream \

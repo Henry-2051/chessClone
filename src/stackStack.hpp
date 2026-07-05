@@ -182,6 +182,13 @@ struct FastStack
         return result;
     };
 
+    T peek() const {
+        if (currentNumberItems == 0) {
+            throw std::logic_error("trying to peek a stack which has no elements, nothing to see here");
+        }
+        return internalArray[currentNumberItems-1];
+    }
+
     FastStack<T, mN>& push(T value) {
         if (currentNumberItems == mN) { throw std::overflow_error("stack overflow, trying to push while at capacity"); }
         internalArray[currentNumberItems] = value;
@@ -205,8 +212,12 @@ struct FastStack
         return pushItems(itemsStack.internalArray, itemsStack.currentNumberItems);
     }
 
-    bool isEmpty() {
+    bool isEmpty() const {
         return currentNumberItems == 0;
+    }
+
+    size_t numitems() const {
+        return currentNumberItems;
     }
 
     T& top() {
