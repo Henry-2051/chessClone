@@ -468,6 +468,7 @@ CMakeFiles/chess_clone.dir/src/main.cpp.o
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/main.cpp
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/boardState.hpp
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/chessBoard.h
+ /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/chessBoardMovegenSharedDatatypes.h
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/imgui-sfml/imgui-SFML.h
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/imgui-sfml/imgui-SFML_export.h
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/loadChessAssets.hpp

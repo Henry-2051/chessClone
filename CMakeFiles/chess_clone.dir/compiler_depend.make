@@ -465,6 +465,7 @@ CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o: src/imgui-sfml/imgui
 CMakeFiles/chess_clone.dir/src/main.cpp.o: src/main.cpp \
   src/boardState.hpp \
   src/chessBoard.h \
+  src/chessBoardMovegenSharedDatatypes.h \
   src/imgui-sfml/imgui-SFML.h \
   src/imgui-sfml/imgui-SFML_export.h \
   src/loadChessAssets.hpp \
@@ -1069,8 +1070,6 @@ CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types/__sigval_t.h:
 
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/ss_flags.h:
-
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/sigthread.h:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/sigstksz.h:
@@ -1092,6 +1091,10 @@ src/seperateBitboard.hpp:
 src/nanosvg/src/nanosvgrast.h:
 
 src/loadChessAssets.hpp:
+
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/ss_flags.h:
+
+src/chessBoardMovegenSharedDatatypes.h:
 
 /nix/store/zxd9sjrf10s65hfxrb08027bajplg5ks-libglvnd-1.7.0-dev/include/KHR/khrplatform.h:
 

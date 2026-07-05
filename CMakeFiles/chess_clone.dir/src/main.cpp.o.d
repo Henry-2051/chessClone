@@ -351,6 +351,7 @@ CMakeFiles/chess_clone.dir/src/main.cpp.o: \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/seperateBitboard.hpp \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/boardState.hpp \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/chessBoard.h \
+ /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/chessBoardMovegenSharedDatatypes.h \
  /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Graphics.hpp \
  /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Window.hpp \
  /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/System.hpp \

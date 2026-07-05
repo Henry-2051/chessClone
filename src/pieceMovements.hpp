@@ -12,6 +12,7 @@
 #include "stackStack.hpp"
 #include "boardState.hpp"
 #include "chessBoard.h"
+#include "chessBoardMovegenSharedDatatypes.h"
 
 namespace chessMoves {
 namespace innerMachinations {
@@ -520,62 +521,71 @@ inline uint64_t singleKnightMove(uint64_t knight, const chessBoard& board, const
     return attacked_squares;
 }
 
-inline FastStack<uint64_t, 2> calculateChecks(bool isWhiteTheColorBeingChecked, const chessBoard& board) {
+// we can pass in the sliding piece attacks since we now know this function will only be ran once per turn due to simply not generating moves that end with us in check
+// passing in the sliding piece attacks saves on computation, limiting the number of sliding piece calculations we need to perform
+inline FastStack<uint64_t, 2> calculateChecks(bool isWhiteTheColorBeingChecked, const chessBoard& board, const FastStack<uint64_t, 10>& enemyRookAttacks, 
+        const FastStack<uint64_t, 10>& enemyBishopAttacks, const FastStack<QueenAttackDeconstruction, 9>& enemyQueenAttacks) {
     uint64_t king_possibly_checked = isWhiteTheColorBeingChecked ? board.m_white_king : board.m_black_king;
     uint64_t enemies = isWhiteTheColorBeingChecked ? board.blackPieces() : board.whitePieces();
     uint64_t friendly = isWhiteTheColorBeingChecked ? board.whitePieces() : board.blackPieces();
 
     uint64_t enemyPawns = isWhiteTheColorBeingChecked ? board.m_black_pawns : board.m_white_pawns;
-
+    uint64_t kingSeesLikePawn = isWhiteTheColorBeingChecked ? innerMachinations::generateSimpleWhitePawnCaptureNoTeleport(king_possibly_checked, enemyPawns) : innerMachinations::generateSimpleBlackPawnCaptureNoTeleport(king_possibly_checked, enemyPawns); 
     uint64_t kingScanRayBishopLike = singleBihopMoveNoPinOrCheck_forLoop(king_possibly_checked, enemies, friendly);
     uint64_t kingScanRayRookLike = singleRookMoveNoPinOrCheck_forLoop(king_possibly_checked, enemies, friendly);
-    uint64_t kingSeesLikePawn = isWhiteTheColorBeingChecked ? innerMachinations::generateSimpleWhitePawnCaptureNoTeleport(king_possibly_checked, enemyPawns) : innerMachinations::generateSimpleBlackPawnCaptureNoTeleport(king_possibly_checked, enemyPawns); 
     uint64_t kingSeesLikeKnight = generateKnightMovesNoPinCheckTeleport(king_possibly_checked, friendly);
 
     FastStack<uint64_t, 2> checks {};
 
-    uint64_t enemyRooks = isWhiteTheColorBeingChecked ? board.m_black_rooks : board.m_white_rooks;
-    uint64_t enemyBishops = isWhiteTheColorBeingChecked ? board.m_black_bishops : board.m_white_bishops;
-    uint64_t enemyQueens = isWhiteTheColorBeingChecked ? board.m_black_queens : board.m_white_queens;
-    uint64_t enemyKnights = isWhiteTheColorBeingChecked ? board.m_black_knights : board.m_white_knights;
 
     if (kingSeesLikePawn & enemyPawns) {
         checks.push(kingSeesLikePawn & enemyPawns);
     }
 
+    uint64_t enemyKnights = isWhiteTheColorBeingChecked ? board.m_black_knights : board.m_white_knights;
     if (kingSeesLikeKnight & enemyKnights) {
         // we cant be double checked by 2 knights since this would require a discovery and knights cant be blocked 
         checks.push(kingSeesLikeKnight & enemyKnights);
     }
 
     // its still check if the enemy piece is pinned, since checkmate is capturing the opponents king even through this capture is never played
-    uint64_t checkingRook {kingScanRayRookLike & enemyRooks};
-    if (checkingRook) {
-        // we cant have a double check by 2 rooks, there simply isnt a way to move a rook to check and also uncover a check by another rook
-        uint64_t rookAttackedSquares = singleRookMoveNoPinOrCheck_forLoop(checkingRook, king_possibly_checked, enemies) | (checkingRook);
-        checks.push((rookAttackedSquares & kingScanRayRookLike) | (kingScanRayRookLike & enemyRooks)); // its important to add the checking rook to allow the defending pieces to capture it
+    
+    uint64_t enemyRooks = isWhiteTheColorBeingChecked ? board.m_black_rooks : board.m_white_rooks;
+    if (kingScanRayRookLike & enemyRooks) {
+        for (uint64_t attack : enemyRookAttacks) {
+            if (attack & king_possibly_checked) {
+                checks.push((attack & kingScanRayRookLike) | (kingScanRayRookLike & enemyRooks));
+                break;
+            }
+        }
     }
 
-    // same as for the rooks, if we are on a diagonal with a king then we need two moves to check from another diagonal
-    uint64_t checkingBishop {kingScanRayBishopLike & enemyBishops};
-    if (checkingBishop) {
-        uint64_t bishopAttackedSquares = singleBihopMoveNoPinOrCheck_forLoop(checkingBishop, king_possibly_checked, enemies) | checkingBishop;
-        checks.push((bishopAttackedSquares & kingScanRayBishopLike) | (kingScanRayBishopLike & enemyBishops));
+    // same as for the rooks, if we are on a diagonal with a king then we need two moves to check from another diagonal therefore we cant have 2 bishop checks
+    uint64_t enemyBishops = isWhiteTheColorBeingChecked ? board.m_black_bishops : board.m_white_bishops;
+    if (kingScanRayBishopLike & enemyBishops) {
+        for (uint64_t attack : enemyBishopAttacks) {
+            if (attack & king_possibly_checked) {
+                checks.push((attack & kingScanRayBishopLike) | (kingScanRayBishopLike & enemyBishops));
+                break;
+            }
+        }
     }
-
 
     uint64_t kingScanRayQueenLike = kingScanRayBishopLike | kingScanRayRookLike;
+    uint64_t enemyQueens = isWhiteTheColorBeingChecked ? board.m_black_queens : board.m_white_queens;
     if (kingScanRayQueenLike & enemyQueens) {
-        FastStack checkingQueens = FastStack(seperateBitboard<2>(kingScanRayQueenLike & enemyQueens));
-        for (uint64_t cQ : checkingQueens) {
-            uint64_t cQAttackBishop = singleBihopMoveNoPinOrCheck_forLoop(cQ, king_possibly_checked, enemies) | cQ;
-            uint64_t cQAttackRook = singleRookMoveNoPinOrCheck_forLoop(cQ, king_possibly_checked, enemies) | cQ;
+        for (const QueenAttackDeconstruction& attack : enemyQueenAttacks) {
+            // it is important to deconstruct the attack like this or we may move a defending piece to any spot where the rays intersect instead of only being able to block and capture 
+            uint64_t rookCheckLineWithCapture = (attack.rookLikeAttack | attack.queenPiece) & kingScanRayRookLike;
+            uint64_t bishopCheckLineWithCapture = (attack.bishopLikeAttack | attack.queenPiece) & kingScanRayBishopLike;
 
-            if (cQAttackBishop & kingScanRayBishopLike) {
-                checks.push(cQAttackBishop & kingScanRayBishopLike);
+            if (rookCheckLineWithCapture) 
+            {
+                checks.push(rookCheckLineWithCapture);
             } 
-            else if (cQAttackRook & kingScanRayRookLike) {
-                checks.push(cQAttackRook & kingScanRayRookLike);
+            else if (bishopCheckLineWithCapture) 
+            {
+                checks.push(bishopCheckLineWithCapture);
             }
         }
     }

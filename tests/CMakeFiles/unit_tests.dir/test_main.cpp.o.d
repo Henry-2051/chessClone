@@ -362,4 +362,5 @@ tests/CMakeFiles/unit_tests.dir/test_main.cpp.o: \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/../src/internalMoveRepresentation.hpp \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/../src/stackStack.hpp \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/../src/pieceMovements.hpp \
- /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/../src/chessBoard.h
+ /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/../src/chessBoard.h \
+ /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/../src/chessBoardMovegenSharedDatatypes.h

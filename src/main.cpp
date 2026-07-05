@@ -31,6 +31,7 @@
 #include "loadChessAssets.hpp"
 #include "boardState.hpp"
 #include "chessBoard.h"
+#include "chessBoardMovegenSharedDatatypes.h"
 
 
 enum PieceColor : bool {
@@ -93,6 +94,9 @@ stackStack218 makeAllMoves(const chessBoard& boardInput) {
 
     FastStack<uint64_t, 13> pinsEmpty {};
     FastStack<uint64_t, 2> checksEmpty {};
+    FastStack<uint64_t, 10> enemyRookAttacks_forCheckCalc {};
+    FastStack<uint64_t, 10> enemyBishopAttacks_forCheckCalc {};
+    FastStack<QueenAttackDeconstruction, 9> enemyQueenAttacks_forCheckCalc {};
 
     // this whole block of code is to generate an enemy attack bitboard 
     board.m_board_state ^= xor_reversible_transformation;
@@ -112,16 +116,29 @@ stackStack218 makeAllMoves(const chessBoard& boardInput) {
                     break;
                 case (1):
                     attack = chessMoves::singleRookMoveNoPinOrCheck_forLoop(piece, enemies_inner, friendly_inner);
+                    if (attack) {
+                        enemyRookAttacks_forCheckCalc.push(attack);
+                    }
                     break;
                 case (2):
                     attack = chessMoves::generateKnightMovesNoPinCheckTeleport(piece, friendly_inner);
                     break;
                 case (3):
                     attack = chessMoves::singleBihopMoveNoPinOrCheck_forLoop(piece, enemies_inner, friendly_inner);
+                    if (attack) {
+                        enemyBishopAttacks_forCheckCalc.push(attack);
+                    }
                     break;
                 case (4):
-                    attack = chessMoves::singleRookMoveNoPinOrCheck_forLoop(piece, enemies_inner, friendly_inner) | chessMoves::singleBihopMoveNoPinOrCheck_forLoop(piece, enemies_inner, friendly_inner);
+                    {
+                    uint64_t attack_rooklike = chessMoves::singleRookMoveNoPinOrCheck_forLoop(piece, enemies_inner, friendly_inner);
+                    uint64_t attack_bishoplike = chessMoves::singleBihopMoveNoPinOrCheck_forLoop(piece, enemies_inner, friendly_inner);
+                    attack = attack_rooklike | attack_bishoplike;
+                    if (attack) {
+                        enemyQueenAttacks_forCheckCalc.push(QueenAttackDeconstruction{attack_rooklike, attack_bishoplike, piece});
+                    }
                     break;
+                    }
                 case (5):
                     attack = chessMoves::dummyKingMoveGenerationNoTeleportation(piece, friendly_inner);
                     break;
@@ -139,7 +156,7 @@ stackStack218 makeAllMoves(const chessBoard& boardInput) {
         printBitboard(pin);
     }
 
-    FastStack<uint64_t, 2> checkingAttacks = chessMoves::calculateChecks(isWhiteTurn, board);
+    FastStack<uint64_t, 2> checkingAttacks = chessMoves::calculateChecks(isWhiteTurn, board, enemyRookAttacks_forCheckCalc, enemyBishopAttacks_forCheckCalc, enemyQueenAttacks_forCheckCalc);
 
     for (auto check : checkingAttacks) {
         std::println("checks for this move");

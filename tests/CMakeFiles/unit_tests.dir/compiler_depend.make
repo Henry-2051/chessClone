@@ -130,6 +130,7 @@ tests/CMakeFiles/unit_tests.dir/test_main.cpp.o: tests/test_main.cpp \
   src/algebraicChessParser.hpp \
   src/boardState.hpp \
   src/chessBoard.h \
+  src/chessBoardMovegenSharedDatatypes.h \
   src/internalMoveRepresentation.hpp \
   src/pieceMovements.hpp \
   src/readTextFile.hpp \
@@ -645,8 +646,6 @@ _deps/catch2-build/src/libCatch2Maind.a:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ios:
 
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/iomanip:
-
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/functional:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/fstream:
@@ -738,10 +737,6 @@ _deps/catch2-build/src/libCatch2Maind.a:
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/locale_classes.h:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/hashtable_policy.h:
-
-src/internalMoveRepresentation.hpp:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/fs_fwd.h:
 
 _deps/catch2-src/src/catch2/internal/catch_test_registry.hpp:
 
@@ -1047,11 +1042,17 @@ _deps/catch2-src/src/catch2/internal/catch_test_failure_exception.hpp:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types/wint_t.h:
 
-_deps/catch2-src/src/catch2/internal/catch_reusable_string_stream.hpp:
-
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/fstream.tcc:
 
+_deps/catch2-src/src/catch2/internal/catch_reusable_string_stream.hpp:
+
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/array:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/iomanip:
+
+src/chessBoardMovegenSharedDatatypes.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_iterator_base_funcs.h:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/stdint-least.h:
 
@@ -1068,8 +1069,6 @@ _deps/catch2-src/src/catch2/internal/catch_reusable_string_stream.hpp:
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/range_access.h:
 
 src/chessBoard.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_iterator_base_funcs.h:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/refwrap.h:
 
@@ -1104,6 +1103,10 @@ _deps/catch2-src/src/catch2/internal/catch_config_counter.hpp:
 _deps/catch2-src/src/catch2/internal/catch_logical_traits.hpp:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_pair.h:
+
+src/internalMoveRepresentation.hpp:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/fs_fwd.h:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types/struct_timeval.h:
 
