@@ -351,6 +351,7 @@ tests/CMakeFiles/unit_tests.dir/test_main.cpp.o: \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/elements_of.h \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/../src/seperateBitboard.hpp \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/../src/boardState.hpp \
+ /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/../src/helpers.hpp \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/algorithm \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/ranges_algo.h \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/pstl/glue_algorithm_defs.h \

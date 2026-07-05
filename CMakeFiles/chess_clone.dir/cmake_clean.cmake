@@ -6,6 +6,8 @@ file(REMOVE_RECURSE
   "CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o.d"
   "CMakeFiles/chess_clone.dir/src/main.cpp.o"
   "CMakeFiles/chess_clone.dir/src/main.cpp.o.d"
+  "CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.o"
+  "CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.o.d"
   "bin/chess_clone"
   "bin/chess_clone.pdb"
 )

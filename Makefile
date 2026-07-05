@@ -627,6 +627,30 @@ src/main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_clone.dir/build.make CMakeFiles/chess_clone.dir/src/main.cpp.s
 .PHONY : src/main.cpp.s
 
+src/pieceMovements.o: src/pieceMovements.cpp.o
+.PHONY : src/pieceMovements.o
+
+# target to build an object file
+src/pieceMovements.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_clone.dir/build.make CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.o
+.PHONY : src/pieceMovements.cpp.o
+
+src/pieceMovements.i: src/pieceMovements.cpp.i
+.PHONY : src/pieceMovements.i
+
+# target to preprocess a source file
+src/pieceMovements.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_clone.dir/build.make CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.i
+.PHONY : src/pieceMovements.cpp.i
+
+src/pieceMovements.s: src/pieceMovements.cpp.s
+.PHONY : src/pieceMovements.s
+
+# target to generate assembly for a file
+src/pieceMovements.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_clone.dir/build.make CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.s
+.PHONY : src/pieceMovements.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -678,6 +702,9 @@ help:
 	@echo "... src/main.o"
 	@echo "... src/main.i"
 	@echo "... src/main.s"
+	@echo "... src/pieceMovements.o"
+	@echo "... src/pieceMovements.i"
+	@echo "... src/pieceMovements.s"
 .PHONY : help
 
 

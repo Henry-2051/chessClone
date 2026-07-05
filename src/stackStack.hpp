@@ -1,5 +1,6 @@
 // #include <algorithm>
 #include <array>
+#include <print>
 #include <cstdint>
 #include <format>
 #include <functional>
@@ -11,6 +12,7 @@
 #include <iostream>
 #include "seperateBitboard.hpp"
 #include "boardState.hpp"
+#include "helpers.hpp"
 
 
 #ifndef stack_stack
@@ -59,19 +61,6 @@ enum IsCapture : uint8_t {
 };
 
 
-inline void printBitboard(uint64_t bitboard) {
-    std::cout << "0-=-=-=-=-=-=-7\n";
-    for (int rank = 0; rank <= 7; ++rank) {     // ranks from 0 (black) to 7 (white)
-        for (int file = 0; file <= 7; ++file) { // files from 0 (left) to 7 (right)
-            int squareIndex = rank * 8 + file; // bit index from 0 (LSB) to 63 (MSB)
-            // Use mask to check bit; bit 0 at LSB
-            uint64_t mask = 1ULL << squareIndex;
-            std::cout << ((bitboard & mask) ? '#' : '.') << ' ';
-        }
-        std::cout << "\n";
-    }
-    std::cout << "56-=-=-=-=-=-63\n";
-}
 
 struct pieceMovement {
     uint64_t  movement;
@@ -112,11 +101,11 @@ struct pieceMovement {
     void printThis() const {
         std::cout << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n";
         std::cout << std::format("pieceType : {}\n", getPieceTypeString(this->pieceType));
-        printBitboard(this->movement);
+        helpers::printBitboard(this->movement);
 
         if (this->has_second_movement) {
             std::cout << std::format("second pieceType : {}\n", getPieceTypeString(this->secondPieceType));
-            printBitboard(this->second_optional_movement);
+            helpers::printBitboard(this->second_optional_movement);
         }
 
         std::cout << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n";
@@ -128,11 +117,11 @@ struct pieceMovement {
 inline void printCustomStruct(const pieceMovement& movement) {
     std::cout << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n";
     std::cout << std::format("pieceType : {}\n", getPieceTypeString(movement.pieceType));
-    printBitboard(movement.movement);
+    helpers::printBitboard(movement.movement);
 
     if (movement.has_second_movement) {
         std::cout << std::format("second pieceType : {}\n", getPieceTypeString(movement.secondPieceType));
-        printBitboard(movement.second_optional_movement);
+        helpers::printBitboard(movement.second_optional_movement);
     }
 
     std::cout << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n";
@@ -244,6 +233,21 @@ struct FastStack
 };
 
 using stackStack218 = FastStack<pieceMovement, 218>;
+
+template<size_t N>
+void addAttacksToStack218(uint64_t piece, uint64_t attacked_squares, PieceType typeofPiece, stackStack218& moveStack) {
+    if (std::popcount(attacked_squares) > N) {
+        std::println("popcount : {}", std::popcount(attacked_squares));
+        std::println("type of piece: {}", getPieceTypeString(typeofPiece));
+        helpers::printBitboard(attacked_squares);
+        throw std::logic_error("trying to seperate a bitboard with more items than the array size");
+    }
+    auto [moves, num_moves] = seperateBitboard<N>(attacked_squares);
+    for (size_t i = 0; i < num_moves; ++i) {
+        moveStack.push({moves[i] | piece, 0, typeofPiece, PieceType::King, false});
+    }
+}
+
 
 struct singleColorChessMoveStack : stackStack218 {
     uint64_t attacked_squares{};

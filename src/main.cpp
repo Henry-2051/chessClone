@@ -27,9 +27,8 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
-#include "maybeResult.hpp"
+// #include "maybeResult.hpp"
 #include "loadChessAssets.hpp"
-#include "boardState.hpp"
 #include "chessBoard.h"
 #include "chessBoardMovegenSharedDatatypes.h"
 
@@ -112,7 +111,7 @@ stackStack218 makeAllMoves(const chessBoard& boardInput) {
             uint64_t occupied_inner = friendly_inner | enemies_inner;
             switch (i) {
                 case (0):
-                    attack = isWhiteTurnInner ? chessMoves::innerMachinations::generateSimpleWhitePawnCaptureNoTeleport(piece, occupied_inner) : chessMoves::innerMachinations::generateSimpleBlackPawnCaptureNoTeleport(piece, occupied_inner);
+                    attack = isWhiteTurnInner ? chessMoves::generateSimpleWhitePawnCaptureNoTeleport(piece, occupied_inner) : chessMoves::generateSimpleBlackPawnCaptureNoTeleport(piece, occupied_inner);
                     break;
                 case (1):
                     attack = chessMoves::singleRookMoveNoPinOrCheck_forLoop(piece, enemies_inner, friendly_inner);
@@ -153,14 +152,14 @@ stackStack218 makeAllMoves(const chessBoard& boardInput) {
     FastStack<uint64_t, 13> pinLines = chessMoves::calculate_pin_lines(board);
     for (auto pin : pinLines) {
         std::println("pins for this move");
-        printBitboard(pin);
+        helpers::printBitboard(pin);
     }
 
     FastStack<uint64_t, 2> checkingAttacks = chessMoves::calculateChecks(isWhiteTurn, board, enemyRookAttacks_forCheckCalc, enemyBishopAttacks_forCheckCalc, enemyQueenAttacks_forCheckCalc);
 
     for (auto check : checkingAttacks) {
         std::println("checks for this move");
-        printBitboard(check);
+        helpers::printBitboard(check);
     }
 
     uint8_t pawnState = board_state::mapBoardToPawnState(board.m_board_state);
@@ -194,7 +193,7 @@ stackStack218 makeAllMoves(const chessBoard& boardInput) {
             }
 
             if (i == 0) {
-                chessMoves::innerMachinations::addAttacksToStack218<4>(piece, std::get<uint64_t>(pawnRet), PieceType{i}, moveStack);
+                addAttacksToStack218<4>(piece, std::get<uint64_t>(pawnRet), PieceType{i}, moveStack);
                 if(std::get<std::optional<uint64_t>>(pawnRet).has_value()) {
                     std::cout << "pawn promotion detected!!" << std::endl;
 
@@ -208,9 +207,9 @@ stackStack218 makeAllMoves(const chessBoard& boardInput) {
                     moveStack.push(std::get<std::optional<pieceMovement>>(pawnRet).value());
                 }
             } else if (i > 0 && i < 5) {
-                chessMoves::innerMachinations::addAttacksToStack218<27>(piece, normalRet, PieceType{i}, moveStack);
+                addAttacksToStack218<27>(piece, normalRet, PieceType{i}, moveStack);
             } else {
-                chessMoves::innerMachinations::addAttacksToStack218<8>(piece, kingRet.first, PieceType{i}, moveStack);
+                addAttacksToStack218<8>(piece, kingRet.first, PieceType{i}, moveStack);
                 
                 const auto& pair_opts = kingRet.second;
                 if(pair_opts.first.has_value()) {

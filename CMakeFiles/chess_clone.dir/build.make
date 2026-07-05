@@ -72,10 +72,24 @@ include CMakeFiles/chess_clone.dir/flags.make
 CMakeFiles/chess_clone.dir/codegen:
 .PHONY : CMakeFiles/chess_clone.dir/codegen
 
+CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.o: CMakeFiles/chess_clone.dir/flags.make
+CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.o: src/pieceMovements.cpp
+CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.o: CMakeFiles/chess_clone.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/quartz/sync/codingProjects/learning_cpp/chessClone/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.o"
+	/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.o -MF CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.o.d -o CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.o -c /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/pieceMovements.cpp
+
+CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.i"
+	/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/pieceMovements.cpp > CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.i
+
+CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.s"
+	/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/pieceMovements.cpp -o CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.s
+
 CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o: CMakeFiles/chess_clone.dir/flags.make
 CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o: src/chessBoard.cpp
 CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o: CMakeFiles/chess_clone.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/quartz/sync/codingProjects/learning_cpp/chessClone/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/quartz/sync/codingProjects/learning_cpp/chessClone/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o"
 	/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o -MF CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o.d -o CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o -c /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/chessBoard.cpp
 
 CMakeFiles/chess_clone.dir/src/chessBoard.cpp.i: cmake_force
@@ -85,20 +99,6 @@ CMakeFiles/chess_clone.dir/src/chessBoard.cpp.i: cmake_force
 CMakeFiles/chess_clone.dir/src/chessBoard.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/chess_clone.dir/src/chessBoard.cpp.s"
 	/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/chessBoard.cpp -o CMakeFiles/chess_clone.dir/src/chessBoard.cpp.s
-
-CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o: CMakeFiles/chess_clone.dir/flags.make
-CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o: src/imgui-sfml/imgui-SFML.cpp
-CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o: CMakeFiles/chess_clone.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/quartz/sync/codingProjects/learning_cpp/chessClone/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o"
-	/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o -MF CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o.d -o CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o -c /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/imgui-sfml/imgui-SFML.cpp
-
-CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.i"
-	/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/imgui-sfml/imgui-SFML.cpp > CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.i
-
-CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.s"
-	/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/imgui-sfml/imgui-SFML.cpp -o CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.s
 
 CMakeFiles/chess_clone.dir/src/main.cpp.o: CMakeFiles/chess_clone.dir/flags.make
 CMakeFiles/chess_clone.dir/src/main.cpp.o: src/main.cpp
@@ -114,22 +114,38 @@ CMakeFiles/chess_clone.dir/src/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/chess_clone.dir/src/main.cpp.s"
 	/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/main.cpp -o CMakeFiles/chess_clone.dir/src/main.cpp.s
 
+CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o: CMakeFiles/chess_clone.dir/flags.make
+CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o: src/imgui-sfml/imgui-SFML.cpp
+CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o: CMakeFiles/chess_clone.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/quartz/sync/codingProjects/learning_cpp/chessClone/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o"
+	/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o -MF CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o.d -o CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o -c /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/imgui-sfml/imgui-SFML.cpp
+
+CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.i"
+	/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/imgui-sfml/imgui-SFML.cpp > CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.i
+
+CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.s"
+	/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/imgui-sfml/imgui-SFML.cpp -o CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.s
+
 # Object files for target chess_clone
 chess_clone_OBJECTS = \
+"CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.o" \
 "CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o" \
-"CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o" \
-"CMakeFiles/chess_clone.dir/src/main.cpp.o"
+"CMakeFiles/chess_clone.dir/src/main.cpp.o" \
+"CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o"
 
 # External object files for target chess_clone
 chess_clone_EXTERNAL_OBJECTS =
 
+bin/chess_clone: CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.o
 bin/chess_clone: CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o
-bin/chess_clone: CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o
 bin/chess_clone: CMakeFiles/chess_clone.dir/src/main.cpp.o
+bin/chess_clone: CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o
 bin/chess_clone: CMakeFiles/chess_clone.dir/build.make
 bin/chess_clone: CMakeFiles/chess_clone.dir/compiler_depend.ts
 bin/chess_clone: CMakeFiles/chess_clone.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/quartz/sync/codingProjects/learning_cpp/chessClone/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable bin/chess_clone"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/quartz/sync/codingProjects/learning_cpp/chessClone/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable bin/chess_clone"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/chess_clone.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

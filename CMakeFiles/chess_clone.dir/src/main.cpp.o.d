@@ -350,6 +350,7 @@ CMakeFiles/chess_clone.dir/src/main.cpp.o: \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/istream.tcc \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/seperateBitboard.hpp \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/boardState.hpp \
+ /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/helpers.hpp \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/chessBoard.h \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/chessBoardMovegenSharedDatatypes.h \
  /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Graphics.hpp \
@@ -390,7 +391,6 @@ CMakeFiles/chess_clone.dir/src/main.cpp.o: \
  /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Graphics/Glsl.inl \
  /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Graphics/Text.hpp \
  /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Graphics/VertexBuffer.hpp \
- /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/maybeResult.hpp \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/loadChessAssets.hpp \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/nanosvg/src/nanosvg.h \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/stdlib.h \
@@ -420,4 +420,5 @@ CMakeFiles/chess_clone.dir/src/main.cpp.o: \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/tr1/poly_laguerre.tcc \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/tr1/riemann_zeta.tcc \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/nanosvg/src/nanosvgrast.h \
- /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/nanosvg/src/nanosvg.h
+ /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/nanosvg/src/nanosvg.h \
+ /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/maybeResult.hpp

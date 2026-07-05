@@ -11,6 +11,7 @@ set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/quartz/sync/codingProjects/learning_cpp/chessClone/src/chessBoard.cpp" "CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o" "gcc" "CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o.d"
   "/home/quartz/sync/codingProjects/learning_cpp/chessClone/src/imgui-sfml/imgui-SFML.cpp" "CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o" "gcc" "CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o.d"
   "/home/quartz/sync/codingProjects/learning_cpp/chessClone/src/main.cpp" "CMakeFiles/chess_clone.dir/src/main.cpp.o" "gcc" "CMakeFiles/chess_clone.dir/src/main.cpp.o.d"
+  "/home/quartz/sync/codingProjects/learning_cpp/chessClone/src/pieceMovements.cpp" "CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.o" "gcc" "CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.o.d"
   "" "bin/chess_clone" "gcc" "CMakeFiles/chess_clone.dir/link.d"
   )
 

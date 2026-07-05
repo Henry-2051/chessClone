@@ -100,22 +100,38 @@ tests/CMakeFiles/unit_tests.dir/__/src/chessBoard.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/unit_tests.dir/__/src/chessBoard.cpp.s"
 	cd /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests && /nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/chessBoard.cpp -o CMakeFiles/unit_tests.dir/__/src/chessBoard.cpp.s
 
+tests/CMakeFiles/unit_tests.dir/__/src/pieceMovements.cpp.o: tests/CMakeFiles/unit_tests.dir/flags.make
+tests/CMakeFiles/unit_tests.dir/__/src/pieceMovements.cpp.o: src/pieceMovements.cpp
+tests/CMakeFiles/unit_tests.dir/__/src/pieceMovements.cpp.o: tests/CMakeFiles/unit_tests.dir/compiler_depend.ts
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --progress-dir=/home/quartz/sync/codingProjects/learning_cpp/chessClone/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object tests/CMakeFiles/unit_tests.dir/__/src/pieceMovements.cpp.o"
+	cd /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests && /nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT tests/CMakeFiles/unit_tests.dir/__/src/pieceMovements.cpp.o -MF CMakeFiles/unit_tests.dir/__/src/pieceMovements.cpp.o.d -o CMakeFiles/unit_tests.dir/__/src/pieceMovements.cpp.o -c /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/pieceMovements.cpp
+
+tests/CMakeFiles/unit_tests.dir/__/src/pieceMovements.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Preprocessing CXX source to CMakeFiles/unit_tests.dir/__/src/pieceMovements.cpp.i"
+	cd /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests && /nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/pieceMovements.cpp > CMakeFiles/unit_tests.dir/__/src/pieceMovements.cpp.i
+
+tests/CMakeFiles/unit_tests.dir/__/src/pieceMovements.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green "Compiling CXX source to assembly CMakeFiles/unit_tests.dir/__/src/pieceMovements.cpp.s"
+	cd /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests && /nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/pieceMovements.cpp -o CMakeFiles/unit_tests.dir/__/src/pieceMovements.cpp.s
+
 # Object files for target unit_tests
 unit_tests_OBJECTS = \
 "CMakeFiles/unit_tests.dir/test_main.cpp.o" \
-"CMakeFiles/unit_tests.dir/__/src/chessBoard.cpp.o"
+"CMakeFiles/unit_tests.dir/__/src/chessBoard.cpp.o" \
+"CMakeFiles/unit_tests.dir/__/src/pieceMovements.cpp.o"
 
 # External object files for target unit_tests
 unit_tests_EXTERNAL_OBJECTS =
 
 tests/unit_tests: tests/CMakeFiles/unit_tests.dir/test_main.cpp.o
 tests/unit_tests: tests/CMakeFiles/unit_tests.dir/__/src/chessBoard.cpp.o
+tests/unit_tests: tests/CMakeFiles/unit_tests.dir/__/src/pieceMovements.cpp.o
 tests/unit_tests: tests/CMakeFiles/unit_tests.dir/build.make
 tests/unit_tests: tests/CMakeFiles/unit_tests.dir/compiler_depend.ts
 tests/unit_tests: _deps/catch2-build/src/libCatch2Maind.a
 tests/unit_tests: _deps/catch2-build/src/libCatch2d.a
 tests/unit_tests: tests/CMakeFiles/unit_tests.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/quartz/sync/codingProjects/learning_cpp/chessClone/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable unit_tests"
+	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --green --bold --progress-dir=/home/quartz/sync/codingProjects/learning_cpp/chessClone/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX executable unit_tests"
 	cd /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/unit_tests.dir/link.txt --verbose=$(VERBOSE)
 	cd /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests && /nix/store/5bn5f4ivqf4xn19khh4kcg4ngnjs6spg-cmake-4.1.2/bin/cmake -D TEST_TARGET=unit_tests -D TEST_EXECUTABLE=/home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/unit_tests -D TEST_EXECUTOR= -D TEST_WORKING_DIR=/home/quartz/sync/codingProjects/learning_cpp/chessClone/tests -D TEST_SPEC= -D TEST_EXTRA_ARGS= -D TEST_PROPERTIES= -D TEST_PREFIX= -D TEST_SUFFIX= -D TEST_LIST=unit_tests_TESTS -D TEST_REPORTER= -D TEST_OUTPUT_DIR= -D TEST_OUTPUT_PREFIX= -D TEST_OUTPUT_SUFFIX= -D TEST_DL_PATHS= -D CTEST_FILE=/home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/unit_tests_tests-b12d07c.cmake -P /home/quartz/sync/codingProjects/learning_cpp/chessClone/_deps/catch2-src/extras/CatchAddTests.cmake
 

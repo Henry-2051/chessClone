@@ -556,6 +556,30 @@ __/src/chessBoard.cpp.s:
 	cd /home/quartz/sync/codingProjects/learning_cpp/chessClone && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/unit_tests.dir/build.make tests/CMakeFiles/unit_tests.dir/__/src/chessBoard.cpp.s
 .PHONY : __/src/chessBoard.cpp.s
 
+__/src/pieceMovements.o: __/src/pieceMovements.cpp.o
+.PHONY : __/src/pieceMovements.o
+
+# target to build an object file
+__/src/pieceMovements.cpp.o:
+	cd /home/quartz/sync/codingProjects/learning_cpp/chessClone && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/unit_tests.dir/build.make tests/CMakeFiles/unit_tests.dir/__/src/pieceMovements.cpp.o
+.PHONY : __/src/pieceMovements.cpp.o
+
+__/src/pieceMovements.i: __/src/pieceMovements.cpp.i
+.PHONY : __/src/pieceMovements.i
+
+# target to preprocess a source file
+__/src/pieceMovements.cpp.i:
+	cd /home/quartz/sync/codingProjects/learning_cpp/chessClone && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/unit_tests.dir/build.make tests/CMakeFiles/unit_tests.dir/__/src/pieceMovements.cpp.i
+.PHONY : __/src/pieceMovements.cpp.i
+
+__/src/pieceMovements.s: __/src/pieceMovements.cpp.s
+.PHONY : __/src/pieceMovements.s
+
+# target to generate assembly for a file
+__/src/pieceMovements.cpp.s:
+	cd /home/quartz/sync/codingProjects/learning_cpp/chessClone && $(MAKE) $(MAKESILENT) -f tests/CMakeFiles/unit_tests.dir/build.make tests/CMakeFiles/unit_tests.dir/__/src/pieceMovements.cpp.s
+.PHONY : __/src/pieceMovements.cpp.s
+
 test_main.o: test_main.cpp.o
 .PHONY : test_main.o
 
@@ -621,6 +645,9 @@ help:
 	@echo "... __/src/chessBoard.o"
 	@echo "... __/src/chessBoard.i"
 	@echo "... __/src/chessBoard.s"
+	@echo "... __/src/pieceMovements.o"
+	@echo "... __/src/pieceMovements.i"
+	@echo "... __/src/pieceMovements.s"
 	@echo "... test_main.o"
 	@echo "... test_main.i"
 	@echo "... test_main.s"

@@ -1,4 +1,5 @@
 #include <cstdint>
+#include <iostream>
 #include <vector>
 
 #pragma once
@@ -24,5 +25,19 @@ inline std::vector<std::pair<uint32_t, uint32_t>> getChessCoordinates(std::vecto
         result.push_back({col, row});
     }
     return result;
+}
+
+inline void printBitboard(uint64_t bitboard) {
+    std::cout << "0-=-=-=-=-=-=-7\n";
+    for (int rank = 0; rank <= 7; ++rank) {     // ranks from 0 (black) to 7 (white)
+        for (int file = 0; file <= 7; ++file) { // files from 0 (left) to 7 (right)
+            int squareIndex = rank * 8 + file; // bit index from 0 (LSB) to 63 (MSB)
+            // Use mask to check bit; bit 0 at LSB
+            uint64_t mask = 1ULL << squareIndex;
+            std::cout << ((bitboard & mask) ? '#' : '.') << ' ';
+        }
+        std::cout << "\n";
+    }
+    std::cout << "56-=-=-=-=-=-63\n";
 }
 }

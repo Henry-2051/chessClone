@@ -9,6 +9,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/quartz/sync/codingProjects/learning_cpp/chessClone/src/chessBoard.cpp" "tests/CMakeFiles/unit_tests.dir/__/src/chessBoard.cpp.o" "gcc" "tests/CMakeFiles/unit_tests.dir/__/src/chessBoard.cpp.o.d"
+  "/home/quartz/sync/codingProjects/learning_cpp/chessClone/src/pieceMovements.cpp" "tests/CMakeFiles/unit_tests.dir/__/src/pieceMovements.cpp.o" "gcc" "tests/CMakeFiles/unit_tests.dir/__/src/pieceMovements.cpp.o.d"
   "/home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/test_main.cpp" "tests/CMakeFiles/unit_tests.dir/test_main.cpp.o" "gcc" "tests/CMakeFiles/unit_tests.dir/test_main.cpp.o.d"
   "" "tests/unit_tests" "gcc" "tests/CMakeFiles/unit_tests.dir/link.d"
   )

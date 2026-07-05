@@ -2,9 +2,10 @@ bin/chess_clone: \
   /nix/store/daamdpmaz2vjvna55ccrc30qw3qb8h6d-glibc-2.40-66/lib/Scrt1.o \
   /nix/store/daamdpmaz2vjvna55ccrc30qw3qb8h6d-glibc-2.40-66/lib/crti.o \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/lib/gcc/x86_64-unknown-linux-gnu/14.3.0/crtbeginS.o \
+  CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.o \
   CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o \
-  CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o \
   CMakeFiles/chess_clone.dir/src/main.cpp.o \
+  CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o \
   /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/lib/libsfml-graphics.so \
   /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/lib/libsfml-window.so \
   /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/lib/libsfml-system.so \
@@ -85,11 +86,13 @@ bin/chess_clone: \
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/lib/gcc/x86_64-unknown-linux-gnu/14.3.0/crtbeginS.o:
 
+CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.o:
+
 CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o:
 
-CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o:
-
 CMakeFiles/chess_clone.dir/src/main.cpp.o:
+
+CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o:
 
 /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/lib/libsfml-graphics.so:
 

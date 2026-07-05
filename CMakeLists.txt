@@ -56,12 +56,13 @@ endif()
 
 # --------------------------------------------------------------------
 # Configure main executable target.
-file(GLOB SRC_FILES
-  "${CMAKE_SOURCE_DIR}/src/*.cpp"
-  # "${CMAKE_SOURCE_DIR}/src/imgui/*.cpp"
-  "${CMAKE_SOURCE_DIR}/src/imgui-sfml/*.cpp")
 
-add_executable(${PROJECT_NAME} ${SRC_FILES})
+add_executable(${PROJECT_NAME} 
+    ./src/pieceMovements.cpp
+    ./src/chessBoard.cpp
+    ./src/main.cpp
+    ./src/imgui-sfml/imgui-SFML.cpp
+)
 target_include_directories(${PROJECT_NAME} PRIVATE
   "${CMAKE_SOURCE_DIR}/src"
   # "${CMAKE_SOURCE_DIR}/src/imgui"
