@@ -137,13 +137,33 @@ void chessBoard::updateBoardState(std::string_view term, size_t termNumber) {
                         throw std::runtime_error("unhanded castling character in fen string");
                 }
             }
-            /// I love bit fields so much
+            // why didnt I use bitset
             this->m_board_state ^= ~(this->m_board_state & castling) & castling_mask;
             break;
         }
         case (3) : {
-            // oh no en passant is actually bugged
-            // we are using 2 bits to to describe en passant we actually need 6
+            std::map<char, int8_t> eppMap {
+                {'a', 0},
+                {'b', 1},
+                {'c', 2},
+                {'d', 3},
+                {'e', 4},
+                {'f', 5},
+                {'g', 6},
+                {'h', 7},
+                {'8', 0},
+                {'7', 8},
+                {'6', 16},
+                {'5', 24},
+                {'4', 32},
+                {'3', 40},
+                {'2', 48},
+                {'1', 56}
+            };
+            this->enPassantState = 0;
+            for (char c : term) {
+                this->enPassantState += eppMap[c];
+            }
             break;
         }
         case (4) : {
@@ -155,6 +175,10 @@ void chessBoard::updateBoardState(std::string_view term, size_t termNumber) {
             break;
         }
     }
+}
+
+board_state::PawnState chessBoard::mapBoardToPawnState() {
+    return {(this->m_board_state & board_state::WhiteTurn) != 0, this->enPassantState};
 }
 
 void chessBoard::readFenAndUpdate(std::string_view inputFen) {
@@ -177,12 +201,12 @@ void chessBoard::readFenAndUpdate(std::string_view inputFen) {
             if (termCounter == 0) {
                 size_t previous_rank_place = slashPlaces.peek();
                 auto individualRankSubstring = inputFen.substr(previous_rank_place, counter - previous_rank_place-1);
-                std::println("rank {} : {}", rankCounter, individualRankSubstring);
+                // std::println("rank {} : {}", rankCounter, individualRankSubstring);
                 changeRank(individualRankSubstring, rankCounter);
             } else {
                 size_t previous_place = termSeperations.isEmpty() ? 0uz : termSeperations.peek();
                 std::string_view termString {inputFen.substr(previous_place, counter - previous_place -1)};
-                std::println("term : {}", termString);
+                // std::println("term : {}", termString);
                 updateBoardState(termString, termCounter);
             }
 
@@ -192,14 +216,14 @@ void chessBoard::readFenAndUpdate(std::string_view inputFen) {
         } else if (c == '/' && termSeperations.isEmpty()) {
             size_t previous_place = slashPlaces.isEmpty() ? 0uz : slashPlaces.peek();
             auto individualRankSubstring = inputFen.substr(previous_place, counter - previous_place -1);
-            std::println("rank {} : {}", rankCounter, individualRankSubstring);
+            // std::println("rank {} : {}", rankCounter, individualRankSubstring);
             changeRank(individualRankSubstring, rankCounter);
             slashPlaces.push(counter);
             rankCounter ++;
         } else if (c == '.') {
             size_t previous_place = termSeperations.peek();
             std::string_view termString {inputFen.substr(previous_place, counter - previous_place -1)};
-            std::println("term : {}", termString);
+            // std::println("term : {}", termString);
             updateBoardState(termString, termCounter);
             termSeperations.push(counter);
             break;

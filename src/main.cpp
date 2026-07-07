@@ -11,6 +11,7 @@
 #include <chrono>
 #include <csignal>
 #include <imgui.h>
+#include "helpers.hpp"
 #include "imgui-sfml/imgui-SFML.h"
 #include <array>
 #include <cstdint>
@@ -60,7 +61,15 @@ void printUint8_t(uint8_t uint) {
     std::cout << std::endl;
 }
 
+void printInt8_t(std::int8_t value) {
+    std::uint8_t bits = static_cast<std::uint8_t>(value);
 
+    for (int i = 7; i >= 0; --i) {
+        std::cout << ((bits >> i) & 1);
+    }
+
+    std::cout << std::endl;
+}
 
 
 bool checkMoveLegal(pieceMovement move, const stackStack218& moveStack) {
@@ -83,12 +92,10 @@ bool checkMoveLegal(pieceMovement move, const stackStack218& moveStack) {
 chessBoard applyChessMove(pieceMovement move, const chessBoard& board) {
     bool isWhiteTurn = board_state::WhiteTurn & board.m_board_state;
     chessBoard newBoard {board};
+    // second and fourth rank
     uint64_t black_epp_check= 0xff00ff00;
+    // seventh and fith rank
     uint64_t white_epp_check= 0xff00ff00000000;
-
-    auto has_2_bits_flipped= [](uint64_t num) {
-        return std::popcount(num) == 2;
-    };
     
     uint64_t* pawns_of_same_color = newBoard.getPiecesByColor(isWhiteTurn);
     uint64_t* pawns_of_opposite_color = newBoard.getPiecesByColor(!isWhiteTurn);
@@ -99,33 +106,31 @@ chessBoard applyChessMove(pieceMovement move, const chessBoard& board) {
     //
     // todo change representation of pieces to std::array such that we dont have Undefined behaviour 
 
-    bool eppChanged = false;
+    bool hasEnPassant = false;
+
+    uint64_t new_pawn_board = pawns_of_same_color[idx] ^ move.movement;
+
     if (move.pieceType == PieceType::Pawn) {
-        uint64_t new_pawn_board = pawns_of_same_color[idx] ^ move.movement;
         uint64_t new_pawn_place = new_pawn_board & move.movement;
 
-        if (has_2_bits_flipped(move.movement & (isWhiteTurn ? white_epp_check : black_epp_check))) {
-            uint64_t pawn_pass_place_right= (new_pawn_place << 1);
-            uint64_t pawn_pass_place_left = (new_pawn_place >> 1);
-            if (pawns_of_opposite_color[idx] & pawn_pass_place_right) {
-                newBoard.m_board_state |= board_state::HasEnPassant;
-                eppChanged = true;
-                newBoard.m_board_state |= board_state::EnPassantRight;
-
-            } else if (pawns_of_opposite_color[idx] & pawn_pass_place_left) {
-                newBoard.m_board_state |= board_state::HasEnPassant;
-                eppChanged = true;
-                newBoard.m_board_state ^= (newBoard.m_board_state & board_state::EnPassantRight);
-
-            }
+        // this means has the pawn advanced 2 places
+        if (std::popcount(move.movement & (isWhiteTurn ? white_epp_check : black_epp_check)) == 2) {
+            uint64_t pawnPassplaces = (new_pawn_place << 1) | (new_pawn_place >> 1);
+            // is there an enemy pawn that can capture en passsant?
+            hasEnPassant = pawns_of_opposite_color[idx] & pawnPassplaces;
         }
     } 
     
-    if (!eppChanged) {
-        newBoard.m_board_state ^= (newBoard.m_board_state & board_state::HasEnPassant);
+    if (!hasEnPassant) {
+        newBoard.enPassantState = -1;
+    } else {
+        auto movementFilenum = (std::countr_zero(move.movement) % 8);
+        newBoard.enPassantState = !isWhiteTurn ? static_cast<int8_t>(movementFilenum + 16) : static_cast<int8_t>(56 + movementFilenum - 16);
+        std::println("new en passant state : {}", newBoard.enPassantState);
+        printInt8_t(newBoard.enPassantState);
     }
 
-    pawns_of_same_color[idx] ^= move.movement;
+    pawns_of_same_color[idx] = new_pawn_board;
 
     for (size_t i = 0; i <= 5; ++i) {
         pawns_of_opposite_color[i] ^= (move.movement & pawns_of_opposite_color[i]);

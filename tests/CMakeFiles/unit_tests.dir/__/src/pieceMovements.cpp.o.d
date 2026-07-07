@@ -263,4 +263,6 @@ tests/CMakeFiles/unit_tests.dir/__/src/pieceMovements.cpp.o: \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/helpers.hpp \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/chessBoard.h \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/chessBoardMovegenSharedDatatypes.h \
- /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/seperateBitboard.hpp
+ /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/seperateBitboard.hpp \
+ /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/cassert \
+ /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/assert.h

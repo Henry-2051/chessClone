@@ -9,8 +9,6 @@
 
 struct chessBoard {
     // change this to an std::array<uint64_t, 12> and then the indexing wont be Undefined
-    uint64_t m_pawn_bitshift = 0;
-    uint64_t m_piece_bitshift = 0;
     uint64_t m_black_pawns = 0;
     uint64_t m_black_rooks = 0;
     uint64_t m_black_knights = 0;
@@ -48,7 +46,10 @@ struct chessBoard {
 
     void readFenAndUpdate(std::string_view inputFen);
 
+    board_state::PawnState mapBoardToPawnState();
+    
     private:
     void changeRank(std::string_view fenRank, size_t rankNum);
     void updateBoardState(std::string_view term, size_t termNumber);
+    
 };

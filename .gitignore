@@ -1,0 +1,50 @@
+# clangd / editor caches
+.cache/
+.clangd/
+src/.clangd/
+
+# CMake build files generated in source tree
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+CTestTestfile.cmake
+DartConfiguration.tcl
+Testing/
+Makefile
+compile_commands.json
+
+# CMake FetchContent / dependencies generated in-source
+_deps/
+
+# Build outputs
+bin/
+*.o
+*.d
+*.a
+*.so
+*.dylib
+*.dll
+*.exe
+
+# Test/build binaries
+test/ctz_test
+test/importGame
+test/moveDecoding
+test/splitDelim
+test/testPieceMoves
+tests/unit_tests
+
+# Generated CMake files inside tests/
+tests/CMakeFiles/
+tests/cmake_install.cmake
+tests/CTestTestfile.cmake
+tests/Makefile
+tests/unit_tests_include-*.cmake
+tests/unit_tests_tests-*.cmake
+
+# Runtime/editor junk
+*.log
+.DS_Store
+imgui.ini
+notepad.txt
+src/junk.txt

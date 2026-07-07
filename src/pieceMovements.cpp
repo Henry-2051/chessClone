@@ -1,4 +1,8 @@
 #include "pieceMovements.hpp"
+#include "helpers.hpp"
+#include <cassert>
+#include <cstdint>
+#include <print>
 
 namespace chessMoves {
 namespace innerMachinations {
@@ -70,47 +74,22 @@ uint64_t applyChecksToPiece(uint64_t piece, uint64_t attacked_squares, const Fas
 }
 
 
+template <bool isWhiteTurn>
 std::pair<uint64_t, std::optional<uint64_t>> 
-blackPawnMove(uint64_t black_pawn, uint64_t enemies, uint64_t friendly, uint8_t pawnState, const FastStack<uint64_t, 13>& pinLines, const FastStack<uint64_t, 2>& enemyCheckingAttacks)
+normalPawnMove(uint64_t pawn, uint64_t enemies, uint64_t friendly, const FastStack<uint64_t, 13>& pinLines, const FastStack<uint64_t, 2>& enemyCheckingAttacks)
 {
     uint64_t empty_space = ~(enemies | friendly);
-    uint64_t front_pawn_row = 0xff00;
-    uint64_t occupied {friendly | enemies};
-
-    uint64_t attacked_squares =
-       ((((black_pawn << 8) & empty_space) | 
-        ((black_pawn  & front_pawn_row) << 16)) & empty_space) |
-       (generateSimpleBlackPawnCaptureNoTeleport(black_pawn, occupied) & (~friendly));
-
-    uint64_t back_row = static_cast<uint64_t>(0xff) << 56;
-
-    attacked_squares = applyPinsToPiece(black_pawn, attacked_squares, pinLines);
-    attacked_squares = applyChecksToPiece(black_pawn, attacked_squares, enemyCheckingAttacks);
-
-    if (attacked_squares & back_row) {
-        return {attacked_squares & (~back_row), attacked_squares & back_row};
-    } else {
-        return {attacked_squares, std::nullopt};
-    }
-
-}
-
-
-std::pair<uint64_t, std::optional<uint64_t>> 
-whitePawnMove(uint64_t white_pawn, uint64_t enemies, uint64_t friendly, uint8_t pawnState, const FastStack<uint64_t, 13>& pinLines, const FastStack<uint64_t, 2>& enemyCheckingAttacks)
-{
-    uint64_t empty_space = ~(enemies | friendly);
-    uint64_t front_pawn_row = static_cast<uint64_t>(0xff) << 48;
-
-
-    uint64_t attacked_squares =
-        (((white_pawn >> 8) & empty_space) |
-        (((white_pawn & front_pawn_row) >> 16) & empty_space)) | (generateSimpleWhitePawnCaptureNoTeleport(white_pawn, enemies) & (~friendly));
-
+    uint64_t white_front_pawn_row = static_cast<uint64_t>(0xff) << 48;
+    uint64_t black_front_pawn_row = 0xff00;
+    uint64_t front_pawn_row = isWhiteTurn ? white_front_pawn_row : black_front_pawn_row;
+    uint64_t pawnMovedOne = (isWhiteTurn ? pawn >> 8 : pawn << 8) & empty_space;
+    uint64_t pawnMovedTwo = (pawn & front_pawn_row ? (isWhiteTurn ? pawn >> 16: pawn << 16) : 0) & empty_space;
+    uint64_t pawnCapture = isWhiteTurn ? generateSimpleWhitePawnCaptureNoTeleport(pawn, enemies) & (~friendly) : generateSimpleBlackPawnCaptureNoTeleport(pawn, enemies) & ~friendly;
+    uint64_t attacked_squares = pawnMovedOne | pawnMovedTwo | pawnCapture;
     uint64_t back_row = static_cast<uint64_t>(0xff);
 
-    attacked_squares = applyPinsToPiece(white_pawn, attacked_squares, pinLines);
-    attacked_squares = applyChecksToPiece(white_pawn, attacked_squares, enemyCheckingAttacks);
+    attacked_squares = applyPinsToPiece(pawn, attacked_squares, pinLines);
+    attacked_squares = applyChecksToPiece(pawn, attacked_squares, enemyCheckingAttacks);
     
     if (attacked_squares & back_row) {
         return {attacked_squares & (~back_row), attacked_squares & back_row};
@@ -119,73 +98,52 @@ whitePawnMove(uint64_t white_pawn, uint64_t enemies, uint64_t friendly, uint8_t 
     }
 }
 
+std::optional<pieceMovement> eppMoveInner(uint64_t movingPawn, uint64_t shoulder, uint64_t capture_position, uint64_t eppCaptureSquare, const FastStack<uint64_t, 13>& pinLines, const FastStack<uint64_t, 2>& enemyCheckingAttacks) {
+
+    if (capture_position & eppCaptureSquare) {
+        // we may move while pinned if the capture position is still within the pin if we are pinned multiple times this cant really happen
+        capture_position = applyPinsToPiece(movingPawn, capture_position, pinLines);
+        // when in check unless double checked we may capture the checking piece, we cant block a check when capturing en passant, its just not possible 
+        shoulder = applyChecksToPiece(movingPawn, shoulder, enemyCheckingAttacks);
+
+        if (capture_position == 0 || shoulder == 0) {
+            return std::nullopt;
+        }
+
+        return pieceMovement{movingPawn| capture_position | shoulder, shoulder, PieceType::Pawn, PieceType::Pawn, true};
+    }
+    return std::nullopt;
+}
+
+template <bool isWhiteTurn>
 std::optional<pieceMovement>
-whitePawnMoveEPP(uint64_t white_pawn, uint64_t enemies, uint64_t friendly, uint8_t pawnState, uint64_t enemy_pawns, const FastStack<uint64_t, 13>& pinLines, const FastStack<uint64_t, 2>& enemyCheckingAttacks) {
+pawnMoveEPP(uint64_t white_pawn, uint64_t enemies, uint64_t friendly, int8_t eppState, uint64_t enemy_pawns, const FastStack<uint64_t, 13>& pinLines, const FastStack<uint64_t, 2>& enemyCheckingAttacks) {
     int pawn_place = __builtin_ctzll(white_pawn);
     int pawn_file = pawn_place % 8;
 
     bool can_have_right_bitshift_by_1 = pawn_file != 0;
     bool can_have_left_bitshift_by_1 = pawn_file != 7;
-    // guard prevents teleportatin
-    if (!(pawnState & board_state::PawnHasEnPassantRight ? can_have_right_bitshift_by_1 : can_have_left_bitshift_by_1)) {
-        return std::nullopt;
+
+    uint64_t eppCaptureSquare = 1ULL << eppState;
+
+    if (can_have_right_bitshift_by_1) {
+
+        uint64_t shoulder = white_pawn >> 1;
+        uint64_t capture_position = isWhiteTurn ? shoulder >> 8 : shoulder << 8;
+        auto retVal = eppMoveInner(white_pawn, shoulder, capture_position, eppCaptureSquare, pinLines, enemyCheckingAttacks);
+        if (retVal.has_value()) {return retVal;}
+    }   
+
+    if (can_have_left_bitshift_by_1) {
+        uint64_t shoulder = white_pawn << 1;
+        uint64_t capture_position = isWhiteTurn ? shoulder >> 8 : shoulder << 8;
+
+        auto retVal = eppMoveInner(white_pawn, shoulder, capture_position, eppCaptureSquare, pinLines, enemyCheckingAttacks);
+        if (retVal.has_value()) {return retVal;}
     }
 
-    uint64_t shoulder = pawnState & board_state::PawnHasEnPassantRight ? white_pawn >> 1 : white_pawn << 1;
-    uint64_t capture_position = shoulder >> 8;
-
-    if (enemy_pawns & shoulder) {
-        // we cant capture en passant if our pawn is pinned
-        capture_position = applyPinsToPiece(white_pawn, capture_position, pinLines);
-        // the checking logic is rather complex
-        // if our king is in the center of the board and the enemy moves a pawn 2 places checking us then we should capture the checking pawn 
-        // in this case we should check the shoulder position instead of the capture position 
-        // I cannot imagine a scenario where capturing en passant blocks a discovered check from either a bishop or a rook, since 
-        // the rook would need to be on the same rank as our king and when we capture en passant we will not end up on that same rank
-        // for the case of the bishop it will look through the square where the pawn was, when we capture we end up on the same file as this 
-        // but on a different rank, therefore not blocking. 
-        // tanking these 2 possible cases into consideration we cant capture en passant and block a check 
-        
-        // if there is a check and the checkin piece isnt the pawn that just moved 2 squares, we should discount capturing en passant
-        shoulder = applyChecksToPiece(white_pawn, shoulder, enemyCheckingAttacks);
-
-        if (capture_position == 0 || shoulder == 0) {
-            return std::nullopt;
-        }
-
-        return pieceMovement{white_pawn | capture_position | shoulder, shoulder, PieceType::Pawn, PieceType::Pawn, true};
-    }
     return std::nullopt;
 }
-
-std::optional<pieceMovement> 
-blackPawnMoveEPP(uint64_t black_pawn, uint64_t enemies, uint64_t friendly, uint8_t pawnState, uint64_t enemy_pawns, const FastStack<uint64_t, 13>& pinLines, const FastStack<uint64_t, 2>& enemyCheckingAttacks) {
-    int pawn_place = __builtin_ctzll(black_pawn);
-    int pawn_file = pawn_place % 8;
-
-    bool can_have_right_bitshift_by_1 = pawn_file != 0;
-    bool can_have_left_bitshift_by_1 = pawn_file != 7;
-    // guard prevents teleportatin
-    if (!(pawnState & board_state::PawnHasEnPassantRight ? can_have_right_bitshift_by_1 : can_have_left_bitshift_by_1)) {
-        return std::nullopt;
-    }
-    uint64_t shoulder = pawnState & board_state::PawnHasEnPassantRight ? black_pawn >> 1 : black_pawn << 1;
-    uint64_t capture_position = shoulder << 8;
-
-    if (enemy_pawns & shoulder) {
-        // we cant capture en passant if our pawn is pinned
-        capture_position = applyPinsToPiece(black_pawn, capture_position, pinLines);
-        shoulder = applyChecksToPiece(black_pawn, shoulder, enemyCheckingAttacks);
-
-        if (capture_position == 0 || shoulder == 0) {
-            return std::nullopt;
-        }
-
-        return pieceMovement{black_pawn | capture_position | shoulder, shoulder, PieceType::Pawn, PieceType::Pawn, true};
-    }
-    return std::nullopt;
-}
-
 
 uint64_t scanPinRay(uint64_t pieces_of_the_same_color_as_the_attacker, uint64_t opposite_pieces, uint64_t opposite_king, int r, int f, int df, int dr) {
     uint64_t trial_attack = 1ULL << (f + 8 * r); // this line needs some explanation, the piece isnt actually attacking this square but it is the square that the pinning piece
@@ -267,31 +225,21 @@ uint64_t generateSimpleBlackPawnCaptureNoTeleport(uint64_t black_pawn, uint64_t 
 }
 
 std::tuple<uint64_t, std::optional<uint64_t>, std::optional<pieceMovement>>
-singlePawnMove(uint64_t attacking_pawn, uint64_t enemies, uint64_t friendly, uint8_t pawnState, uint64_t enemy_pawns, const FastStack<uint64_t, 13>& pinLines, const FastStack<uint64_t, 2>& checkingAttacks) {
-    uint8_t relevantPawnState = pawnState & (board_state::PawnWhiteTurn | board_state::PawnHasEnPassant);
+singlePawnMove(uint64_t attacking_pawn, uint64_t enemies, uint64_t friendly, board_state::PawnState pawnState, uint64_t enemy_pawns, const FastStack<uint64_t, 13>& pinLines, const FastStack<uint64_t, 2>& checkingAttacks) {
+    assert(pawnState.eppState <= 63);
+    bool hasEnPassant = pawnState.eppState>= 0;
 
-    if (relevantPawnState == (board_state::PawnWhiteTurn | board_state::PawnHasEnPassant)) 
-    {
-        auto [normMove, maybePromotion] = innerMachinations::whitePawnMove(attacking_pawn, enemies, friendly, pawnState, pinLines, checkingAttacks);
-        auto maybeEPPMove = innerMachinations::whitePawnMoveEPP(attacking_pawn, enemies, friendly, pawnState, enemy_pawns, pinLines, checkingAttacks);
-        return {normMove, maybePromotion, maybeEPPMove};
-    } 
-    else if (relevantPawnState == board_state::PawnWhiteTurn) 
-    {
-        auto [normMove, maybePromotion] = innerMachinations::whitePawnMove(attacking_pawn, enemies, friendly, pawnState, pinLines, checkingAttacks);
-        return {normMove, maybePromotion, std::nullopt};
-    } 
-    else if (relevantPawnState == board_state::PawnHasEnPassant) 
-    {
-        auto [normMove, maybePromotion] = innerMachinations::blackPawnMove(attacking_pawn, enemies, friendly, pawnState, pinLines, checkingAttacks);
-        auto maybeEPPMove = innerMachinations::blackPawnMoveEPP(attacking_pawn, enemies, friendly, pawnState, enemy_pawns, pinLines, checkingAttacks);
-        return {normMove, maybePromotion, maybeEPPMove};
-    } 
-    else 
-    {
-        auto [normMove, maybePromotion] = innerMachinations::blackPawnMove(attacking_pawn, enemies, friendly, pawnState, pinLines, checkingAttacks);
-        return {normMove, maybePromotion, std::nullopt};
-    };
+    auto [normMove, maybePromotion] = pawnState.isWhiteTurn ? 
+          innerMachinations::normalPawnMove<true>(attacking_pawn, enemies, friendly, pinLines, checkingAttacks)
+        : innerMachinations::normalPawnMove<false>(attacking_pawn, enemies, friendly, pinLines, checkingAttacks);
+
+    auto maybeEppMove = hasEnPassant ? 
+            (pawnState.isWhiteTurn ? 
+              innerMachinations::pawnMoveEPP<true>(attacking_pawn, enemies, friendly, pawnState.eppState, enemy_pawns, pinLines, checkingAttacks)
+            : innerMachinations::pawnMoveEPP<false>(attacking_pawn, enemies, friendly, pawnState.eppState, enemy_pawns, pinLines, checkingAttacks))
+        : std::nullopt;
+
+    return {normMove, maybePromotion, maybeEppMove};
 }
 
 uint64_t attack_with_increment_sliding_piece(uint64_t enemies, uint64_t friendly, std::pair<int, int> starting_rf, std::pair<int, int> increment_rf) {
@@ -621,7 +569,7 @@ singleKingMove(uint64_t king, const chessBoard& board, std::optional<uint64_t> e
 
 stackStack218 makeAllMoves(const chessBoard& boardInput) {
     stackStack218 moveStack {};
-    chessBoard board {boardInput}; /////////// copy for testing
+    chessBoard board {boardInput};
 
     bool isWhiteTurn = (board_state::WhiteTurn & board.m_board_state) != 0;
     uint64_t friendly_pieces = isWhiteTurn ? board.whitePieces() : board.blackPieces();
@@ -637,10 +585,7 @@ stackStack218 makeAllMoves(const chessBoard& boardInput) {
     uint8_t bitmask_that_flips_bits_to_1 = (~(board.m_board_state & mask_for_bits_we_want_to_be_1)) & mask_for_bits_we_want_to_be_1;
     const uint8_t xor_reversible_transformation = bitmask_that_flips_bits_to_1 | (board.m_board_state & (~mask_for_bits_we_want_to_be_1)) | board_state::WhiteTurn;
 
-    // crazy idea what if we allowed pieces to initially attack pieces with the same color but then we only let these attacks through if the friendly occupancy is zero for that square
-    // if att is the initial attack and foc is the friendly occupancy then the attack goes through if (att xor (att and foc)) implement this with bitmaps and we can get an attack bitboard that includes defenders
-    // this way we dont need to calculate checks inside our king move function
-    
+    // TODO remove the xor transformation, it requires a copy so that we dont mutate the boardInput, the logic is also more complicated than an extra parameter to our functions
 
     uint64_t enemy_attacks_mushed {0ULL};
     FastStack<uint64_t, 2> checksOnOurKing{};
@@ -650,6 +595,7 @@ stackStack218 makeAllMoves(const chessBoard& boardInput) {
     FastStack<uint64_t, 10> enemyRookAttacks_forCheckCalc {};
     FastStack<uint64_t, 10> enemyBishopAttacks_forCheckCalc {};
     FastStack<QueenAttackDeconstruction, 9> enemyQueenAttacks_forCheckCalc {};
+    // TODO rename attack bitboard generator functions
 
     // this whole block of code is to generate an enemy attack bitboard 
     board.m_board_state ^= xor_reversible_transformation;
@@ -696,6 +642,19 @@ stackStack218 makeAllMoves(const chessBoard& boardInput) {
                     attack = chessMoves::dummyKingMoveGenerationNoTeleportation(piece, friendly_inner);
                     break;
             }
+            // theres actually a bug here with the attack map generation, if the king is in the 
+            // line of a sliding piece then the squares behind the attacked king arent actually attacked
+            // so the king is allowed to move backwards, so is still attacked by the sliding piece
+            //
+            //
+            // there is another bug with attack generating for king moves, the king can move to a square
+            // which is attacked by a pawn
+            //
+            // TODO remove king from occupancy to avoid the sliding piece king blocking bug, the rook / bishop attacks will still 
+            // be used for check generation since we xor with the kings own attack ray which will erase the attacked squares behind the king
+            //
+            // TODO change the behaviour of pawn attack generation to attack squares then in the pawn move generation 
+            // function check for occupancy
             enemy_attacks_mushed |= (attack);
         }
     }
@@ -716,7 +675,7 @@ stackStack218 makeAllMoves(const chessBoard& boardInput) {
     //     helpers::printBitboard(check);
     // }
 
-    uint8_t pawnState = board_state::mapBoardToPawnState(board.m_board_state);
+    board_state::PawnState pawnState = board.mapBoardToPawnState();
 
     for (uint8_t i = 0; i < 6; ++ i) {
         // 0 pawns, 1 rooks, 2 knights, 3 bishops, 4 queens, 5 king
