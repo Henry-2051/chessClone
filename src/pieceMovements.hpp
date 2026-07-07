@@ -12,6 +12,7 @@
 #include "boardState.hpp"
 #include "chessBoard.h"
 #include "chessBoardMovegenSharedDatatypes.h"
+#include "seperateBitboard.hpp"
 #include "helpers.hpp"
 
 namespace chessMoves {
@@ -55,4 +56,5 @@ uint64_t dummyKingMoveGenerationNoTeleportation(uint64_t king, uint64_t friendly
 // passing the array seems like the better option since 
 std::pair<uint64_t, std::pair<std::optional<pieceMovement>, std::optional<pieceMovement>>> 
 singleKingMove(uint64_t king, const chessBoard& board, std::optional<uint64_t> enemy_attacks);
+stackStack218 makeAllMoves(const chessBoard& boardInput);
 }

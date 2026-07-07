@@ -10,7 +10,6 @@
 #include <string_view>
 #include <utility>
 #include <iostream>
-#include "seperateBitboard.hpp"
 #include "boardState.hpp"
 #include "helpers.hpp"
 
@@ -138,37 +137,33 @@ struct FastStack
 
     FastStack() : internalArray({}), currentNumberItems(0) {};
 
-    FastStack(std::array<T, mN> initialArray, std::size_t numElements): internalArray(initialArray), currentNumberItems(numElements) {
+    FastStack(const std::array<T, mN>& initialArray, std::size_t numElements): internalArray(initialArray), currentNumberItems(numElements) {
         if (numElements > mN) { throw std::invalid_argument("passed top element index cant be greater than the capacity of the stack");}
     };
 
-    FastStack(const std::pair<std::array<T, mN>, std::size_t>& array_num_elements_pair): internalArray(array_num_elements_pair.first), currentNumberItems(array_num_elements_pair.second) {
-        if (array_num_elements_pair.second > mN) { throw std::invalid_argument("passed top element index cant be greater than the capacity of the stack"); }
-    };
-
     T* begin() {
-        return &internalArray[0];
+        return internalArray.data();
     }
 
     T* end() {
-        return &internalArray[currentNumberItems];
+        return internalArray.data() + currentNumberItems;
     }
 
     const T* begin() const {
-        return &internalArray[0];
+        return internalArray.data();
     }
 
     const T* end() const {
-        return &internalArray[currentNumberItems];
+        return internalArray.data() + currentNumberItems;
     }
 
 
     T pop() {
+        if (currentNumberItems == 0) {
+            throw std::underflow_error("stack underflow, no more elements to pop");
+        }
         -- currentNumberItems;
-        if (currentNumberItems >= mN) {throw std::underflow_error("stack underflow, no more elements to pop"); }
-        T result = internalArray[currentNumberItems];
-        internalArray[currentNumberItems] = T{};
-        return result;
+        return internalArray[currentNumberItems];
     };
 
     T peek() const {
@@ -186,9 +181,9 @@ struct FastStack
     }
 
     template<std::size_t P>
-    FastStack<T, mN>& pushItems(std::array<T, P> item_array, std::size_t numberOfItems) {
-        std::size_t spaceLeft = mN - currentNumberItems; 
-        if (numberOfItems > spaceLeft) {throw std::overflow_error("stack overflow, trying to push too many items onto the stackStack"); }
+    FastStack<T, mN>& pushItems(const std::array<T, P>& item_array, std::size_t numberOfItems) {
+        // std::size_t spaceLeft = mN - currentNumberItems; 
+        // if (numberOfItems > spaceLeft) {throw std::overflow_error("stack overflow, trying to push too many items onto the stackStack"); }
         for (std::size_t i = 0; i < numberOfItems; ++ i) {
             push(item_array[i]);
         }
@@ -197,7 +192,7 @@ struct FastStack
 
 
     template<std::size_t P>
-    FastStack<T, mN>& pushItems(FastStack<T, P> itemsStack) {
+    FastStack<T, mN>& pushItems(const FastStack<T, P>& itemsStack) {
         return pushItems(itemsStack.internalArray, itemsStack.currentNumberItems);
     }
 
@@ -217,77 +212,56 @@ struct FastStack
 
     template <typename Function>
     FastStack<T, mN>& stackTransorm(Function transform) {
-        for (int i = 0; i < currentNumberItems; ++i) {
+        for (auto i {0uz}; i < currentNumberItems; ++i) {
             internalArray[i] = transform(internalArray[i]);
         }
         return *this;
     };
-
-    auto get_view_of_items() const{
-        return internalArray | std::ranges::views::take(currentNumberItems);
-    };
-
-    std::span<const pieceMovement> get_span_of_items() const {
-        return std::span(internalArray).subspan(0, currentNumberItems);
-    }
 };
 
 using stackStack218 = FastStack<pieceMovement, 218>;
 
-template<size_t N>
-void addAttacksToStack218(uint64_t piece, uint64_t attacked_squares, PieceType typeofPiece, stackStack218& moveStack) {
-    if (std::popcount(attacked_squares) > N) {
-        std::println("popcount : {}", std::popcount(attacked_squares));
-        std::println("type of piece: {}", getPieceTypeString(typeofPiece));
-        helpers::printBitboard(attacked_squares);
-        throw std::logic_error("trying to seperate a bitboard with more items than the array size");
-    }
-    auto [moves, num_moves] = seperateBitboard<N>(attacked_squares);
-    for (size_t i = 0; i < num_moves; ++i) {
-        moveStack.push({moves[i] | piece, 0, typeofPiece, PieceType::King, false});
-    }
-}
 
 
-struct singleColorChessMoveStack : stackStack218 {
-    uint64_t attacked_squares{};
-    singleColorChessMoveStack(std::array<pieceMovement, 218> initialArray, size_t numElements) 
-    : FastStack(initialArray, numElements) {};
-    
-    singleColorChessMoveStack pushMoves(uint64_t moved_piece, uint64_t moves, uint8_t piece_type, board_state::BoardState bstate) {
-        std::pair<std::array<uint64_t, 28>, std::size_t> seperation_result = seperateBitboard<28>(moves);
-        size_t numMoves = seperation_result.second;
-        std::array<uint64_t, 28>& moves_array = seperation_result.first;
-        
-        for (size_t i = 0; i < numMoves; i++) {
-            std::optional<pieceMovement> toPush {std::nullopt};
-            uint64_t move = moves_array[i] | moved_piece;
-
-            // its actually impossible to represent moves like castling and en passant( and promotion ) with just a single xor 
-            // operation on 
-            // a bitboard because if you try and capture en passant with a pawn you will end up with 2 pawns, we get around
-            // this by including a second move which erases the extra pawn. The down side of this is that our 
-            // piece movement struct goes from 16 bytes to 24 bytes, but we can now represent every move
-            if ((bstate & board_state::HasEnPassant) && (piece_type == PieceType::Pawn)) {
-                if (bstate & board_state::WhiteTurn && 
-                        (moved_piece >> 7 == moves_array[i] || moved_piece >> 9 == moves_array[i])) {
-                    uint64_t epp_capture = moves_array[i] << 8;
-                    move |= epp_capture;
-                    toPush = {{move, (epp_capture), PieceType(piece_type), PieceType(piece_type), true}};
-                } else if (moved_piece << 7 == moves_array[i] || moved_piece << 9 == moves_array[i]) {
-                    uint64_t epp_capture = moves_array[i] >> 8;
-                    move |= epp_capture;
-                    toPush = {move, (epp_capture), PieceType(piece_type), PieceType(piece_type), true};
-                }
-            } 
-            auto standardMovement = [move, piece_type]()->std::optional<pieceMovement>{ 
-                return {{move, 0, PieceType(piece_type), PieceType(piece_type), false}}; 
-            };
-            push(toPush.or_else(standardMovement).value());
-        }
-        return *this;
-    }
-};
+// struct singleColorChessMoveStack : stackStack218 {
+//     uint64_t attacked_squares{};
+//     singleColorChessMoveStack(std::array<pieceMovement, 218> initialArray, size_t numElements) 
+//     : FastStack(initialArray, numElements) {};
+//
+//     singleColorChessMoveStack pushMoves(uint64_t moved_piece, uint64_t moves, uint8_t piece_type, board_state::BoardState bstate) {
+//         std::pair<std::array<uint64_t, 28>, std::size_t> seperation_result = seperateBitboard<28>(moves);
+//         size_t numMoves = seperation_result.second;
+//         std::array<uint64_t, 28>& moves_array = seperation_result.first;
+//
+//         for (size_t i = 0; i < numMoves; i++) {
+//             std::optional<pieceMovement> toPush {std::nullopt};
+//             uint64_t move = moves_array[i] | moved_piece;
+//
+//             // its actually impossible to represent moves like castling and en passant( and promotion ) with just a single xor 
+//             // operation on 
+//             // a bitboard because if you try and capture en passant with a pawn you will end up with 2 pawns, we get around
+//             // this by including a second move which erases the extra pawn. The down side of this is that our 
+//             // piece movement struct goes from 16 bytes to 24 bytes, but we can now represent every move
+//             if ((bstate & board_state::HasEnPassant) && (piece_type == PieceType::Pawn)) {
+//                 if (bstate & board_state::WhiteTurn && 
+//                         (moved_piece >> 7 == moves_array[i] || moved_piece >> 9 == moves_array[i])) {
+//                     uint64_t epp_capture = moves_array[i] << 8;
+//                     move |= epp_capture;
+//                     toPush = {{move, (epp_capture), PieceType(piece_type), PieceType(piece_type), true}};
+//                 } else if (moved_piece << 7 == moves_array[i] || moved_piece << 9 == moves_array[i]) {
+//                     uint64_t epp_capture = moves_array[i] >> 8;
+//                     move |= epp_capture;
+//                     toPush = {move, (epp_capture), PieceType(piece_type), PieceType(piece_type), true};
+//                 }
+//             } 
+//             auto standardMovement = [move, piece_type]()->std::optional<pieceMovement>{ 
+//                 return {{move, 0, PieceType(piece_type), PieceType(piece_type), false}}; 
+//             };
+//             push(toPush.or_else(standardMovement).value());
+//         }
+//         return *this;
+//     }
+// };
 
 
 #endif

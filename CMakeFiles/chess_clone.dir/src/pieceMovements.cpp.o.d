@@ -259,8 +259,8 @@ CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.o: \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/iostream \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/istream \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/istream.tcc \
- /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/seperateBitboard.hpp \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/boardState.hpp \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/helpers.hpp \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/chessBoard.h \
- /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/chessBoardMovegenSharedDatatypes.h
+ /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/chessBoardMovegenSharedDatatypes.h \
+ /home/quartz/sync/codingProjects/learning_cpp/chessClone/src/seperateBitboard.hpp

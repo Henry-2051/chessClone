@@ -1,30 +1,38 @@
 #include <cstdint>
+#include <string>
+#include <string_view>
 #include <vector>
 #include "boardState.hpp"
+#include "stackStack.hpp"
 
 #pragma once
 
 struct chessBoard {
     // change this to an std::array<uint64_t, 12> and then the indexing wont be Undefined
-    uint64_t m_pawn_bitshift = 40;
-    uint64_t m_piece_bitshift = 56;
-    uint64_t m_black_pawns = 0xff00;
-    uint64_t m_black_rooks = 0x81;
-    uint64_t m_black_knights = 0x42;
-    uint64_t m_black_bishops = 0x24;
-    uint64_t m_black_queens = 0x8;
-    uint64_t m_black_king = 0x10;
+    uint64_t m_pawn_bitshift = 0;
+    uint64_t m_piece_bitshift = 0;
+    uint64_t m_black_pawns = 0;
+    uint64_t m_black_rooks = 0;
+    uint64_t m_black_knights = 0;
+    uint64_t m_black_bishops = 0;
+    uint64_t m_black_queens = 0;
+    uint64_t m_black_king = 0;
 
-    uint64_t m_white_pawns = m_black_pawns << m_pawn_bitshift;
-    uint64_t m_white_rooks = m_black_rooks << m_piece_bitshift;
-    uint64_t m_white_knights = m_black_knights << m_piece_bitshift;
-    uint64_t m_white_bishops = m_black_bishops << m_piece_bitshift;
-    uint64_t m_white_queens = m_black_queens << m_piece_bitshift;
-    uint64_t m_white_king = m_black_king << m_piece_bitshift;
+    uint64_t m_white_pawns = 0;
+    uint64_t m_white_rooks = 0;
+    uint64_t m_white_knights = 0;
+    uint64_t m_white_bishops = 0;
+    uint64_t m_white_queens = 0;
+    uint64_t m_white_king = 0;
     
     uint8_t m_board_state = board_state::WhiteTurn;
-    uint32_t m_turn {};
-    uint32_t m_last_generated_moves{};
+
+    int8_t enPassantState = -1; 
+
+    size_t halfMoveClock {0};
+    size_t moveNumber {0};
+
+    chessBoard(std::string_view fenString);
 
     using annoying_return_type = std::vector<std::vector<std::pair<uint32_t, uint32_t>>>;
     
@@ -38,4 +46,9 @@ struct chessBoard {
 
     annoying_return_type piecePositions() const;
 
+    void readFenAndUpdate(std::string_view inputFen);
+
+    private:
+    void changeRank(std::string_view fenRank, size_t rankNum);
+    void updateBoardState(std::string_view term, size_t termNumber);
 };

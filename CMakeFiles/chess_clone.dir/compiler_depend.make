@@ -5,10 +5,12 @@ CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o: src/chessBoard.cpp \
   src/boardState.hpp \
   src/chessBoard.h \
   src/helpers.hpp \
+  src/stackStack.hpp \
   /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/alloca.h \
   /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/asm-generic/errno-base.h \
   /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/asm-generic/errno.h \
   /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/asm/errno.h \
+  /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/assert.h \
   /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/atomic_wide_counter.h \
   /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/byteswap.h \
   /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/cpu-set.h \
@@ -119,13 +121,17 @@ CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o: src/chessBoard.cpp \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/cpp_type_traits.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/cxxabi_forced.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/cxxabi_init_exception.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/elements_of.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/enable_special_members.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/erase_if.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/exception.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/exception_defines.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/exception_ptr.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/functexcept.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/functional_hash.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/hash_bytes.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/hashtable.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/hashtable_policy.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/invoke.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/ios_base.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/istream.tcc \
@@ -141,9 +147,12 @@ CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o: src/chessBoard.cpp \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/max_size_type.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/memory_resource.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/memoryfwd.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/mofunc_impl.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/move.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/move_only_function.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/nested_exception.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/new_allocator.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/node_handle.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/ostream.tcc \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/ostream_insert.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/parse_numbers.h \
@@ -158,6 +167,7 @@ CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o: src/chessBoard.cpp \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/refwrap.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/requires_hosted.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/std_abs.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/std_function.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_algo.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_algobase.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_bvector.h \
@@ -167,10 +177,15 @@ CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o: src/chessBoard.cpp \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_iterator.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_iterator_base_funcs.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_iterator_base_types.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_map.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_multimap.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_pair.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_relops.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_tempbuf.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_tree.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_uninitialized.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_vector.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stream_iterator.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/streambuf.tcc \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/streambuf_iterator.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/string_view.tcc \
@@ -178,11 +193,13 @@ CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o: src/chessBoard.cpp \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/unicode-data.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/unicode.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/uniform_int_dist.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/unordered_map.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/uses_allocator.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/uses_allocator_args.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/utility.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/vector.tcc \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/version.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/cassert \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/cctype \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/cerrno \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/charconv \
@@ -199,24 +216,30 @@ CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o: src/chessBoard.cpp \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/debug/assertions.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/debug/debug.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/exception \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ext/aligned_buffer.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ext/alloc_traits.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ext/atomicity.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ext/numeric_traits.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ext/string_conversions.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ext/type_traits.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/format \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/functional \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/initializer_list \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ios \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/iosfwd \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/iostream \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/istream \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/iterator \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/limits \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/locale \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/map \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/new \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/numbers \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/optional \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ostream \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/print \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/pstl/pstl_config.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ranges \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/span \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/stdexcept \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/streambuf \
@@ -226,6 +249,8 @@ CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o: src/chessBoard.cpp \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/tuple \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/type_traits \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/typeinfo \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/unordered_map \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/utility \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/variant \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/vector \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/atomic_word.h \
@@ -861,7 +886,9 @@ CMakeFiles/chess_clone.dir/src/main.cpp.o: src/main.cpp \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/backward/binders.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bit \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/algorithmfwd.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/align.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/alloc_traits.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/allocated_ptr.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/allocator.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/basic_ios.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/basic_ios.tcc \
@@ -869,6 +896,8 @@ CMakeFiles/chess_clone.dir/src/main.cpp.o: src/main.cpp \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/basic_string.tcc \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/char_traits.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/charconv.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/chrono.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/chrono_io.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/codecvt.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/concept_check.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/cpp_type_traits.h \
@@ -912,6 +941,7 @@ CMakeFiles/chess_clone.dir/src/main.cpp.o: src/main.cpp \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/postypes.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/predefined_ops.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/ptr_traits.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/quoted_string.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/range_access.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/ranges_algo.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/ranges_algobase.h \
@@ -920,7 +950,10 @@ CMakeFiles/chess_clone.dir/src/main.cpp.o: src/main.cpp \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/ranges_util.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/refwrap.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/requires_hosted.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/shared_ptr.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/shared_ptr_base.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/specfun.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/sstream.tcc \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/std_abs.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/std_function.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_algo.h \
@@ -948,6 +981,7 @@ CMakeFiles/chess_clone.dir/src/main.cpp.o: src/main.cpp \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/unicode-data.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/unicode.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/uniform_int_dist.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/unique_ptr.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/unordered_map.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/uses_allocator.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/uses_allocator_args.h \
@@ -957,6 +991,7 @@ CMakeFiles/chess_clone.dir/src/main.cpp.o: src/main.cpp \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/cctype \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/cerrno \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/charconv \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/chrono \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/clocale \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/cmath \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/compare \
@@ -975,12 +1010,14 @@ CMakeFiles/chess_clone.dir/src/main.cpp.o: src/main.cpp \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ext/aligned_buffer.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ext/alloc_traits.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ext/atomicity.h \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ext/concurrence.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ext/numeric_traits.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ext/string_conversions.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ext/type_traits.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/format \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/functional \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/initializer_list \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/iomanip \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ios \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/iosfwd \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/iostream \
@@ -999,7 +1036,9 @@ CMakeFiles/chess_clone.dir/src/main.cpp.o: src/main.cpp \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/pstl/glue_algorithm_defs.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/pstl/pstl_config.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ranges \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ratio \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/span \
+  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/sstream \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/stdexcept \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/stdlib.h \
   /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/streambuf \
@@ -1438,26 +1477,6 @@ CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o:
 
 /nix/store/0bzvfigj8g5fsl3vfclfmfqczzchqqgh-libxau-1.0.12/lib/libXau.so.6:
 
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/utility:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/unordered_map:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ranges:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/print:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_relops.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_multimap.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/move_only_function.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/mofunc_impl.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/hashtable_policy.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/erase_if.h:
-
 /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Window/Context.hpp:
 
 /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/System/ThreadLocalPtr.inl:
@@ -1474,13 +1493,11 @@ CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o:
 
 /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Graphics/VertexArray.hpp:
 
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/functional:
-
-/nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Graphics/Text.hpp:
-
 /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Graphics/Font.hpp:
 
 /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Graphics.hpp:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/chrono_io.h:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/sys/ucontext.h:
 
@@ -1496,6 +1513,8 @@ CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types/__sigval_t.h:
 
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/chrono.h:
+
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/sigthread.h:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/sigstksz.h:
@@ -1510,13 +1529,13 @@ CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/sigaction.h:
 
-src/stackStack.hpp:
-
 src/seperateBitboard.hpp:
 
 src/nanosvg/src/nanosvgrast.h:
 
 src/loadChessAssets.hpp:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/iomanip:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/ss_flags.h:
 
@@ -1547,6 +1566,8 @@ src/chessBoardMovegenSharedDatatypes.h:
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/tr1/bessel_function.tcc:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/pstl/glue_memory_defs.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/sstream.tcc:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/pstl/glue_algorithm_defs.h:
 
@@ -1585,10 +1606,6 @@ src/chessBoardMovegenSharedDatatypes.h:
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/tr1/poly_hermite.tcc:
 
 /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Window/VideoMode.hpp:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_map.h:
-
-/nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Window/Touch.hpp:
 
 /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Window/Mouse.hpp:
 
@@ -1636,6 +1653,8 @@ src/nanosvg/src/nanosvg.h:
 
 /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Graphics/Vertex.hpp:
 
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/chrono:
+
 /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Graphics/Transformable.hpp:
 
 /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Window/Clipboard.hpp:
@@ -1671,10 +1690,6 @@ src/nanosvg/src/nanosvg.h:
 /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Graphics/Drawable.hpp:
 
 /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Graphics/Color.hpp:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/cassert:
-
-/nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Config.hpp:
 
 /nix/store/a50b0mss1mfc7shghizipm8dy0w1p2dx-imgui-1.91.4-lib/lib/libimgui.a:
 
@@ -1726,23 +1741,55 @@ src/nanosvg/src/nanosvg.h:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/mathcalls-helper-functions.h:
 
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/map:
-
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/math-vector.h:
-
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types/sigval_t.h:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/local_lim.h:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/libm-simd-decl-stubs.h:
 
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/hash_bytes.h:
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/getopt_core.h:
+
+/nix/store/vkqi03a0hgbnygahkcyk7z2lxm43k7xf-openal-soft-1.24.3/lib/libopenal.so.1:
+
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/fp-fast.h:
+
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/flt-eval-method.h:
+
+/nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/System/Vector2.inl:
+
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/environments.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/climits:
+
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/confname.h:
+
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/asm/unistd.h:
+
+src/imgui-sfml/imgui-SFML.h:
+
+src/imgui-sfml/imgui-SFML.cpp:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/lib/gcc/x86_64-unknown-linux-gnu/14.3.0/include/stdint.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/lib/gcc/x86_64-unknown-linux-gnu/14.3.0/include/stddef.h:
+
+/nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/System/Thread.hpp:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/lib/gcc/x86_64-unknown-linux-gnu/14.3.0/include/stdarg.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/time_members.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/gthr.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/ctype_base.h:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/functexcept.h:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/string_view:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/c++allocator.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/erase_if.h:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/enable_special_members.h:
 
@@ -1762,19 +1809,7 @@ src/nanosvg/src/nanosvg.h:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/codecvt.h:
 
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/node_handle.h:
-
-src/pieceMovements.hpp:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/basic_string.tcc:
-
-/nix/store/q7w8ckvdjrr238nvvb4f4g0ismbj2016-libvorbis-1.3.7/lib/libvorbisenc.so.2:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/unordered_map.h:
-
-/nix/store/zxd9sjrf10s65hfxrb08027bajplg5ks-libglvnd-1.7.0-dev/include/GL/gl.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/basic_ios.tcc:
+src/stackStack.hpp:
 
 /nix/store/d5mgy3a1v3dx379wz90nwkl9pigw1wla-libsndfile-1.2.2/lib/libsndfile.so.1:
 
@@ -1789,6 +1824,8 @@ src/pieceMovements.hpp:
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/elements_of.h:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/alloca.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/hashtable_policy.h:
 
 /nix/store/zkkifqz1kg2x22pi8xkmff1xr05cvgfd-libcap-2.76-lib/lib/libcap.so.2:
 
@@ -1828,12 +1865,6 @@ src/pieceMovements.hpp:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/tuple:
 
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/std_function.h:
-
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/strings_fortified.h:
-
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/endian.h:
-
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/iterator:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/wchar2.h:
@@ -1856,13 +1887,17 @@ src/pieceMovements.hpp:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types/timer_t.h:
 
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/waitstatus.h:
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/gthr-default.h:
 
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types/cookie_io_functions_t.h:
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types/time_t.h:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/libintl.h:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/assert.h:
+
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/waitstatus.h:
+
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types/cookie_io_functions_t.h:
 
 /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Graphics/Glyph.hpp:
 
@@ -1876,19 +1911,21 @@ src/pieceMovements.hpp:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types/struct_timespec.h:
 
-/nix/store/vkqi03a0hgbnygahkcyk7z2lxm43k7xf-openal-soft-1.24.3/lib/libopenal.so.1:
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/messages_members.h:
 
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/fp-fast.h:
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types/struct_sched_param.h:
+
+src/imgui-sfml/imgui-SFML_export.h:
+
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types/__fpos64_t.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ranges:
 
 /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/lib/libsfml-system.so:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types/mbstate_t.h:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types/struct_FILE.h:
-
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/stdint-least.h:
-
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/asm/unistd.h:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/setjmp.h:
 
@@ -1913,6 +1950,14 @@ src/pieceMovements.hpp:
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/waitflags.h:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_algobase.h:
+
+/nix/store/daamdpmaz2vjvna55ccrc30qw3qb8h6d-glibc-2.40-66/lib/libm.so.6:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/error_constants.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/locale:
+
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/stdio.h:
 
 /nix/store/daamdpmaz2vjvna55ccrc30qw3qb8h6d-glibc-2.40-66/lib/libc_nonshared.a:
 
@@ -1958,24 +2003,6 @@ src/boardState.hpp:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/select-decl.h:
 
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/hashtable.h:
-
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types.h:
-
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/uintn-identity.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/tr1/ell_integral.tcc:
-
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/sys/select.h:
-
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types/struct_itimerspec.h:
-
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types/locale_t.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/cstddef:
-
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/floatn.h:
-
 /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Window/Event.hpp:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/ctype.h:
@@ -1989,6 +2016,12 @@ src/maybeResult.hpp:
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/linux/limits.h:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/floatn-common.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/unordered_map:
+
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/asm/unistd_64.h:
+
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/pthreadtypes.h:
 
 /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Graphics/Rect.hpp:
 
@@ -2006,21 +2039,33 @@ src/maybeResult.hpp:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/system_error:
 
-src/chessBoard.h:
-
 /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/lib/libsfml-graphics.so:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/byteswap.h:
+
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/math-vector.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/map:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/basic_string.h:
 
 src/chessBoard.cpp:
 
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/stdc-predef.h:
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/tr1/ell_integral.tcc:
+
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/sys/select.h:
+
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types/struct_itimerspec.h:
+
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/hashtable.h:
+
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/uintn-identity.h:
+
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types/locale_t.h:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/endian.h:
-
-src/imgui-sfml/imgui-SFML.h:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/signum-generic.h:
 
@@ -2030,13 +2075,11 @@ src/imgui-sfml/imgui-SFML.h:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/parse_numbers.h:
 
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_tree.h:
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/stdc-predef.h:
 
-/nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Graphics/Glsl.hpp:
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/cstddef:
 
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/new_allocator.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/time_members.h:
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/floatn.h:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/compare:
 
@@ -2054,11 +2097,11 @@ src/pieceMovements.cpp:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/stdio2-decl.h:
 
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/quoted_string.h:
+
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/cmath:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/asm-generic/errno.h:
-
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/sys/types.h:
 
 /nix/store/pxamnydq8sd9jkrdwqwbl6viaz8lh3p9-libxext-1.3.6/lib/libXext.so.6:
 
@@ -2074,9 +2117,21 @@ src/pieceMovements.cpp:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/cpu-set.h:
 
+src/chessBoard.h:
+
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/sys/types.h:
+
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/stdint-least.h:
+
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/stdint-uintn.h:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/backward/binders.h:
+
+src/pieceMovements.hpp:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/basic_string.tcc:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/node_handle.h:
 
 /nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Graphics/View.hpp:
 
@@ -2094,11 +2149,13 @@ src/pieceMovements.cpp:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/exception.h:
 
-src/imgui-sfml/imgui-SFML.cpp:
-
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/sched.h:
 
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ratio:
+
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/struct_mutex.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/sstream:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_uninitialized.h:
 
@@ -2126,6 +2183,8 @@ src/imgui-sfml/imgui-SFML.cpp:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/functional_hash.h:
 
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/hash_bytes.h:
+
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ext/concurrence.h:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/limits:
@@ -2137,10 +2196,6 @@ src/imgui-sfml/imgui-SFML.cpp:
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/timesize.h:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/ptr_traits.h:
-
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types/time_t.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/gthr-default.h:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/out_ptr.h:
 
@@ -2182,6 +2237,12 @@ src/imgui-sfml/imgui-SFML.cpp:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/localefwd.h:
 
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/strings_fortified.h:
+
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/endian.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/std_function.h:
+
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/tr1/legendre_function.tcc:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/tr1/hypergeometric.tcc:
@@ -2191,6 +2252,10 @@ src/imgui-sfml/imgui-SFML.cpp:
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/memoryfwd.h:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/atomic_word.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/mofunc_impl.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/move_only_function.h:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/locale_conv.h:
 
@@ -2240,13 +2305,21 @@ src/helpers.hpp:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/ranges_util.h:
 
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stream_iterator.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_heap.h:
-
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/refwrap.h:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/unicode-data.h:
+
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/getopt_posix.h:
+
+/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/wordsize.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/std_abs.h:
+
+/nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Graphics/Shader.hpp:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/os_defines.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_algo.h:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/wctype.h:
 
@@ -2260,19 +2333,41 @@ src/helpers.hpp:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_iterator_base_funcs.h:
 
+/nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Window/Touch.hpp:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_map.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_multimap.h:
+
+/nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Graphics/Shape.hpp:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/numbers:
+
 CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_pair.h:
 
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_relops.h:
+
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_tempbuf.h:
 
+/nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Graphics/Glsl.hpp:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/new_allocator.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_tree.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/string_view.tcc:
+
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_vector.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_heap.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stream_iterator.h:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ext/aligned_buffer.h:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/streambuf_iterator.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/string_view.tcc:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/lib/gcc/x86_64-unknown-linux-gnu/14.3.0/crtbeginS.o:
 
@@ -2284,7 +2379,13 @@ CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ext/numeric_traits.h:
 
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/ctype_base.h:
+/nix/store/q7w8ckvdjrr238nvvb4f4g0ismbj2016-libvorbis-1.3.7/lib/libvorbisenc.so.2:
+
+/nix/store/zxd9sjrf10s65hfxrb08027bajplg5ks-libglvnd-1.7.0-dev/include/GL/gl.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/basic_ios.tcc:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/unordered_map.h:
 
 /nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types/__FILE.h:
 
@@ -2295,6 +2396,16 @@ CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o:
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/uses_allocator_args.h:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/vector.tcc:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/ctype_inline.h:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/version.h:
+
+/nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Config.hpp:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/cassert:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/cpu_defines.h:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/charconv:
 
@@ -2334,13 +2445,13 @@ CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ext/alloc_traits.h:
 
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types/__fpos64_t.h:
-
-src/imgui-sfml/imgui-SFML_export.h:
-
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ext/string_conversions.h:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ext/type_traits.h:
+
+/nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Graphics/Text.hpp:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/functional:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/initializer_list:
 
@@ -2354,27 +2465,19 @@ src/imgui-sfml/imgui-SFML_export.h:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/new:
 
-/nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Graphics/Shape.hpp:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/numbers:
-
-/nix/store/daamdpmaz2vjvna55ccrc30qw3qb8h6d-glibc-2.40-66/lib/libm.so.6:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/locale:
-
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/stdio.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/error_constants.h:
-
 /nix/store/as2rg79vk4z7frb7hy27nmadc3fp1a4j-libglvnd-1.7.0/lib/libGLX.so.0:
 
 src/main.cpp:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/ostream:
 
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/print:
+
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/type_traits:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/typeinfo:
+
+/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/utility:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/variant:
 
@@ -2383,51 +2486,3 @@ src/main.cpp:
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/vector:
 
 /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/c++config.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/cpu_defines.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/version.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/ctype_inline.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/gthr.h:
-
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/types/struct_sched_param.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/messages_members.h:
-
-/nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/Graphics/Shader.hpp:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_algo.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/x86_64-unknown-linux-gnu/bits/os_defines.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/lib/gcc/x86_64-unknown-linux-gnu/14.3.0/include/stddef.h:
-
-/nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/System/Thread.hpp:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/lib/gcc/x86_64-unknown-linux-gnu/14.3.0/include/stdarg.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/lib/gcc/x86_64-unknown-linux-gnu/14.3.0/include/stdint.h:
-
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/pthreadtypes.h:
-
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/asm/unistd_64.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/climits:
-
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/confname.h:
-
-/nix/store/cmn5c16rqrwf4qlqdgkgf2q0ncg5jwqg-sfml-2.6.2/include/SFML/System/Vector2.inl:
-
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/environments.h:
-
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/flt-eval-method.h:
-
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/getopt_core.h:
-
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/wordsize.h:
-
-/nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/std_abs.h:
-
-/nix/store/0vqrw0y515015i3065r9s00jcp1cd4hy-glibc-2.40-66-dev/include/bits/getopt_posix.h:

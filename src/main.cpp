@@ -5,8 +5,10 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <bit>
+#include <chrono>
 #include <csignal>
 #include <imgui.h>
 #include "imgui-sfml/imgui-SFML.h"
@@ -18,6 +20,7 @@
 #include <print>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <utility>
 
 #include "pieceMovements.hpp"
@@ -45,7 +48,6 @@ enum PieceColor : bool {
 // we need to read user input 
 
 
-
 void printUint8_t(uint8_t uint) {
     for (uint8_t i = 0; i < 8; ++i) {
         uint8_t j = 7-i;
@@ -61,174 +63,8 @@ void printUint8_t(uint8_t uint) {
 
 
 
-
-stackStack218 makeAllMoves(const chessBoard& boardInput) {
-    stackStack218 moveStack {};
-    chessBoard board {boardInput}; /////////// copy for testing
-
-    bool isWhiteTurn = (board_state::WhiteTurn & board.m_board_state) != 0;
-    uint64_t friendly_pieces = isWhiteTurn ? board.whitePieces() : board.blackPieces();
-    uint64_t enemy_pieces = !isWhiteTurn ? board.whitePieces() : board.blackPieces();
-
-    uint64_t ourKing = isWhiteTurn ? board.m_white_king : board.m_black_king;
-
-    // FastStack pawnStack {seperateBitboard<10>(isWhiteTurn ? board.m_white_pawns : board.m_black_pawns)};
-
-    uint64_t enemy_pawns = !isWhiteTurn ? board.m_white_pawns : board.m_black_pawns;
-    uint64_t friendly_pawns = isWhiteTurn ? board.m_white_pawns : board.m_black_pawns;
-
-    // we use an xor operation to change the board state to generate enemy attacks then xor it back, anything xored with itself is zero, anything xored with not itself becomes 1 and anything xored with 1 gets flipped
-    
-    uint8_t mask_for_bits_we_want_to_be_1 = board_state::WhiteLostCastlingRightsLeft | board_state::WhiteLostCastlingRightsRight | board_state::BlackLostCastlingRightsLeft | board_state::BlacklostCastlingRightsRight;
-    uint8_t bitmask_that_flips_bits_to_1 = (~(board.m_board_state & mask_for_bits_we_want_to_be_1)) & mask_for_bits_we_want_to_be_1;
-    const uint8_t xor_reversible_transformation = bitmask_that_flips_bits_to_1 | (board.m_board_state & (~mask_for_bits_we_want_to_be_1)) | board_state::WhiteTurn;
-
-    // crazy idea what if we allowed pieces to initially attack pieces with the same color but then we only let these attacks through if the friendly occupancy is zero for that square
-    // if att is the initial attack and foc is the friendly occupancy then the attack goes through if (att xor (att and foc)) implement this with bitmaps and we can get an attack bitboard that includes defenders
-    // this way we dont need to calculate checks inside our king move function
-    
-
-    uint64_t enemy_attacks_mushed {0ULL};
-    FastStack<uint64_t, 2> checksOnOurKing{};
-
-    FastStack<uint64_t, 13> pinsEmpty {};
-    FastStack<uint64_t, 2> checksEmpty {};
-    FastStack<uint64_t, 10> enemyRookAttacks_forCheckCalc {};
-    FastStack<uint64_t, 10> enemyBishopAttacks_forCheckCalc {};
-    FastStack<QueenAttackDeconstruction, 9> enemyQueenAttacks_forCheckCalc {};
-
-    // this whole block of code is to generate an enemy attack bitboard 
-    board.m_board_state ^= xor_reversible_transformation;
-    for (uint8_t i = 0; i < 6; ++ i) {
-        FastStack pieceStack {seperateBitboard<10>(board.getPiecesByColorConst(!isWhiteTurn)[i])};
-        for (uint64_t piece : pieceStack) {
-            uint64_t attack;
-
-
-            bool isWhiteTurnInner = board.m_board_state & board_state::WhiteTurn;
-            uint64_t enemies_inner = friendly_pieces;
-            uint64_t friendly_inner= enemy_pieces;
-            uint64_t occupied_inner = friendly_inner | enemies_inner;
-            switch (i) {
-                case (0):
-                    attack = isWhiteTurnInner ? chessMoves::generateSimpleWhitePawnCaptureNoTeleport(piece, occupied_inner) : chessMoves::generateSimpleBlackPawnCaptureNoTeleport(piece, occupied_inner);
-                    break;
-                case (1):
-                    attack = chessMoves::singleRookMoveNoPinOrCheck_forLoop(piece, enemies_inner, friendly_inner);
-                    if (attack) {
-                        enemyRookAttacks_forCheckCalc.push(attack);
-                    }
-                    break;
-                case (2):
-                    attack = chessMoves::generateKnightMovesNoPinCheckTeleport(piece, friendly_inner);
-                    break;
-                case (3):
-                    attack = chessMoves::singleBihopMoveNoPinOrCheck_forLoop(piece, enemies_inner, friendly_inner);
-                    if (attack) {
-                        enemyBishopAttacks_forCheckCalc.push(attack);
-                    }
-                    break;
-                case (4):
-                    {
-                    uint64_t attack_rooklike = chessMoves::singleRookMoveNoPinOrCheck_forLoop(piece, enemies_inner, friendly_inner);
-                    uint64_t attack_bishoplike = chessMoves::singleBihopMoveNoPinOrCheck_forLoop(piece, enemies_inner, friendly_inner);
-                    attack = attack_rooklike | attack_bishoplike;
-                    if (attack) {
-                        enemyQueenAttacks_forCheckCalc.push(QueenAttackDeconstruction{attack_rooklike, attack_bishoplike, piece});
-                    }
-                    break;
-                    }
-                case (5):
-                    attack = chessMoves::dummyKingMoveGenerationNoTeleportation(piece, friendly_inner);
-                    break;
-            }
-            enemy_attacks_mushed |= (attack);
-        }
-    }
-    board.m_board_state ^= xor_reversible_transformation;
-
-    std::println("############ pins and checks ############");
-    // calculating the moves
-    FastStack<uint64_t, 13> pinLines = chessMoves::calculate_pin_lines(board);
-    for (auto pin : pinLines) {
-        std::println("pins for this move");
-        helpers::printBitboard(pin);
-    }
-
-    FastStack<uint64_t, 2> checkingAttacks = chessMoves::calculateChecks(isWhiteTurn, board, enemyRookAttacks_forCheckCalc, enemyBishopAttacks_forCheckCalc, enemyQueenAttacks_forCheckCalc);
-
-    for (auto check : checkingAttacks) {
-        std::println("checks for this move");
-        helpers::printBitboard(check);
-    }
-
-    uint8_t pawnState = board_state::mapBoardToPawnState(board.m_board_state);
-
-    for (uint8_t i = 0; i < 6; ++ i) {
-        // 0 pawns, 1 rooks, 2 knights, 3 bishops, 4 queens, 5 king
-        FastStack pieceStack {seperateBitboard<10>(board.getPiecesByColorConst(isWhiteTurn)[i])};
-        for (uint64_t piece : pieceStack) {
-            std::tuple<uint64_t, std::optional<uint64_t>, std::optional<pieceMovement>> pawnRet;
-            std::pair<uint64_t, std::pair<std::optional<pieceMovement>, std::optional<pieceMovement>>> kingRet;
-            uint64_t normalRet;
-            switch (i) {
-                case (0):
-                    pawnRet = chessMoves::singlePawnMove(piece, enemy_pieces, friendly_pieces, pawnState, enemy_pawns, pinLines, checkingAttacks);
-                    break;
-                case (1):
-                    normalRet = chessMoves::singleRookMove(piece, board, pinLines, checkingAttacks);
-                    break;
-                case (2):
-                    normalRet = chessMoves::singleKnightMove(piece, board, pinLines, checkingAttacks);
-                    break;
-                case (3):
-                    normalRet = chessMoves::singleBishopMove(piece, board, pinLines, checkingAttacks);
-                    break;
-                case (4):
-                    normalRet = chessMoves::singleQueenMove(piece, board, pinLines, checkingAttacks);
-                    break;
-                case (5):
-                    kingRet = chessMoves::singleKingMove(piece, board, enemy_attacks_mushed);
-                    break;
-            }
-
-            if (i == 0) {
-                addAttacksToStack218<4>(piece, std::get<uint64_t>(pawnRet), PieceType{i}, moveStack);
-                if(std::get<std::optional<uint64_t>>(pawnRet).has_value()) {
-                    std::cout << "pawn promotion detected!!" << std::endl;
-
-                    for (uint8_t j = 1; j < 5; ++j) {
-                        auto promotionMove = pieceMovement{piece, std::get<std::optional<uint64_t>>(pawnRet).value(), PieceType::Pawn, PieceType{j}, true};
-                        promotionMove.printThis();
-                        moveStack.push(promotionMove);
-                    }
-                }
-                if(std::get<std::optional<pieceMovement>>(pawnRet)) {
-                    moveStack.push(std::get<std::optional<pieceMovement>>(pawnRet).value());
-                }
-            } else if (i > 0 && i < 5) {
-                addAttacksToStack218<27>(piece, normalRet, PieceType{i}, moveStack);
-            } else {
-                addAttacksToStack218<8>(piece, kingRet.first, PieceType{i}, moveStack);
-                
-                const auto& pair_opts = kingRet.second;
-                if(pair_opts.first.has_value()) {
-                    moveStack.push(pair_opts.first.value());
-                }
-
-                if(pair_opts.second.has_value()) {
-                    moveStack.push(pair_opts.second.value());
-                }
-            }
-        }
-    }
-
-    return moveStack;
-}
-
-
 bool checkMoveLegal(pieceMovement move, const stackStack218& moveStack) {
-    for (const pieceMovement& generated_move : moveStack.get_span_of_items()) {
+    for (const pieceMovement& generated_move : moveStack) {
         // printCustomStruct(generated_move);
         if (generated_move == move) {
             // std::cout << std::format("verified move!!") << std::endl;
@@ -526,10 +362,16 @@ struct windowCtx {
     int board_square_size;
     int pieceHeight;
 
-    bool initialiseContext();
+    windowCtx(std::string_view fenString);
+    ~windowCtx();
 };
 
-bool windowCtx::initialiseContext() {
+windowCtx::~windowCtx() {
+    ImGui::SFML::Shutdown();
+    window.close();
+}
+
+windowCtx::windowCtx(std::string_view fenString) : board(fenString) {
     float scale = 2.0f;
 
     sf::Color lightColor(227, 198, 168);  // light square color
@@ -543,7 +385,9 @@ bool windowCtx::initialiseContext() {
         chessPieceTexture = maybeData.m_value.texture;
         w = maybeData.m_value.w;
         h = maybeData.m_value.h;
-    } else { return false; }
+    } else { 
+        throw std::runtime_error("failed to load chess textures");
+    }
 
     board_square_size = static_cast<int>(50.0f * scale);
     edge_padding = 100;
@@ -558,16 +402,14 @@ bool windowCtx::initialiseContext() {
 
     chessPieceSprites = makeChessPieceSprites(chessPieceTexture, pieceHeight);
     boardBoarder = createScreenBoarderShapes(10, 5, edge_padding, board_square_size,  boarderColor);
-    board = chessBoard();
 
     window.create(sf::VideoMode(static_cast<uint32_t>(ww), static_cast<uint32_t>(wh)), "NanoSVG + SFML");
     window.setFramerateLimit(60); // Limit to 60 frames per second
     bool sucess = ImGui::SFML::Init(window);
     
     if (!sucess) {
-        std::cout << "error imgui window not created properly" << std::endl;
+        throw std::runtime_error("failed to initialise sfml window");
     }
-    return true;
 }
 
 struct userInput {
@@ -654,7 +496,11 @@ userInput processUserInput(userInput input, const chessBoard& board) {
 
 userInput consumeStagedMoveVerifyAndApply(userInput input, chessBoard& board) {
     if (input.stagedForApplicationMove.has_value()) {
-        stackStack218 allMoves = makeAllMoves(board);
+        auto start = std::chrono::high_resolution_clock::now();
+        stackStack218 allMoves = chessMoves::makeAllMoves(board);
+        auto stop = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
+        std::println("time taken to generate moves : {} microseconds", duration.count());
         if (checkMoveLegal(input.stagedForApplicationMove.value(), allMoves)) {
             board = applyChessMove(input.stagedForApplicationMove.value(), board);
         }
@@ -749,12 +595,29 @@ userInput makeImguiWindow(windowCtx& w_ctx, userInput input) {
     return input;
 }
 
-int main()
+int main(int argc, char *argv[])
 {
-    windowCtx w_ctx;
-    if (!w_ctx.initialiseContext()) {
-        return -1;
+    char myargstring[256];
+    auto counter {0uz};
+    for (auto arr : std::span(argv, argc)) {
+        if (counter == 0) {
+            counter ++;
+            continue;
+        }
+
+        for (auto c : std::string_view(arr)) {
+            assert(counter < 256);
+            myargstring[counter-1] = c;
+            counter ++;
+        }   
+        assert(counter < 256);
+        myargstring[counter-1] = ' ';
+        counter ++;
     }
+    myargstring[counter-1] = '\0';
+    std::string_view fenArgument = argc > 1 ? std::string_view(myargstring) : "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+
+    windowCtx w_ctx(fenArgument);
 
     userInput input_ctx;
 
@@ -784,6 +647,7 @@ int main()
         
         w_ctx.window.display();
     }
+
 
     return 0;
 }

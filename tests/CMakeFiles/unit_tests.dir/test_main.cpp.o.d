@@ -349,7 +349,6 @@ tests/CMakeFiles/unit_tests.dir/test_main.cpp.o: \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/utility \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/stl_relops.h \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/bits/elements_of.h \
- /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/../src/seperateBitboard.hpp \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/../src/boardState.hpp \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/../src/helpers.hpp \
  /nix/store/ffrg0560kj0066s4k9pznjand907nlnz-gcc-14.3.0/include/c++/14.3.0/algorithm \
@@ -364,4 +363,5 @@ tests/CMakeFiles/unit_tests.dir/test_main.cpp.o: \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/../src/stackStack.hpp \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/../src/pieceMovements.hpp \
  /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/../src/chessBoard.h \
- /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/../src/chessBoardMovegenSharedDatatypes.h
+ /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/../src/chessBoardMovegenSharedDatatypes.h \
+ /home/quartz/sync/codingProjects/learning_cpp/chessClone/tests/../src/seperateBitboard.hpp

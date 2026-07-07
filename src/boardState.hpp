@@ -4,6 +4,10 @@
 #define BOARD_STATE
 namespace board_state {
 
+// this encodes the square behind the pawn that has moved 2 places, ie the en passant capturable square,
+// valid values are between 0 and 63, when this isnt available the value will be negative
+using enPassantState = int8_t;
+
 enum BoardState : uint8_t{
     EnPassantRight    = 0b00000010,
     WhiteTurn         = 0b00000100,
