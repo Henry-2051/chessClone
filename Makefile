@@ -65,16 +65,6 @@ CMAKE_BINARY_DIR = /home/quartz/sync/codingProjects/learning_cpp/chessClone
 #=============================================================================
 # Targets provided globally by CMake.
 
-# Special rule for the target test
-test:
-	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "Running tests..."
-	/nix/store/5bn5f4ivqf4xn19khh4kcg4ngnjs6spg-cmake-4.1.2/bin/ctest $(ARGS)
-.PHONY : test
-
-# Special rule for the target test
-test/fast: test
-.PHONY : test/fast
-
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color "--switch=$(COLOR)" --cyan "No interactive CMake dialog available..."
@@ -127,17 +117,56 @@ depend:
 .PHONY : depend
 
 #=============================================================================
-# Target rules for targets named chess_clone
+# Target rules for targets named gui_chess_game
 
 # Build rule for target.
-chess_clone: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 chess_clone
-.PHONY : chess_clone
+gui_chess_game: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 gui_chess_game
+.PHONY : gui_chess_game
 
 # fast build rule for target.
-chess_clone/fast:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_clone.dir/build.make CMakeFiles/chess_clone.dir/build
-.PHONY : chess_clone/fast
+gui_chess_game/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gui_chess_game.dir/build.make CMakeFiles/gui_chess_game.dir/build
+.PHONY : gui_chess_game/fast
+
+#=============================================================================
+# Target rules for targets named pertree_debugger
+
+# Build rule for target.
+pertree_debugger: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 pertree_debugger
+.PHONY : pertree_debugger
+
+# fast build rule for target.
+pertree_debugger/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pertree_debugger.dir/build.make CMakeFiles/pertree_debugger.dir/build
+.PHONY : pertree_debugger/fast
+
+#=============================================================================
+# Target rules for targets named chessBoard
+
+# Build rule for target.
+chessBoard: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 chessBoard
+.PHONY : chessBoard
+
+# fast build rule for target.
+chessBoard/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chessBoard.dir/build.make CMakeFiles/chessBoard.dir/build
+.PHONY : chessBoard/fast
+
+#=============================================================================
+# Target rules for targets named pieceMovements
+
+# Build rule for target.
+pieceMovements: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 pieceMovements
+.PHONY : pieceMovements
+
+# fast build rule for target.
+pieceMovements/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pieceMovements.dir/build.make CMakeFiles/pieceMovements.dir/build
+.PHONY : pieceMovements/fast
 
 #=============================================================================
 # Target rules for targets named run
@@ -178,478 +207,125 @@ Catch2WithMain/fast:
 	$(MAKE) $(MAKESILENT) -f _deps/catch2-build/src/CMakeFiles/Catch2WithMain.dir/build.make _deps/catch2-build/src/CMakeFiles/Catch2WithMain.dir/build
 .PHONY : Catch2WithMain/fast
 
-#=============================================================================
-# Target rules for targets named unit_tests
-
-# Build rule for target.
-unit_tests: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 unit_tests
-.PHONY : unit_tests
-
-# fast build rule for target.
-unit_tests/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/unit_tests.dir/build.make tests/CMakeFiles/unit_tests.dir/build
-.PHONY : unit_tests/fast
-
-#=============================================================================
-# Target rules for targets named Experimental
-
-# Build rule for target.
-Experimental: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 Experimental
-.PHONY : Experimental
-
-# fast build rule for target.
-Experimental/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/Experimental.dir/build.make tests/CMakeFiles/Experimental.dir/build
-.PHONY : Experimental/fast
-
-#=============================================================================
-# Target rules for targets named Nightly
-
-# Build rule for target.
-Nightly: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 Nightly
-.PHONY : Nightly
-
-# fast build rule for target.
-Nightly/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/Nightly.dir/build.make tests/CMakeFiles/Nightly.dir/build
-.PHONY : Nightly/fast
-
-#=============================================================================
-# Target rules for targets named Continuous
-
-# Build rule for target.
-Continuous: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 Continuous
-.PHONY : Continuous
-
-# fast build rule for target.
-Continuous/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/Continuous.dir/build.make tests/CMakeFiles/Continuous.dir/build
-.PHONY : Continuous/fast
-
-#=============================================================================
-# Target rules for targets named NightlyMemoryCheck
-
-# Build rule for target.
-NightlyMemoryCheck: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 NightlyMemoryCheck
-.PHONY : NightlyMemoryCheck
-
-# fast build rule for target.
-NightlyMemoryCheck/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/NightlyMemoryCheck.dir/build.make tests/CMakeFiles/NightlyMemoryCheck.dir/build
-.PHONY : NightlyMemoryCheck/fast
-
-#=============================================================================
-# Target rules for targets named NightlyStart
-
-# Build rule for target.
-NightlyStart: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 NightlyStart
-.PHONY : NightlyStart
-
-# fast build rule for target.
-NightlyStart/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/NightlyStart.dir/build.make tests/CMakeFiles/NightlyStart.dir/build
-.PHONY : NightlyStart/fast
-
-#=============================================================================
-# Target rules for targets named NightlyUpdate
-
-# Build rule for target.
-NightlyUpdate: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 NightlyUpdate
-.PHONY : NightlyUpdate
-
-# fast build rule for target.
-NightlyUpdate/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/NightlyUpdate.dir/build.make tests/CMakeFiles/NightlyUpdate.dir/build
-.PHONY : NightlyUpdate/fast
-
-#=============================================================================
-# Target rules for targets named NightlyConfigure
-
-# Build rule for target.
-NightlyConfigure: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 NightlyConfigure
-.PHONY : NightlyConfigure
-
-# fast build rule for target.
-NightlyConfigure/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/NightlyConfigure.dir/build.make tests/CMakeFiles/NightlyConfigure.dir/build
-.PHONY : NightlyConfigure/fast
-
-#=============================================================================
-# Target rules for targets named NightlyBuild
-
-# Build rule for target.
-NightlyBuild: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 NightlyBuild
-.PHONY : NightlyBuild
-
-# fast build rule for target.
-NightlyBuild/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/NightlyBuild.dir/build.make tests/CMakeFiles/NightlyBuild.dir/build
-.PHONY : NightlyBuild/fast
-
-#=============================================================================
-# Target rules for targets named NightlyTest
-
-# Build rule for target.
-NightlyTest: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 NightlyTest
-.PHONY : NightlyTest
-
-# fast build rule for target.
-NightlyTest/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/NightlyTest.dir/build.make tests/CMakeFiles/NightlyTest.dir/build
-.PHONY : NightlyTest/fast
-
-#=============================================================================
-# Target rules for targets named NightlyCoverage
-
-# Build rule for target.
-NightlyCoverage: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 NightlyCoverage
-.PHONY : NightlyCoverage
-
-# fast build rule for target.
-NightlyCoverage/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/NightlyCoverage.dir/build.make tests/CMakeFiles/NightlyCoverage.dir/build
-.PHONY : NightlyCoverage/fast
-
-#=============================================================================
-# Target rules for targets named NightlyMemCheck
-
-# Build rule for target.
-NightlyMemCheck: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 NightlyMemCheck
-.PHONY : NightlyMemCheck
-
-# fast build rule for target.
-NightlyMemCheck/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/NightlyMemCheck.dir/build.make tests/CMakeFiles/NightlyMemCheck.dir/build
-.PHONY : NightlyMemCheck/fast
-
-#=============================================================================
-# Target rules for targets named NightlySubmit
-
-# Build rule for target.
-NightlySubmit: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 NightlySubmit
-.PHONY : NightlySubmit
-
-# fast build rule for target.
-NightlySubmit/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/NightlySubmit.dir/build.make tests/CMakeFiles/NightlySubmit.dir/build
-.PHONY : NightlySubmit/fast
-
-#=============================================================================
-# Target rules for targets named ExperimentalStart
-
-# Build rule for target.
-ExperimentalStart: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ExperimentalStart
-.PHONY : ExperimentalStart
-
-# fast build rule for target.
-ExperimentalStart/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/ExperimentalStart.dir/build.make tests/CMakeFiles/ExperimentalStart.dir/build
-.PHONY : ExperimentalStart/fast
-
-#=============================================================================
-# Target rules for targets named ExperimentalUpdate
-
-# Build rule for target.
-ExperimentalUpdate: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ExperimentalUpdate
-.PHONY : ExperimentalUpdate
-
-# fast build rule for target.
-ExperimentalUpdate/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/ExperimentalUpdate.dir/build.make tests/CMakeFiles/ExperimentalUpdate.dir/build
-.PHONY : ExperimentalUpdate/fast
-
-#=============================================================================
-# Target rules for targets named ExperimentalConfigure
-
-# Build rule for target.
-ExperimentalConfigure: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ExperimentalConfigure
-.PHONY : ExperimentalConfigure
-
-# fast build rule for target.
-ExperimentalConfigure/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/ExperimentalConfigure.dir/build.make tests/CMakeFiles/ExperimentalConfigure.dir/build
-.PHONY : ExperimentalConfigure/fast
-
-#=============================================================================
-# Target rules for targets named ExperimentalBuild
-
-# Build rule for target.
-ExperimentalBuild: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ExperimentalBuild
-.PHONY : ExperimentalBuild
-
-# fast build rule for target.
-ExperimentalBuild/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/ExperimentalBuild.dir/build.make tests/CMakeFiles/ExperimentalBuild.dir/build
-.PHONY : ExperimentalBuild/fast
-
-#=============================================================================
-# Target rules for targets named ExperimentalTest
-
-# Build rule for target.
-ExperimentalTest: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ExperimentalTest
-.PHONY : ExperimentalTest
-
-# fast build rule for target.
-ExperimentalTest/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/ExperimentalTest.dir/build.make tests/CMakeFiles/ExperimentalTest.dir/build
-.PHONY : ExperimentalTest/fast
-
-#=============================================================================
-# Target rules for targets named ExperimentalCoverage
-
-# Build rule for target.
-ExperimentalCoverage: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ExperimentalCoverage
-.PHONY : ExperimentalCoverage
-
-# fast build rule for target.
-ExperimentalCoverage/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/ExperimentalCoverage.dir/build.make tests/CMakeFiles/ExperimentalCoverage.dir/build
-.PHONY : ExperimentalCoverage/fast
-
-#=============================================================================
-# Target rules for targets named ExperimentalMemCheck
-
-# Build rule for target.
-ExperimentalMemCheck: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ExperimentalMemCheck
-.PHONY : ExperimentalMemCheck
-
-# fast build rule for target.
-ExperimentalMemCheck/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/ExperimentalMemCheck.dir/build.make tests/CMakeFiles/ExperimentalMemCheck.dir/build
-.PHONY : ExperimentalMemCheck/fast
-
-#=============================================================================
-# Target rules for targets named ExperimentalSubmit
-
-# Build rule for target.
-ExperimentalSubmit: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ExperimentalSubmit
-.PHONY : ExperimentalSubmit
-
-# fast build rule for target.
-ExperimentalSubmit/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/ExperimentalSubmit.dir/build.make tests/CMakeFiles/ExperimentalSubmit.dir/build
-.PHONY : ExperimentalSubmit/fast
-
-#=============================================================================
-# Target rules for targets named ContinuousStart
-
-# Build rule for target.
-ContinuousStart: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ContinuousStart
-.PHONY : ContinuousStart
-
-# fast build rule for target.
-ContinuousStart/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/ContinuousStart.dir/build.make tests/CMakeFiles/ContinuousStart.dir/build
-.PHONY : ContinuousStart/fast
-
-#=============================================================================
-# Target rules for targets named ContinuousUpdate
-
-# Build rule for target.
-ContinuousUpdate: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ContinuousUpdate
-.PHONY : ContinuousUpdate
-
-# fast build rule for target.
-ContinuousUpdate/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/ContinuousUpdate.dir/build.make tests/CMakeFiles/ContinuousUpdate.dir/build
-.PHONY : ContinuousUpdate/fast
-
-#=============================================================================
-# Target rules for targets named ContinuousConfigure
-
-# Build rule for target.
-ContinuousConfigure: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ContinuousConfigure
-.PHONY : ContinuousConfigure
-
-# fast build rule for target.
-ContinuousConfigure/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/ContinuousConfigure.dir/build.make tests/CMakeFiles/ContinuousConfigure.dir/build
-.PHONY : ContinuousConfigure/fast
-
-#=============================================================================
-# Target rules for targets named ContinuousBuild
-
-# Build rule for target.
-ContinuousBuild: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ContinuousBuild
-.PHONY : ContinuousBuild
-
-# fast build rule for target.
-ContinuousBuild/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/ContinuousBuild.dir/build.make tests/CMakeFiles/ContinuousBuild.dir/build
-.PHONY : ContinuousBuild/fast
-
-#=============================================================================
-# Target rules for targets named ContinuousTest
-
-# Build rule for target.
-ContinuousTest: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ContinuousTest
-.PHONY : ContinuousTest
-
-# fast build rule for target.
-ContinuousTest/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/ContinuousTest.dir/build.make tests/CMakeFiles/ContinuousTest.dir/build
-.PHONY : ContinuousTest/fast
-
-#=============================================================================
-# Target rules for targets named ContinuousCoverage
-
-# Build rule for target.
-ContinuousCoverage: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ContinuousCoverage
-.PHONY : ContinuousCoverage
-
-# fast build rule for target.
-ContinuousCoverage/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/ContinuousCoverage.dir/build.make tests/CMakeFiles/ContinuousCoverage.dir/build
-.PHONY : ContinuousCoverage/fast
-
-#=============================================================================
-# Target rules for targets named ContinuousMemCheck
-
-# Build rule for target.
-ContinuousMemCheck: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ContinuousMemCheck
-.PHONY : ContinuousMemCheck
-
-# fast build rule for target.
-ContinuousMemCheck/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/ContinuousMemCheck.dir/build.make tests/CMakeFiles/ContinuousMemCheck.dir/build
-.PHONY : ContinuousMemCheck/fast
-
-#=============================================================================
-# Target rules for targets named ContinuousSubmit
-
-# Build rule for target.
-ContinuousSubmit: cmake_check_build_system
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 ContinuousSubmit
-.PHONY : ContinuousSubmit
-
-# fast build rule for target.
-ContinuousSubmit/fast:
-	$(MAKE) $(MAKESILENT) -f tests/CMakeFiles/ContinuousSubmit.dir/build.make tests/CMakeFiles/ContinuousSubmit.dir/build
-.PHONY : ContinuousSubmit/fast
-
-src/chessBoard.o: src/chessBoard.cpp.o
-.PHONY : src/chessBoard.o
+src-gui-game/imgui-sfml/imgui-SFML.o: src-gui-game/imgui-sfml/imgui-SFML.cpp.o
+.PHONY : src-gui-game/imgui-sfml/imgui-SFML.o
 
 # target to build an object file
-src/chessBoard.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_clone.dir/build.make CMakeFiles/chess_clone.dir/src/chessBoard.cpp.o
-.PHONY : src/chessBoard.cpp.o
+src-gui-game/imgui-sfml/imgui-SFML.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gui_chess_game.dir/build.make CMakeFiles/gui_chess_game.dir/src-gui-game/imgui-sfml/imgui-SFML.cpp.o
+.PHONY : src-gui-game/imgui-sfml/imgui-SFML.cpp.o
 
-src/chessBoard.i: src/chessBoard.cpp.i
-.PHONY : src/chessBoard.i
+src-gui-game/imgui-sfml/imgui-SFML.i: src-gui-game/imgui-sfml/imgui-SFML.cpp.i
+.PHONY : src-gui-game/imgui-sfml/imgui-SFML.i
 
 # target to preprocess a source file
-src/chessBoard.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_clone.dir/build.make CMakeFiles/chess_clone.dir/src/chessBoard.cpp.i
-.PHONY : src/chessBoard.cpp.i
+src-gui-game/imgui-sfml/imgui-SFML.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gui_chess_game.dir/build.make CMakeFiles/gui_chess_game.dir/src-gui-game/imgui-sfml/imgui-SFML.cpp.i
+.PHONY : src-gui-game/imgui-sfml/imgui-SFML.cpp.i
 
-src/chessBoard.s: src/chessBoard.cpp.s
-.PHONY : src/chessBoard.s
+src-gui-game/imgui-sfml/imgui-SFML.s: src-gui-game/imgui-sfml/imgui-SFML.cpp.s
+.PHONY : src-gui-game/imgui-sfml/imgui-SFML.s
 
 # target to generate assembly for a file
-src/chessBoard.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_clone.dir/build.make CMakeFiles/chess_clone.dir/src/chessBoard.cpp.s
-.PHONY : src/chessBoard.cpp.s
+src-gui-game/imgui-sfml/imgui-SFML.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gui_chess_game.dir/build.make CMakeFiles/gui_chess_game.dir/src-gui-game/imgui-sfml/imgui-SFML.cpp.s
+.PHONY : src-gui-game/imgui-sfml/imgui-SFML.cpp.s
 
-src/imgui-sfml/imgui-SFML.o: src/imgui-sfml/imgui-SFML.cpp.o
-.PHONY : src/imgui-sfml/imgui-SFML.o
+src-gui-game/main.o: src-gui-game/main.cpp.o
+.PHONY : src-gui-game/main.o
 
 # target to build an object file
-src/imgui-sfml/imgui-SFML.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_clone.dir/build.make CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.o
-.PHONY : src/imgui-sfml/imgui-SFML.cpp.o
+src-gui-game/main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gui_chess_game.dir/build.make CMakeFiles/gui_chess_game.dir/src-gui-game/main.cpp.o
+.PHONY : src-gui-game/main.cpp.o
 
-src/imgui-sfml/imgui-SFML.i: src/imgui-sfml/imgui-SFML.cpp.i
-.PHONY : src/imgui-sfml/imgui-SFML.i
+src-gui-game/main.i: src-gui-game/main.cpp.i
+.PHONY : src-gui-game/main.i
 
 # target to preprocess a source file
-src/imgui-sfml/imgui-SFML.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_clone.dir/build.make CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.i
-.PHONY : src/imgui-sfml/imgui-SFML.cpp.i
+src-gui-game/main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gui_chess_game.dir/build.make CMakeFiles/gui_chess_game.dir/src-gui-game/main.cpp.i
+.PHONY : src-gui-game/main.cpp.i
 
-src/imgui-sfml/imgui-SFML.s: src/imgui-sfml/imgui-SFML.cpp.s
-.PHONY : src/imgui-sfml/imgui-SFML.s
+src-gui-game/main.s: src-gui-game/main.cpp.s
+.PHONY : src-gui-game/main.s
 
 # target to generate assembly for a file
-src/imgui-sfml/imgui-SFML.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_clone.dir/build.make CMakeFiles/chess_clone.dir/src/imgui-sfml/imgui-SFML.cpp.s
-.PHONY : src/imgui-sfml/imgui-SFML.cpp.s
+src-gui-game/main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/gui_chess_game.dir/build.make CMakeFiles/gui_chess_game.dir/src-gui-game/main.cpp.s
+.PHONY : src-gui-game/main.cpp.s
 
-src/main.o: src/main.cpp.o
-.PHONY : src/main.o
+src-lib/chessBoard.o: src-lib/chessBoard.cpp.o
+.PHONY : src-lib/chessBoard.o
 
 # target to build an object file
-src/main.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_clone.dir/build.make CMakeFiles/chess_clone.dir/src/main.cpp.o
-.PHONY : src/main.cpp.o
+src-lib/chessBoard.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chessBoard.dir/build.make CMakeFiles/chessBoard.dir/src-lib/chessBoard.cpp.o
+.PHONY : src-lib/chessBoard.cpp.o
 
-src/main.i: src/main.cpp.i
-.PHONY : src/main.i
+src-lib/chessBoard.i: src-lib/chessBoard.cpp.i
+.PHONY : src-lib/chessBoard.i
 
 # target to preprocess a source file
-src/main.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_clone.dir/build.make CMakeFiles/chess_clone.dir/src/main.cpp.i
-.PHONY : src/main.cpp.i
+src-lib/chessBoard.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chessBoard.dir/build.make CMakeFiles/chessBoard.dir/src-lib/chessBoard.cpp.i
+.PHONY : src-lib/chessBoard.cpp.i
 
-src/main.s: src/main.cpp.s
-.PHONY : src/main.s
+src-lib/chessBoard.s: src-lib/chessBoard.cpp.s
+.PHONY : src-lib/chessBoard.s
 
 # target to generate assembly for a file
-src/main.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_clone.dir/build.make CMakeFiles/chess_clone.dir/src/main.cpp.s
-.PHONY : src/main.cpp.s
+src-lib/chessBoard.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/chessBoard.dir/build.make CMakeFiles/chessBoard.dir/src-lib/chessBoard.cpp.s
+.PHONY : src-lib/chessBoard.cpp.s
 
-src/pieceMovements.o: src/pieceMovements.cpp.o
-.PHONY : src/pieceMovements.o
+src-lib/pieceMovements.o: src-lib/pieceMovements.cpp.o
+.PHONY : src-lib/pieceMovements.o
 
 # target to build an object file
-src/pieceMovements.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_clone.dir/build.make CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.o
-.PHONY : src/pieceMovements.cpp.o
+src-lib/pieceMovements.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pieceMovements.dir/build.make CMakeFiles/pieceMovements.dir/src-lib/pieceMovements.cpp.o
+.PHONY : src-lib/pieceMovements.cpp.o
 
-src/pieceMovements.i: src/pieceMovements.cpp.i
-.PHONY : src/pieceMovements.i
+src-lib/pieceMovements.i: src-lib/pieceMovements.cpp.i
+.PHONY : src-lib/pieceMovements.i
 
 # target to preprocess a source file
-src/pieceMovements.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_clone.dir/build.make CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.i
-.PHONY : src/pieceMovements.cpp.i
+src-lib/pieceMovements.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pieceMovements.dir/build.make CMakeFiles/pieceMovements.dir/src-lib/pieceMovements.cpp.i
+.PHONY : src-lib/pieceMovements.cpp.i
 
-src/pieceMovements.s: src/pieceMovements.cpp.s
-.PHONY : src/pieceMovements.s
+src-lib/pieceMovements.s: src-lib/pieceMovements.cpp.s
+.PHONY : src-lib/pieceMovements.s
 
 # target to generate assembly for a file
-src/pieceMovements.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/chess_clone.dir/build.make CMakeFiles/chess_clone.dir/src/pieceMovements.cpp.s
-.PHONY : src/pieceMovements.cpp.s
+src-lib/pieceMovements.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pieceMovements.dir/build.make CMakeFiles/pieceMovements.dir/src-lib/pieceMovements.cpp.s
+.PHONY : src-lib/pieceMovements.cpp.s
+
+src-perftree-debugger/main.o: src-perftree-debugger/main.cpp.o
+.PHONY : src-perftree-debugger/main.o
+
+# target to build an object file
+src-perftree-debugger/main.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pertree_debugger.dir/build.make CMakeFiles/pertree_debugger.dir/src-perftree-debugger/main.cpp.o
+.PHONY : src-perftree-debugger/main.cpp.o
+
+src-perftree-debugger/main.i: src-perftree-debugger/main.cpp.i
+.PHONY : src-perftree-debugger/main.i
+
+# target to preprocess a source file
+src-perftree-debugger/main.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pertree_debugger.dir/build.make CMakeFiles/pertree_debugger.dir/src-perftree-debugger/main.cpp.i
+.PHONY : src-perftree-debugger/main.cpp.i
+
+src-perftree-debugger/main.s: src-perftree-debugger/main.cpp.s
+.PHONY : src-perftree-debugger/main.s
+
+# target to generate assembly for a file
+src-perftree-debugger/main.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/pertree_debugger.dir/build.make CMakeFiles/pertree_debugger.dir/src-perftree-debugger/main.cpp.s
+.PHONY : src-perftree-debugger/main.cpp.s
 
 # Help Target
 help:
@@ -659,52 +335,28 @@ help:
 	@echo "... depend"
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
-	@echo "... test"
-	@echo "... Continuous"
-	@echo "... ContinuousBuild"
-	@echo "... ContinuousConfigure"
-	@echo "... ContinuousCoverage"
-	@echo "... ContinuousMemCheck"
-	@echo "... ContinuousStart"
-	@echo "... ContinuousSubmit"
-	@echo "... ContinuousTest"
-	@echo "... ContinuousUpdate"
-	@echo "... Experimental"
-	@echo "... ExperimentalBuild"
-	@echo "... ExperimentalConfigure"
-	@echo "... ExperimentalCoverage"
-	@echo "... ExperimentalMemCheck"
-	@echo "... ExperimentalStart"
-	@echo "... ExperimentalSubmit"
-	@echo "... ExperimentalTest"
-	@echo "... ExperimentalUpdate"
-	@echo "... Nightly"
-	@echo "... NightlyBuild"
-	@echo "... NightlyConfigure"
-	@echo "... NightlyCoverage"
-	@echo "... NightlyMemCheck"
-	@echo "... NightlyMemoryCheck"
-	@echo "... NightlyStart"
-	@echo "... NightlySubmit"
-	@echo "... NightlyTest"
-	@echo "... NightlyUpdate"
 	@echo "... run"
 	@echo "... Catch2"
 	@echo "... Catch2WithMain"
-	@echo "... chess_clone"
-	@echo "... unit_tests"
-	@echo "... src/chessBoard.o"
-	@echo "... src/chessBoard.i"
-	@echo "... src/chessBoard.s"
-	@echo "... src/imgui-sfml/imgui-SFML.o"
-	@echo "... src/imgui-sfml/imgui-SFML.i"
-	@echo "... src/imgui-sfml/imgui-SFML.s"
-	@echo "... src/main.o"
-	@echo "... src/main.i"
-	@echo "... src/main.s"
-	@echo "... src/pieceMovements.o"
-	@echo "... src/pieceMovements.i"
-	@echo "... src/pieceMovements.s"
+	@echo "... chessBoard"
+	@echo "... gui_chess_game"
+	@echo "... pertree_debugger"
+	@echo "... pieceMovements"
+	@echo "... src-gui-game/imgui-sfml/imgui-SFML.o"
+	@echo "... src-gui-game/imgui-sfml/imgui-SFML.i"
+	@echo "... src-gui-game/imgui-sfml/imgui-SFML.s"
+	@echo "... src-gui-game/main.o"
+	@echo "... src-gui-game/main.i"
+	@echo "... src-gui-game/main.s"
+	@echo "... src-lib/chessBoard.o"
+	@echo "... src-lib/chessBoard.i"
+	@echo "... src-lib/chessBoard.s"
+	@echo "... src-lib/pieceMovements.o"
+	@echo "... src-lib/pieceMovements.i"
+	@echo "... src-lib/pieceMovements.s"
+	@echo "... src-perftree-debugger/main.o"
+	@echo "... src-perftree-debugger/main.i"
+	@echo "... src-perftree-debugger/main.s"
 .PHONY : help
 
 

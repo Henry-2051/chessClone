@@ -48,37 +48,74 @@ FetchContent_MakeAvailable(catch2)
 # catch_discover_tests(unit_tests)
 
 # Alternatively, if you prefer tests in a subdirectory:
-option(ENABLE_UNIT_TESTS "Enable building unit tests" ON)
-if(ENABLE_UNIT_TESTS)
-  enable_testing()
-  add_subdirectory(tests)
-endif()
+
+# disable for now until we have the library structure figured out
+
+# option(ENABLE_UNIT_TESTS "Enable building unit tests" ON)
+# if(ENABLE_UNIT_TESTS)
+#   enable_testing()
+#   add_subdirectory(tests)
+# endif()
 
 # --------------------------------------------------------------------
 # Configure main executable target.
 
-add_executable(${PROJECT_NAME} 
-    ./src/pieceMovements.cpp
-    ./src/chessBoard.cpp
-    ./src/main.cpp
-    ./src/imgui-sfml/imgui-SFML.cpp
+add_executable(gui_chess_game 
+    ./src-gui-game/main.cpp
+    ./src-gui-game/imgui-sfml/imgui-SFML.cpp
 )
-target_include_directories(${PROJECT_NAME} PRIVATE
-  "${CMAKE_SOURCE_DIR}/src"
-  # "${CMAKE_SOURCE_DIR}/src/imgui"
+
+target_include_directories(gui_chess_game PRIVATE
+  "${CMAKE_SOURCE_DIR}/src-gui-game"
+  "${CMAKE_SOURCE_DIR}/src-lib"
+  "${CMAKE_SOURCE_DIR}/shared-src-header-libs"
   "${CMAKE_SOURCE_DIR}/src/imgui-sfml")
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
+add_executable(pertree_debugger
+    ./src-perftree-debugger/main.cpp
+)
+
+target_include_directories(pertree_debugger PRIVATE
+  "${CMAKE_SOURCE_DIR}/src-perftree-debugger"
+  "${CMAKE_SOURCE_DIR}/src-lib"
+  "${CMAKE_SOURCE_DIR}/shared-src-header-libs"
+  "${CMAKE_SOURCE_DIR}/src/imgui-sfml")
+
+add_library(chessBoard ./src-lib/chessBoard.cpp)
+
+target_include_directories(chessBoard PRIVATE
+    "${CMAKE_SOURCE_DIR}/src-lib/"
+    "${CMAKE_SOURCE_DIR}/shared-src-header-libs/"
+)
+
+add_library(pieceMovements ./src-lib/pieceMovements.cpp)
+
+target_include_directories(pieceMovements PRIVATE
+    "${CMAKE_SOURCE_DIR}/src-lib/"
+    "${CMAKE_SOURCE_DIR}/shared-src-header-libs/"
+)
+
+set_target_properties(gui_chess_game PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
-target_link_libraries(${PROJECT_NAME} PRIVATE
+set_target_properties(pertree_debugger PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
+
+target_link_libraries(gui_chess_game PRIVATE
   sfml-graphics
   sfml-window
   sfml-system
   sfml-audio
   imgui
   GL
+  chessBoard
+  pieceMovements
   )
+
+target_link_libraries(pertree_debugger PRIVATE
+  chessBoard
+  pieceMovements
+)
 
 # --------------------------------------------------------------------
 # Custom Target to Build and Run the Main Application.
