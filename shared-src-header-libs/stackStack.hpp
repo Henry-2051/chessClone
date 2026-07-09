@@ -1,5 +1,6 @@
 // #include <algorithm>
 #include <array>
+#include <bit>
 #include <print>
 #include <cstdint>
 #include <format>
@@ -29,6 +30,7 @@ enum PieceType : uint8_t {
     Bishop = 0b11,
     Queen = 0b100,
     King = 0b101,
+    NotAPiece = 0b1000,
 };
 
 inline std::string_view getPieceTypeString(PieceType pt) {
@@ -45,7 +47,10 @@ inline std::string_view getPieceTypeString(PieceType pt) {
             return "Queen";
         case (PieceType::Rook):
             return "Rook";
+        case (PieceType::NotAPiece):
+            return "NotAPiece";
     };
+    return "Unrecognised input in getPieceTypeString";
 }
 
 template <PieceType pt>
@@ -63,49 +68,65 @@ enum IsCapture : uint8_t {
 
 struct pieceMovement {
     uint64_t  movement;
-    uint64_t  second_optional_movement;
-    PieceType pieceType;
-    PieceType secondPieceType;
-    bool has_second_movement {false};
+    uint64_t  secondMovement;
+    // Bitboard 1 {White, Black}, Bitboard 2 {White, Black}
+    PieceType movement1WhiteBB {NotAPiece};
+    PieceType movement1BlackBB {NotAPiece};
+    PieceType movement2WhiteBB {NotAPiece};
+    PieceType movement2BlackBB {NotAPiece};
+    int8_t enPassantState{-1}; // en passant behavior
+                               //
+                               // this basically tells us whether the board used the generate the move had an en passant state
+                               // this is so when undoing a move we can remake the original en passant state
+                               // if a board has en passant state then the move with the same en passant state is the forward move and the move with different state is the undoing move 
+                               // if a board doesnt have en passant state and a move does have en passant state then when we apply the move the resulting board will have that en passant state
+                               // it tells us that a pawn was moved 2 squares past a pawn in the move before
+    
+    uint8_t boardStateChange {board_state::WhiteTurn};
+    
+    //TODO halfmove and fullmove clock
 
-    bool operator==(const pieceMovement& rval) const {
-        // if both movements have second movements then we want to compare them, this is the comparason in a lambda
-        std::function<bool()> second = [&rval, this]->bool{
-            return this->second_optional_movement == rval.second_optional_movement && this->secondPieceType == rval.secondPieceType;
-        };
-        bool secondMovement = has_second_movement && rval.has_second_movement;
-
-        return movement == rval.movement && pieceType == rval.pieceType && (!secondMovement || second());
-    }
-
-    pieceMovement operator|(const pieceMovement& rval) const{
-        if (pieceType != rval.pieceType) {
-            throw std::logic_error("trying to merge two piece movements with different piece type values");
+    bool guiShouldSelect(const pieceMovement& rval) const {
+        // were going to be hacky and only compare the first part unless its pawn promoiton
+        if (std::popcount(movement) == 1 && std::popcount(rval.movement) == 1) {
+            return (movement | secondMovement) == (rval.movement | rval.secondMovement) && 
+                movement2WhiteBB == rval.movement2WhiteBB && movement2BlackBB == rval.movement2BlackBB;
         }
 
-        if (has_second_movement && rval.has_second_movement && (secondPieceType != rval.secondPieceType)) {
-            throw std::logic_error("trying to merge two piece movements with different SECOND piece type values");
-        }
-
-        return 
-        {
-            movement | rval.movement, 
-            second_optional_movement | rval.second_optional_movement, 
-            pieceType, 
-            has_second_movement ? secondPieceType : rval.secondPieceType, 
-            has_second_movement || rval.has_second_movement
-        };
+        return movement == rval.movement;
     }
+
+    // pieceMovement operator|(const pieceMovement& rval) const{
+    //     if (pieceType != rval.pieceType) {
+    //         throw std::logic_error("trying to merge two piece movements with different piece type values");
+    //     }
+    //
+    //     if (has_second_movement && rval.has_second_movement && (secondPieceType != rval.secondPieceType)) {
+    //         throw std::logic_error("trying to merge two piece movements with different SECOND piece type values");
+    //     }
+    //
+    //     return 
+    //     {
+    //         movement | rval.movement, 
+    //         second_optional_movement | rval.second_optional_movement, 
+    //         pieceType, 
+    //         has_second_movement ? secondPieceType : rval.secondPieceType, 
+    //         has_second_movement || rval.has_second_movement
+    //     };
+    // }
 
     void printThis() const {
         std::cout << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n";
-        std::cout << std::format("pieceType : {}\n", getPieceTypeString(this->pieceType));
+        
+        std::println("First movement");
         helpers::printBitboard(this->movement);
+        std::println("second movement");
+        helpers::printBitboard(secondMovement);
 
-        if (this->has_second_movement) {
-            std::cout << std::format("second pieceType : {}\n", getPieceTypeString(this->secondPieceType));
-            helpers::printBitboard(this->second_optional_movement);
-        }
+        std::println("first  movement black bitboard to apply to {}", getPieceTypeString(movement1BlackBB));
+        std::println("first  movement white bitboard to apply to {}", getPieceTypeString(movement1WhiteBB));
+        std::println("second movement black bitboard to apply to {}", getPieceTypeString(movement2BlackBB));
+        std::println("second movement white bitboard to apply to {}", getPieceTypeString(movement2WhiteBB));
 
         std::cout << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n";
         }
@@ -114,16 +135,7 @@ struct pieceMovement {
 
 
 inline void printCustomStruct(const pieceMovement& movement) {
-    std::cout << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n";
-    std::cout << std::format("pieceType : {}\n", getPieceTypeString(movement.pieceType));
-    helpers::printBitboard(movement.movement);
-
-    if (movement.has_second_movement) {
-        std::cout << std::format("second pieceType : {}\n", getPieceTypeString(movement.secondPieceType));
-        helpers::printBitboard(movement.second_optional_movement);
-    }
-
-    std::cout << "-=-=-=-=-=-=-=-=-=-=-=-=-=-=-\n";
+    movement.printThis();
 }
 
 
@@ -174,7 +186,14 @@ struct FastStack
     }
 
     FastStack<T, mN>& push(T value) {
-        if (currentNumberItems == mN) { throw std::overflow_error("stack overflow, trying to push while at capacity"); }
+        if (currentNumberItems == mN) { 
+            std::println("overflow error readout : FastStack<{}, {}>", typeid(T).name(), mN);
+            std::println("trying to push item");
+            if constexpr (typeid(T) == typeid(uint64_t)) {
+                helpers::printBitboard(value);
+            }
+            throw std::overflow_error("stack overflow, trying to push while at capacity"); 
+        }
         internalArray[currentNumberItems] = value;
         ++currentNumberItems;
         return *this;

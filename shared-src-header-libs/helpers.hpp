@@ -1,4 +1,8 @@
 #include <cstdint>
+#include <chrono>
+#include <iostream>
+#include <functional>
+#include <type_traits>
 #include <iostream>
 #include <vector>
 
@@ -40,4 +44,29 @@ inline void printBitboard(uint64_t bitboard) {
     }
     std::cout << "56-=-=-=-=-=-63\n";
 }
+
+// ai generated function
+template <typename Func, typename... Args>
+auto timeFunction(Func&& func, Args&&... args) {
+    auto start = std::chrono::high_resolution_clock::now();
+
+    if constexpr (std::is_void_v<std::invoke_result_t<Func, Args...>>) {
+        std::invoke(std::forward<Func>(func), std::forward<Args>(args)...);
+
+        auto end = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+
+        std::cout << "Function took " << duration.count() << " nanoseconds\n";
+    } else {
+        auto result = std::invoke(std::forward<Func>(func), std::forward<Args>(args)...);
+
+        auto end = std::chrono::high_resolution_clock::now();
+        auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+
+        std::cout << "Function took " << duration.count() << " nanoseconds\n";
+
+        return result;
+    }
+}
+
 }

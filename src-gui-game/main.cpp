@@ -72,117 +72,23 @@ void printInt8_t(std::int8_t value) {
 }
 
 
-bool checkMoveLegal(pieceMovement move, const stackStack218& moveStack) {
+std::optional<pieceMovement> checkMoveLegal(pieceMovement move, const stackStack218& moveStack) {
     for (const pieceMovement& generated_move : moveStack) {
         // printCustomStruct(generated_move);
-        if (generated_move == move) {
+        if (generated_move.guiShouldSelect(move)) {
             // std::cout << std::format("verified move!!") << std::endl;
             // printCustomStruct(move);
-            return true;
+            return generated_move;
         }
     }
-    std::cout << std::format("failed to find match among generated moves ({}), inputtedMove", moveStack.currentNumberItems) << std::endl;
-    printCustomStruct(move);
+    // std::cout << std::format("failed to find match among generated moves ({}), inputtedMove", moveStack.numitems()) << std::endl;
+    // printCustomStruct(move);
 
-    return false;
+    return std::nullopt;
 }
 
-
-
 chessBoard applyChessMove(pieceMovement move, const chessBoard& board) {
-    bool isWhiteTurn = board_state::WhiteTurn & board.m_board_state;
-    chessBoard newBoard {board};
-    // second and fourth rank
-    uint64_t black_epp_check= 0xff00ff00;
-    // seventh and fith rank
-    uint64_t white_epp_check= 0xff00ff00000000;
-    
-    uint64_t* pawns_of_same_color = newBoard.getPiecesByColor(isWhiteTurn);
-    uint64_t* pawns_of_opposite_color = newBoard.getPiecesByColor(!isWhiteTurn);
-
-    size_t idx = std::to_underlying(move.pieceType);
-    // fields in a struct are layed out sequentially in memory, therefore we can index into our struct as we would an array
-    // this is dangerous, illegal, and causes Undefined Behavior
-    //
-    // todo change representation of pieces to std::array such that we dont have Undefined behaviour 
-
-    bool hasEnPassant = false;
-
-    uint64_t new_pawn_board = pawns_of_same_color[idx] ^ move.movement;
-
-    if (move.pieceType == PieceType::Pawn) {
-        uint64_t new_pawn_place = new_pawn_board & move.movement;
-
-        // this means has the pawn advanced 2 places
-        if (std::popcount(move.movement & (isWhiteTurn ? white_epp_check : black_epp_check)) == 2) {
-            uint64_t pawnPassplaces = (new_pawn_place << 1) | (new_pawn_place >> 1);
-            // is there an enemy pawn that can capture en passsant?
-            hasEnPassant = pawns_of_opposite_color[idx] & pawnPassplaces;
-        }
-    } 
-    
-    if (!hasEnPassant) {
-        newBoard.enPassantState = -1;
-    } else {
-        auto movementFilenum = (std::countr_zero(move.movement) % 8);
-        newBoard.enPassantState = !isWhiteTurn ? static_cast<int8_t>(movementFilenum + 16) : static_cast<int8_t>(56 + movementFilenum - 16);
-        std::println("new en passant state : {}", newBoard.enPassantState);
-        printInt8_t(newBoard.enPassantState);
-    }
-
-    pawns_of_same_color[idx] = new_pawn_board;
-
-    for (size_t i = 0; i <= 5; ++i) {
-        pawns_of_opposite_color[i] ^= (move.movement & pawns_of_opposite_color[i]);
-    }
-
-    if (move.has_second_movement) {
-        idx = std::to_underlying(move.secondPieceType);
-
-        pawns_of_same_color[idx] ^= move.second_optional_movement;
-
-        for (size_t i = 0; i <= 5; ++i) {
-            pawns_of_opposite_color[i] ^= (move.second_optional_movement & pawns_of_opposite_color[i]);
-        }
-    }
-
-
-    uint64_t whiteLeftCorner = 1ULL << 56; 
-    uint64_t whiteRightCorner = 1ULL << 63;
-    uint64_t blackLeftCorner = 1ULL;
-    uint64_t blackRightCorner = 1ULL << 7;
-
-    if (move.pieceType == PieceType::King) {
-        newBoard.m_board_state |= (isWhiteTurn ? (board_state::WhiteLostCastlingRightsRight | board_state::WhiteLostCastlingRightsLeft) : (board_state::BlacklostCastlingRightsRight | board_state::BlackLostCastlingRightsLeft));
-        if(isWhiteTurn) {
-            std::println("white lost all castling rights");
-        } else {
-            std::println("black lost all castling rights");
-        }
-    } else if (move.pieceType == PieceType::Rook) {
-        if (move.movement & whiteLeftCorner) {
-            newBoard.m_board_state |= board_state::WhiteLostCastlingRightsLeft;
-            std::println("lost white left corner castling rights");
-        } 
-        if (move.movement & whiteRightCorner) {
-            newBoard.m_board_state |= board_state::WhiteLostCastlingRightsRight;
-            std::println("lost white right corner castling rights");
-        }  
-        if (move.movement & blackLeftCorner) {
-            newBoard.m_board_state |= board_state::BlackLostCastlingRightsLeft;
-            std::println("lost black left corner castling rights");
-        }  
-        if (move.movement & blackRightCorner) {
-            newBoard.m_board_state |= board_state::BlacklostCastlingRightsRight;
-            std::println("lost black right corner castling rights");
-        }
-    }
-
-    // we can tell whether we end the move with check by generating the next set of moves for the moved piece and when those next moves 
-
-    newBoard.m_board_state ^= board_state::WhiteTurn;
-
-    return newBoard;
+    return board.applyMovePure(move);
 }
 
 sf::RectangleShape rectFromTopLeftAndBottomRight(sf::Vector2f topLeft, sf::Vector2f bottomRight) {
@@ -267,90 +173,38 @@ std::pair<std::optional<pieceMovement>, PieceMovementEnum> makePieceMovementFrom
 
     bool isWhiteTurn = (board_state::WhiteTurn & board.m_board_state) != 0;
 
-    const uint64_t* pieces = board.getPiecesByColorConst(isWhiteTurn);
-    const uint64_t* enemy_pieces = board.getPiecesByColorConst(!isWhiteTurn);
-
     if (move_to == move_from) 
         return {std::nullopt, PieceMovementEnum::NothingSpecial};
 
-    // check that we arent trying to move into a friendly piece
-    for (size_t i = 0; i < 6; ++ i) {
-        if ((pieces[i] & move_to) != 0) {
-            return {std::nullopt, PieceMovementEnum::NothingSpecial};
-        }
+
+    PieceType typeOfPieceMoving = board.figureOutTypeOfPieceOnSquare(move_from, isWhiteTurn);
+    if (typeOfPieceMoving == PieceType::NotAPiece) {
+        return {std::nullopt, PieceMovementEnum::NothingSpecial} ;
     }
 
-    auto returnNonSpecialMove= [&](size_t i)->pieceMovement{
-        return {move, 0, PieceType(i), PieceType::King, false};
-    };
-
-    auto specialPawnMove = [&]->std::pair<std::optional<pieceMovement>, PieceMovementEnum>{
-        uint64_t enemy_pawns = enemy_pieces[0];
-        uint64_t triangle_corner = isWhiteTurn ? move_to << 8 : move_to >> 8;
-        uint64_t enemy_piece_mask = isWhiteTurn ? board.blackPieces() : board.whitePieces();
+    if (typeOfPieceMoving == PieceType::Pawn) {
 
         uint64_t enemy_back_rank = isWhiteTurn ? 0xff : static_cast<uint64_t>(0xff) << 56;
-        // 4th rank for black and 5th rank for white 
-        uint64_t enPassantingRank = isWhiteTurn ? static_cast<uint64_t>(0xff) << 24 : static_cast<uint64_t>(0xff) << 32;
-
-        bool isDiagonalMovement = isWhiteTurn ? (move_from >> 7 & move_to) || (move_from >> 9 & move_to) : (move_from << 7 & move_to) || (move_from << 9 & move_to);
-
-        // these extensive rules are necessary so that we dont create the wrong move, as the code works we check whether this move exists in the move generator
-        // but if we generate an en passant move where we should have generated a capture the user will be unable to move the piece on the screen even though the move 
-        // should work. This happens despite the move being generated by the move generator.
-        // the pawn starts on the en passant rank 4th rank for black and 5th for white
-        // the pawn moves diagonally
-        // at the shoulder of the pawn there is an enemy pawn 
-        // we are moving into empty space and not capturing another piece
-        if ((move_from & enPassantingRank) && isDiagonalMovement && (triangle_corner & enemy_pawns) && !(move_to & enemy_piece_mask)) {
-            return {{{move | triangle_corner, triangle_corner, PieceType::Pawn, PieceType::Pawn, true}}, PieceMovementEnum::NothingSpecial};
-        }
 
         if (move_to & enemy_back_rank) {
-            return {{{move_from, move_to, PieceType::Pawn, PieceType::Pawn, true}}, PieceMovementEnum::PawnPromotionMenu};
+            PieceType pieceTypeOnMoveTo = board.figureOutTypeOfPieceOnSquare(move_to, !isWhiteTurn);
+            auto promotionPlaceHolder = PieceType::NotAPiece;
+            if (isWhiteTurn) {
+                return {{{move_from, move_to, PieceType::Pawn, PieceType::NotAPiece, promotionPlaceHolder, pieceTypeOnMoveTo}}, PieceMovementEnum::PawnPromotionMenu};
+            } else {
+
+                return {{{move_from, move_to, PieceType::NotAPiece, PieceType::Pawn, pieceTypeOnMoveTo, promotionPlaceHolder}}, PieceMovementEnum::PawnPromotionMenu};
+            }
         }
 
-        return {{{move, 0, PieceType::Pawn, PieceType::Pawn, false}}, PieceMovementEnum::NothingSpecial};
-    };
 
-    auto specialKingMove = [&]->pieceMovement{
-        uint64_t startingKingSquare = isWhiteTurn ? static_cast<uint64_t>(0x10) << 56 : 0x10;
-        uint64_t longCastlingKingDestination = startingKingSquare >> 2;
-        uint64_t shortCastlingKingDesination = startingKingSquare << 2;
-
-        uint64_t arook = isWhiteTurn ? static_cast<uint64_t>(1) << 56 : 1;
-        uint64_t hrook = isWhiteTurn ? static_cast<uint64_t>(1) << 63 : 1 << 7;
-
-        pieceMovement defaultReturn {move, 0, PieceType::King, PieceType::Pawn, false};
-
-        if (!(move_from == startingKingSquare)) {
-            return defaultReturn;
-        }
-
-        if (move_to == longCastlingKingDestination && (arook & pieces[std::to_underlying(PieceType::Rook)]) ) {
-            return {move, arook | (startingKingSquare >> 1), PieceType::King, PieceType::Rook, true};
-        } 
-
-        if (move_to == shortCastlingKingDesination && (hrook & pieces[std::to_underlying(PieceType::Rook)])){
-            return {move, hrook | (startingKingSquare << 1), PieceType::King, PieceType::Rook, true};
-        }
-
-        return defaultReturn;
-    };
-
-    // return the move if we're actually trying to move a piece, moving some empty space wouldnt make sense;
-    for (size_t i = 0; i < 6; ++ i) {
-        if ((pieces[i] & move_from) != 0) {
-            if (PieceType(i) == PieceType::Pawn)
-                return {specialPawnMove()};
-            else if (PieceType(i) == PieceType::King)
-                return {{specialKingMove()}, PieceMovementEnum::NothingSpecial};
-            else
-                return {{returnNonSpecialMove(i)}, PieceMovementEnum::NothingSpecial};
-        }
     }
 
-    return {std::nullopt, PieceMovementEnum::NothingSpecial};
+    if (isWhiteTurn) {
+        return {{{move, 0, typeOfPieceMoving, PieceType::NotAPiece}}, PieceMovementEnum::NothingSpecial};
+    } else {
+        return {{{move, 0, PieceType::NotAPiece, typeOfPieceMoving}}, PieceMovementEnum::NothingSpecial};
+    }
 }
 
 struct windowCtx {
@@ -482,6 +336,11 @@ userInput processUserInput(userInput input, const chessBoard& board) {
     // triggers if the user has clicked and dragged to move a piece, changes the input state
     if (input.movePositions.first.has_value() && input.movePositions.second.has_value()) {
         auto [__enteredMove, __moveCtx] = makePieceMovementFromBoardPosition(board, input.movePositions.first.value(), input.movePositions.second.value());
+        if(__enteredMove.has_value()) {
+            std::println("move created by chess gui :");
+            __enteredMove.value().printThis();
+            std::println("\n");
+        }
         input.workingOnInputtedMove= __enteredMove;
         input.pawnPromotionState = __moveCtx;
         input.movePositions.first  = std::nullopt;
@@ -506,8 +365,10 @@ userInput consumeStagedMoveVerifyAndApply(userInput input, chessBoard& board) {
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
         std::println("time taken to generate moves : {} microseconds", duration.count());
-        if (checkMoveLegal(input.stagedForApplicationMove.value(), allMoves)) {
-            board = applyChessMove(input.stagedForApplicationMove.value(), board);
+        auto legalCheckResult = checkMoveLegal(input.stagedForApplicationMove.value(), allMoves);
+        if (legalCheckResult.has_value()) {
+            legalCheckResult.value().printThis();
+            board = applyChessMove(legalCheckResult.value(), board);
         }
         input.stagedForApplicationMove= std::nullopt;
     }
@@ -551,13 +412,12 @@ void renderBoard(windowCtx& w_ctx) {
     }
 }
 
-userInput makeImguiWindow(windowCtx& w_ctx, userInput input) {
+userInput makeImguiPawnPromotionWindow(windowCtx& w_ctx, userInput input) {
     if (input.pawnPromotionState != PieceMovementEnum::PawnPromotionMenu) {
         return input;
     }
 
     // imgui sfml code
-    ImGui::SFML::Update(w_ctx.window, w_ctx.clock.restart());
 
     ImGui::Begin("Pawn promotion piece selection");
 
@@ -582,7 +442,13 @@ userInput makeImguiWindow(windowCtx& w_ctx, userInput input) {
         if (!input.workingOnInputtedMove.has_value())
             throw std::logic_error("Invlaid program state reached, pawn promotion menu and no move we are working on ");
 
-        input.workingOnInputtedMove.value().secondPieceType = PieceType(selection + 1);
+        if (w_ctx.board.m_board_state & board_state::WhiteTurn) {
+            input.workingOnInputtedMove.value().movement2WhiteBB = PieceType(selection + 1);
+        } else {
+            input.workingOnInputtedMove.value().movement2BlackBB = PieceType(selection + 1);
+        }
+        std::println("after selecting promotion");
+        input.workingOnInputtedMove.value().printThis();
         input.pawnPromting = true;
         selection = -1;
 
@@ -595,7 +461,6 @@ userInput makeImguiWindow(windowCtx& w_ctx, userInput input) {
 
     ImGui::End();
 
-    ImGui::SFML::Render(w_ctx.window);
 
     return input;
 }
@@ -640,8 +505,13 @@ int main(int argc, char *argv[])
 
         renderBoard(w_ctx);
 
-        input_ctx = makeImguiWindow(w_ctx, input_ctx);
+        ImGui::SFML::Update(w_ctx.window, w_ctx.clock.restart());
 
+        input_ctx = makeImguiPawnPromotionWindow(w_ctx, input_ctx);
+
+        ImGui::SFML::Render(w_ctx.window);
+
+        // draw over everything in the same frame if promotion occurs and display the new piece on the squre
         if (input_ctx.pawnPromting) {
             input_ctx = consumeStagedMoveVerifyAndApply(input_ctx, w_ctx.board);
             input_ctx.pawnPromting = false;
@@ -652,7 +522,6 @@ int main(int argc, char *argv[])
         
         w_ctx.window.display();
     }
-
 
     return 0;
 }

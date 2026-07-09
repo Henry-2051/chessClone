@@ -17,10 +17,7 @@ enum BoardState : uint8_t{
     VoidState         = 0
 };
 
-struct PawnState {
-    bool isWhiteTurn;
-    enPassantState eppState;
-};
+static const uint8_t allCastlingFields_const = WhiteLostCastlingRightsLeft | WhiteLostCastlingRightsRight | BlackLostCastlingRightsLeft | BlacklostCastlingRightsRight;
 
 
 }

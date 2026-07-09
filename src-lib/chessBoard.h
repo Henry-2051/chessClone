@@ -8,24 +8,25 @@
 #pragma once
 
 struct chessBoard {
-    // change this to an std::array<uint64_t, 12> and then the indexing wont be Undefined
-    uint64_t m_black_pawns = 0;
-    uint64_t m_black_rooks = 0;
-    uint64_t m_black_knights = 0;
-    uint64_t m_black_bishops = 0;
-    uint64_t m_black_queens = 0;
-    uint64_t m_black_king = 0;
+    uint64_t bitboards[12] {0};
 
-    uint64_t m_white_pawns = 0;
-    uint64_t m_white_rooks = 0;
-    uint64_t m_white_knights = 0;
-    uint64_t m_white_bishops = 0;
-    uint64_t m_white_queens = 0;
-    uint64_t m_white_king = 0;
+    // uint64_t m_black_pawns = 0;
+    // uint64_t m_black_rooks = 0;
+    // uint64_t m_black_knights = 0;
+    // uint64_t m_black_bishops = 0;
+    // uint64_t m_black_queens = 0;
+    // uint64_t m_black_king = 0;
+    //
+    // uint64_t m_white_pawns = 0;
+    // uint64_t m_white_rooks = 0;
+    // uint64_t m_white_knights = 0;
+    // uint64_t m_white_bishops = 0;
+    // uint64_t m_white_queens = 0;
+    // uint64_t m_white_king = 0;
     
     uint8_t m_board_state = board_state::WhiteTurn;
 
-    int8_t enPassantState = -1; 
+    int8_t enPassantState = {-1}; 
 
     size_t halfMoveClock {0};
     size_t moveNumber {0};
@@ -46,8 +47,14 @@ struct chessBoard {
 
     void readFenAndUpdate(std::string_view inputFen);
 
-    board_state::PawnState mapBoardToPawnState();
-    
+    PieceType figureOutTypeOfPieceOnSquare(uint64_t square, bool checkWhiteColor) const;
+
+    // has the based property that if we apply the same move twice we get our original board back
+    chessBoard applyMovePure(const pieceMovement& move) const;
+
+    // board.applyMove(myMove).applyMove(myMove) == board should always be true
+    chessBoard& applyMoveImpure(const pieceMovement& move);
+
     private:
     void changeRank(std::string_view fenRank, size_t rankNum);
     void updateBoardState(std::string_view term, size_t termNumber);

@@ -1,5 +1,6 @@
 #include "chessBoard.h"
 #include "helpers.hpp"
+#include <bit>
 #include <cassert>
 #include <cstddef>
 #include <cstdint>
@@ -9,37 +10,32 @@
 #include <string>
 #include <string_view>
 
-struct fenIntermediate {
-    bool isWhiteTurn;
-    uint8_t castlingRights = 0b01111000;
-    uint8_t enPassantRights = 0b00000000;
-    size_t halfMoveClock {0};
-    size_t fullMoveCounter {0};
-};
 
 uint64_t chessBoard::whitePieces() const {
-    return m_white_knights | m_white_king | m_white_queens | m_white_bishops | m_white_pawns | m_white_rooks;
+  return bitboards[PieceType::Rook + 6] | bitboards[PieceType::Pawn + 6] |
+         bitboards[PieceType::Knight + 6] | bitboards[PieceType::Bishop + 6] |
+         bitboards[PieceType::Queen + 6] | bitboards[PieceType::King + 6];
 }
 
 uint64_t chessBoard::blackPieces() const {
-    return m_black_knights | m_black_king | m_black_bishops | m_black_pawns | m_black_queens | m_black_rooks;
+  return bitboards[PieceType::Bishop] | bitboards[PieceType::Pawn] |
+         bitboards[PieceType::Rook] | bitboards[PieceType::Knight] |
+         bitboards[PieceType::Queen] | bitboards[PieceType::King];
 }
 
 uint64_t* chessBoard::getPiecesByColor(bool isWhiteTurn) {
-    // todo change representation to std::array such that we dont have Undefined behaviour 
     if (isWhiteTurn) {
-        return &m_white_pawns;
+        return &bitboards[0] + 6;
     } else {
-        return &m_black_pawns;
+        return bitboards;
     }
 }
 
 const uint64_t* chessBoard::getPiecesByColorConst(bool isWhiteTurn) const {
-    // todo change representation to std::array such that we dont have Undefined behaviour 
     if (isWhiteTurn) {
-        return &m_white_pawns;
+        return &bitboards[0] + 6;
     } else {
-        return &m_black_pawns;
+        return bitboards;
     }
 }
 
@@ -47,19 +43,33 @@ using annoying_return_type = std::vector<std::vector<std::pair<uint32_t, uint32_
 
 annoying_return_type chessBoard::piecePositions() const {
     annoying_return_type result = {};
-    result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_white_king)));
-    result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_white_queens)));
-    result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_white_bishops)));
-    result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_white_knights)));
-    result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_white_rooks)));
-    result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_white_pawns)));
+    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_white_king)));
+    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_white_queens)));
+    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_white_bishops)));
+    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_white_knights)));
+    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_white_rooks)));
+    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_white_pawns)));
+    //
+    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_black_king)));
+    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_black_queens)));
+    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_black_bishops)));
+    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_black_knights)));
+    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_black_rooks)));
+    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_black_pawns)));
 
-    result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_black_king)));
-    result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_black_queens)));
-    result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_black_bishops)));
-    result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_black_knights)));
-    result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_black_rooks)));
-    result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_black_pawns)));
+    result.push_back(helpers::getChessCoordinates(helpers::getOnes(bitboards[PieceType::King + 6])));
+    result.push_back(helpers::getChessCoordinates(helpers::getOnes(bitboards[PieceType::Queen + 6])));
+    result.push_back(helpers::getChessCoordinates(helpers::getOnes(bitboards[PieceType::Bishop + 6])));
+    result.push_back(helpers::getChessCoordinates(helpers::getOnes(bitboards[PieceType::Knight + 6])));
+    result.push_back(helpers::getChessCoordinates(helpers::getOnes(bitboards[PieceType::Rook + 6])));
+    result.push_back(helpers::getChessCoordinates(helpers::getOnes(bitboards[PieceType::Pawn + 6])));
+
+    result.push_back(helpers::getChessCoordinates(helpers::getOnes(bitboards[PieceType::King])));
+    result.push_back(helpers::getChessCoordinates(helpers::getOnes(bitboards[PieceType::Queen])));
+    result.push_back(helpers::getChessCoordinates(helpers::getOnes(bitboards[PieceType::Bishop])));
+    result.push_back(helpers::getChessCoordinates(helpers::getOnes(bitboards[PieceType::Knight])));
+    result.push_back(helpers::getChessCoordinates(helpers::getOnes(bitboards[PieceType::Rook])));
+    result.push_back(helpers::getChessCoordinates(helpers::getOnes(bitboards[PieceType::Pawn])));
     return result;
 }
 
@@ -110,35 +120,35 @@ void chessBoard::updateBoardState(std::string_view term, size_t termNumber) {
             assert(term.size() == 1);
             if(term[0] == 'w') {
                 this->m_board_state ^= ~(this->m_board_state & board_state::WhiteTurn) & board_state::WhiteTurn;
-            } else {
+            } else if (term[0] == 'b') {
                 this->m_board_state ^= this->m_board_state & board_state::WhiteTurn;
+            } else {
+                throw std::runtime_error("unhanded turn character in fen");
             }
             break;
         }
         case (2) : {
-            uint8_t castling_mask = board_state::WhiteLostCastlingRightsLeft | board_state::WhiteLostCastlingRightsRight | board_state::BlackLostCastlingRightsLeft | board_state::BlacklostCastlingRightsRight;
-            uint8_t castling = board_state::WhiteLostCastlingRightsLeft | board_state::WhiteLostCastlingRightsRight | board_state::BlackLostCastlingRightsLeft | board_state::BlacklostCastlingRightsRight;
             assert(term.size() <= 4);
             for (char c : term) {
                 switch (c) {
                     case ('K'):
-                        castling ^= board_state::WhiteLostCastlingRightsRight;
+                        m_board_state ^= board_state::WhiteLostCastlingRightsRight;
                         break;
                     case ('Q'):
-                        castling ^= board_state::WhiteLostCastlingRightsLeft;
+                        m_board_state ^= board_state::WhiteLostCastlingRightsLeft;
                         break;
                     case ('k'):
-                        castling ^= board_state::BlacklostCastlingRightsRight;
+                        m_board_state ^= board_state::BlacklostCastlingRightsRight;
                         break;
                     case ('q'):
-                        castling ^= board_state::BlackLostCastlingRightsLeft;
+                        m_board_state ^= board_state::BlackLostCastlingRightsLeft;
+                        break;
+                    case ('-'):
                         break;
                     default:
                         throw std::runtime_error("unhanded castling character in fen string");
                 }
             }
-            // why didnt I use bitset
-            this->m_board_state ^= ~(this->m_board_state & castling) & castling_mask;
             break;
         }
         case (3) : {
@@ -160,10 +170,17 @@ void chessBoard::updateBoardState(std::string_view term, size_t termNumber) {
                 {'2', 48},
                 {'1', 56}
             };
-            this->enPassantState = 0;
+            int8_t temp = 0;
             for (char c : term) {
-                this->enPassantState += eppMap[c];
+                if (c == '-') {
+                    return;
+                }
+                if (eppMap.find(c) == eppMap.end()) {
+                    throw std::runtime_error("unhanded character in epp term");
+                }
+                temp += eppMap.find(c)->second;
             }
+            this->enPassantState = temp;
             break;
         }
         case (4) : {
@@ -177,15 +194,11 @@ void chessBoard::updateBoardState(std::string_view term, size_t termNumber) {
     }
 }
 
-board_state::PawnState chessBoard::mapBoardToPawnState() {
-    return {(this->m_board_state & board_state::WhiteTurn) != 0, this->enPassantState};
-}
 
 void chessBoard::readFenAndUpdate(std::string_view inputFen) {
+    m_board_state = board_state::BlacklostCastlingRightsRight | board_state::WhiteLostCastlingRightsLeft | board_state::BlackLostCastlingRightsLeft | board_state::WhiteLostCastlingRightsRight;
     FastStack<size_t, 10> termSeperations {};
     FastStack<size_t, 10> slashPlaces {};
-
-    fenIntermediate iState;
 
     auto termCounter {0uz};
     auto rankCounter {0uz};
@@ -230,6 +243,78 @@ void chessBoard::readFenAndUpdate(std::string_view inputFen) {
         }
         counter ++;
     }
+}
+
+chessBoard& chessBoard::applyMoveImpure(const pieceMovement& move) {
+    uint64_t* whitePieces = getPiecesByColor(true);
+    uint64_t* blackPieces = getPiecesByColor(false);
+
+    if (move.movement1WhiteBB != PieceType::NotAPiece) {
+        whitePieces[move.movement1WhiteBB] ^= move.movement;
+    }
+    if (move.movement1BlackBB != PieceType::NotAPiece) {
+        blackPieces[move.movement1BlackBB] ^= move.movement;
+    }
+    if (move.movement2WhiteBB != PieceType::NotAPiece) {
+        whitePieces[move.movement2WhiteBB] ^= move.secondMovement;
+    }
+    if (move.movement2BlackBB != PieceType::NotAPiece) {
+        blackPieces[move.movement2BlackBB] ^= move.secondMovement;
+    }
+
+    m_board_state ^= move.boardStateChange;
+
+    // move pawn in special place 2 spaces - > move with en passant value
+    //
+    // apply move (which has en passant state) to board without en passant state                 -> board has en passant state    state overrides null state
+    // apply same move again to board with same en passant state as board                        -> board doesnt have en passant  if xor between states gets us to null state then keep the null state
+    // apply differnt move (which doesnt have en passant) to board from position with en passant -> board doesnt have en passant  move with null state creates board with null state
+    // apply different move (pawn moves 2 spaces in a specific spot, so has en passant) to board -> board has en passant          if xor doesnt get null state then overrite the boards state
+    
+    if (enPassantState == -1) {
+        enPassantState = move.enPassantState;
+    } else if ((enPassantState ^ move.enPassantState) == -1) {
+        enPassantState = -1;
+    } else if (enPassantState != -1 && move.enPassantState == -1) {
+        enPassantState = -1;
+    } else if (enPassantState != -1 && move.enPassantState != -1) {
+        enPassantState = move.enPassantState;
+    } else {
+        throw std::logic_error("error in en passant logic, fallen through if block, re examine logic");
+    }
+
+    return *this;
+}
+
+chessBoard chessBoard::applyMovePure(const pieceMovement& move) const {
+    chessBoard boardCopy = *this;
+    boardCopy.applyMoveImpure(move);
+    return boardCopy;
+}
+
+PieceType chessBoard::figureOutTypeOfPieceOnSquare(uint64_t square, bool checkWhiteColor) const {
+    // there should only be 1 bitboard that satisfies the condition in the loop, this should be simd able 
+    if (std::popcount(square) != 1) {
+        std::println("failed with invalid argument, argument passed : ");
+        helpers::printBitboard(square);
+        throw std::runtime_error("invalid argument");
+    }
+
+    const uint64_t* bbPtr = this->getPiecesByColorConst(checkWhiteColor);
+
+    uint8_t pieceType =   (bbPtr[PieceType::Pawn]   & square ? PieceType::Pawn+1   : 0)
+                        | (bbPtr[PieceType::Bishop] & square ? PieceType::Bishop+1 : 0)
+                        | (bbPtr[PieceType::Rook]   & square ? PieceType::Rook+1   : 0)
+                        | (bbPtr[PieceType::Knight] & square ? PieceType::Knight+1 : 0)
+                        | (bbPtr[PieceType::Queen]  & square ? PieceType::Queen+1  : 0)
+                        | (bbPtr[PieceType::King]   & square ? PieceType::King+1   : 0);
+
+    if (pieceType == 0) {
+        return PieceType::NotAPiece;
+    }
+    pieceType --;
+
+    return PieceType(pieceType);
 }
 
 chessBoard::chessBoard(std::string_view fenString) {
