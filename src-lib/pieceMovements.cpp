@@ -667,8 +667,8 @@ kingMoveReturn singleKingMove(uint64_t king, const chessBoard& board, std::optio
             {
 
                 uint8_t boardStateToXor = isWhiteTurn ? 
-                        board_state::WhiteTurn |  board_state::WhiteLostCastlingRightsLeft: 
-                        board_state::WhiteTurn |  board_state::BlackLostCastlingRightsLeft;
+                        board_state::WhiteTurn | board_state::WhiteLostCastlingRightsRight | board_state::WhiteLostCastlingRightsLeft : 
+                        board_state::WhiteTurn | board_state::BlacklostCastlingRightsRight | board_state::BlackLostCastlingRightsLeft;
 
                 boardStateToXor ^= board.m_board_state & boardStateToXor & board_state::allCastlingFields_const;
 
@@ -702,8 +702,8 @@ kingMoveReturn singleKingMove(uint64_t king, const chessBoard& board, std::optio
               !((isWhiteTurn ? black_squares_to_check_empty_right << 56 : black_squares_to_check_empty_right) & (all_pieces | enemy_attacks.value()) )) 
             {
                 uint8_t boardStateToXor = isWhiteTurn ? 
-                        board_state::WhiteTurn | board_state::WhiteLostCastlingRightsRight : 
-                        board_state::WhiteTurn | board_state::BlacklostCastlingRightsRight;
+                        board_state::WhiteTurn | board_state::WhiteLostCastlingRightsRight | board_state::WhiteLostCastlingRightsLeft : 
+                        board_state::WhiteTurn | board_state::BlacklostCastlingRightsRight | board_state::BlackLostCastlingRightsLeft;
 
                 boardStateToXor ^= board.m_board_state & boardStateToXor & board_state::allCastlingFields_const;
 

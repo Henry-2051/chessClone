@@ -264,23 +264,24 @@ chessBoard& chessBoard::applyMoveImpure(const pieceMovement& move) {
 
     m_board_state ^= move.boardStateChange;
 
-    // move pawn in special place 2 spaces - > move with en passant value
+    // en passant clarification (how en passant works)
     //
-    // apply move (which has en passant state) to board without en passant state                 -> board has en passant state    state overrides null state
-    // apply same move again to board with same en passant state as board                        -> board doesnt have en passant  if xor between states gets us to null state then keep the null state
-    // apply differnt move (which doesnt have en passant) to board from position with en passant -> board doesnt have en passant  move with null state creates board with null state
-    // apply different move (pawn moves 2 spaces in a specific spot, so has en passant) to board -> board has en passant          if xor doesnt get null state then overrite the boards state
+    // we have write our method such that boards in the sequence of do and undo have identical en passant states
+    //
+    // when a pawn moves 2 squares an en passant square is created behind it, this square can be captured, but what if we want to undo an en passant move
+    // to get back to our board state with en passant then an en passant capture must induce an enpassant state in the chess board, but after we have
+    // captured en passant the boards en passant state must be null (-1)
+    //
+    // we do this by having a move en passant state identical to a board en passant state cancel out, this ensures that there will only be 1 board state
+    // with en passant capture available under our apply operation
+    //
+    // the normal behavior is that a move with en passant square induces that square into the board state, if the above scenario doesnt occur.
+    // otherwise the en passant state decays back to null 
     
-    if (enPassantState == -1) {
-        enPassantState = move.enPassantState;
-    } else if ((enPassantState ^ move.enPassantState) == -1) {
+    if (enPassantState == move.enPassantState) {
         enPassantState = -1;
-    } else if (enPassantState != -1 && move.enPassantState == -1) {
-        enPassantState = -1;
-    } else if (enPassantState != -1 && move.enPassantState != -1) {
-        enPassantState = move.enPassantState;
     } else {
-        throw std::logic_error("error in en passant logic, fallen through if block, re examine logic");
+        enPassantState = move.enPassantState;
     }
 
     return *this;

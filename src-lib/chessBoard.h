@@ -60,3 +60,16 @@ struct chessBoard {
     void updateBoardState(std::string_view term, size_t termNumber);
     
 };
+
+struct guiBoard {
+    chessBoard board;
+    std::string inputFen;
+
+    guiBoard(std::string_view inputFen) : board(inputFen), inputFen(inputFen) {};
+
+    guiBoard& updateFen(std::string_view fen){
+        board = chessBoard(fen);
+        inputFen = fen;
+        return *this;
+    }
+};

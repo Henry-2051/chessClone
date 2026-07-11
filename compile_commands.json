@@ -1,15 +1,15 @@
 [
 {
   "directory": "/home/quartz/sync/codingProjects/learning_cpp/chessClone",
-  "command": "/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ -DDEBUG_BUILD -I/home/quartz/sync/codingProjects/learning_cpp/chessClone/src-lib -I/home/quartz/sync/codingProjects/learning_cpp/chessClone/shared-src-header-libs -g -std=gnu++23 -Wall -pedantic-errors -O2 -o CMakeFiles/chessBoard.dir/src-lib/chessBoard.cpp.o -c /home/quartz/sync/codingProjects/learning_cpp/chessClone/src-lib/chessBoard.cpp",
-  "file": "/home/quartz/sync/codingProjects/learning_cpp/chessClone/src-lib/chessBoard.cpp",
-  "output": "CMakeFiles/chessBoard.dir/src-lib/chessBoard.cpp.o"
-},
-{
-  "directory": "/home/quartz/sync/codingProjects/learning_cpp/chessClone",
   "command": "/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ -DDEBUG_BUILD -I/home/quartz/sync/codingProjects/learning_cpp/chessClone/src-lib -I/home/quartz/sync/codingProjects/learning_cpp/chessClone/shared-src-header-libs -g -std=gnu++23 -Wall -pedantic-errors -O2 -o CMakeFiles/pieceMovements.dir/src-lib/pieceMovements.cpp.o -c /home/quartz/sync/codingProjects/learning_cpp/chessClone/src-lib/pieceMovements.cpp",
   "file": "/home/quartz/sync/codingProjects/learning_cpp/chessClone/src-lib/pieceMovements.cpp",
   "output": "CMakeFiles/pieceMovements.dir/src-lib/pieceMovements.cpp.o"
+},
+{
+  "directory": "/home/quartz/sync/codingProjects/learning_cpp/chessClone",
+  "command": "/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/g++ -DDEBUG_BUILD -I/home/quartz/sync/codingProjects/learning_cpp/chessClone/src-lib -I/home/quartz/sync/codingProjects/learning_cpp/chessClone/shared-src-header-libs -g -std=gnu++23 -Wall -pedantic-errors -O2 -o CMakeFiles/chessBoard.dir/src-lib/chessBoard.cpp.o -c /home/quartz/sync/codingProjects/learning_cpp/chessClone/src-lib/chessBoard.cpp",
+  "file": "/home/quartz/sync/codingProjects/learning_cpp/chessClone/src-lib/chessBoard.cpp",
+  "output": "CMakeFiles/chessBoard.dir/src-lib/chessBoard.cpp.o"
 },
 {
   "directory": "/home/quartz/sync/codingProjects/learning_cpp/chessClone",

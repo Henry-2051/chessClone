@@ -19,6 +19,7 @@
 #include <optional>
 #include <ostream>
 #include <print>
+#include <stack>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -210,7 +211,7 @@ std::pair<std::optional<pieceMovement>, PieceMovementEnum> makePieceMovementFrom
 struct windowCtx {
     sf::RenderWindow window;
     sf::Clock clock;
-    chessBoard board;
+    guiBoard boardWithExtraStuff;
     sf::Texture chessPieceTexture;
     std::tuple<sf::Color, sf::Color, sf::Color> boardColors;
     sf::RectangleShape chessBoardSquare;
@@ -220,6 +221,46 @@ struct windowCtx {
     int edge_padding;
     int board_square_size;
     int pieceHeight;
+    std::vector<pieceMovement> gameHisory;
+    // basically how many times the user has clicked the undo move button
+    size_t movesBackFromTopGameHistory {0};
+
+    chessBoard& board = boardWithExtraStuff.board;
+
+    struct guiBoard& updateFen(std::string_view fen) {
+        gameHisory.resize(0);
+        return boardWithExtraStuff.updateFen(fen);
+    }
+
+    void addMoveToHistory(pieceMovement move) {
+        if (movesBackFromTopGameHistory == 0)
+            gameHisory.push_back(move);
+        else {
+            gameHisory.resize(gameHisory.size() - movesBackFromTopGameHistory);
+            movesBackFromTopGameHistory = 0;
+
+            gameHisory.push_back(move);
+        }
+    }
+
+    // sometimes we cant undo a move, we want to express this as an expected part of the program rather than crashing
+    bool undoMove() {
+        if (!(gameHisory.size() - movesBackFromTopGameHistory > 0))
+            return false;
+
+        board.applyMoveImpure(gameHisory[gameHisory.size() -1 - movesBackFromTopGameHistory]);
+        movesBackFromTopGameHistory ++;
+        return true;
+    }
+
+    bool redoMove() {
+        if (movesBackFromTopGameHistory == 0)
+            return false;
+
+        board.applyMoveImpure(gameHisory[gameHisory.size() - movesBackFromTopGameHistory]);
+        movesBackFromTopGameHistory --;
+        return true;
+    }
 
     windowCtx(std::string_view fenString);
     ~windowCtx();
@@ -230,7 +271,7 @@ windowCtx::~windowCtx() {
     window.close();
 }
 
-windowCtx::windowCtx(std::string_view fenString) : board(fenString) {
+windowCtx::windowCtx(std::string_view fenString) : boardWithExtraStuff(fenString) {
     float scale = 2.0f;
 
     sf::Color lightColor(227, 198, 168);  // light square color
@@ -358,21 +399,22 @@ userInput processUserInput(userInput input, const chessBoard& board) {
     return input;
 }
 
-userInput consumeStagedMoveVerifyAndApply(userInput input, chessBoard& board) {
+// 
+std::pair<userInput, std::optional<pieceMovement>> consumeStagedMoveVerifyAndApply(userInput input, chessBoard& board) {
     if (input.stagedForApplicationMove.has_value()) {
-        auto start = std::chrono::high_resolution_clock::now();
-        stackStack218 allMoves = chessMoves::makeAllMoves(board);
-        auto stop = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(stop - start);
-        std::println("time taken to generate moves : {} microseconds", duration.count());
-        auto legalCheckResult = checkMoveLegal(input.stagedForApplicationMove.value(), allMoves);
+
+        stackStack218 allMoves = helpers::timeFunction(chessMoves::makeAllMoves, board);
+        
+        std::optional<pieceMovement> legalCheckResult = checkMoveLegal(input.stagedForApplicationMove.value(), allMoves);
+        input.stagedForApplicationMove = std::nullopt;
+
         if (legalCheckResult.has_value()) {
-            legalCheckResult.value().printThis();
             board = applyChessMove(legalCheckResult.value(), board);
+            return {input, legalCheckResult};
         }
-        input.stagedForApplicationMove= std::nullopt;
     }
-    return input;
+
+    return {input, std::nullopt};
 }
 
 
@@ -461,8 +503,54 @@ userInput makeImguiPawnPromotionWindow(windowCtx& w_ctx, userInput input) {
 
     ImGui::End();
 
-
     return input;
+}
+
+userInput makeImguiInfoAndControlWindow(windowCtx& w_ctx, userInput input) {
+    ImGui::Begin("Control and state");
+
+    static bool firstRun = true;
+
+    static const auto inptFenSize {256};
+    static char inputFen[inptFenSize];
+    if (firstRun) {
+        firstRun = false;
+        w_ctx.boardWithExtraStuff.inputFen.copy(inputFen, inptFenSize);
+    }
+    ImGui::InputText("Board fen", inputFen, inptFenSize);
+
+    if (ImGui::Button("update Fen")) {
+        w_ctx.boardWithExtraStuff.updateFen(std::string_view(inputFen));
+    }
+
+
+    if (ImGui::Button("undo move"))
+        w_ctx.undoMove();
+    if (ImGui::Button("Redo move"))
+        w_ctx.redoMove();
+
+
+    if (ImGui::TreeNode("board state information")) {
+        ImGui::SeparatorText("Board state");
+
+        uint8_t& bstate = w_ctx.board.m_board_state;
+        ImGui::BulletText("%s", std::format("WhiteTurn : {}", static_cast<bool>(bstate & board_state::WhiteTurn)).c_str());
+        
+        bool blackLongCastle = !(bstate & board_state::BlackLostCastlingRightsLeft); // true if black can long castle
+        bool blackShorCastle = !(bstate & board_state::BlacklostCastlingRightsRight); 
+        bool whiteShorCastle = !(bstate & board_state::WhiteLostCastlingRightsRight); 
+        bool whiteLongCastle = !(bstate & board_state::WhiteLostCastlingRightsLeft); 
+        
+        ImGui::BulletText("%s", std::format("BlackCastling (Long, Short) = ({}, {})", blackLongCastle, blackShorCastle).c_str());
+        ImGui::BulletText("%s", std::format("WhiteCastling (Long, Short) = ({}, {})", whiteLongCastle, whiteShorCastle).c_str());
+        ImGui::BulletText("%s", std::format("EnPassant state (square we capture into) = {}", w_ctx.board.enPassantState).c_str());
+
+        ImGui::TreePop();
+    }
+
+    ImGui::End();
+
+    return input; 
 }
 
 int main(int argc, char *argv[])
@@ -501,7 +589,13 @@ int main(int argc, char *argv[])
 
         input_ctx = processUserInput(input_ctx, w_ctx.board);
 
-        input_ctx = consumeStagedMoveVerifyAndApply(input_ctx, w_ctx.board);
+        {
+            // we want to know the move that has been made so we can add it to the game history
+            auto res = consumeStagedMoveVerifyAndApply(input_ctx, w_ctx.board);
+            input_ctx = res.first;;
+            if(res.second.has_value())
+                w_ctx.addMoveToHistory(res.second.value());
+        }
 
         renderBoard(w_ctx);
 
@@ -509,11 +603,19 @@ int main(int argc, char *argv[])
 
         input_ctx = makeImguiPawnPromotionWindow(w_ctx, input_ctx);
 
+        input_ctx = makeImguiInfoAndControlWindow(w_ctx, input_ctx);
+
         ImGui::SFML::Render(w_ctx.window);
 
         // draw over everything in the same frame if promotion occurs and display the new piece on the squre
         if (input_ctx.pawnPromting) {
-            input_ctx = consumeStagedMoveVerifyAndApply(input_ctx, w_ctx.board);
+            {
+                auto res = consumeStagedMoveVerifyAndApply(input_ctx, w_ctx.board);
+                input_ctx = res.first;;
+                if(res.second.has_value())
+                    w_ctx.addMoveToHistory(res.second.value());
+            }
+
             input_ctx.pawnPromting = false;
             renderBoard(w_ctx);
         }
