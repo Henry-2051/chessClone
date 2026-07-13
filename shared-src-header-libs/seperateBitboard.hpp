@@ -82,7 +82,7 @@ void addAttacksToStack218(uint64_t piece, uint64_t attacked_squares, PieceType t
             }
         }
 
-        int8_t enPassantState {-1};
+        int8_t enPassantState {board.enPassantState};
 
         if(typeofPiece == PieceType::Pawn) {
 
@@ -95,9 +95,9 @@ void addAttacksToStack218(uint64_t piece, uint64_t attacked_squares, PieceType t
                 bool can_have_right_bitshift_by_1 = pawn_file != 0;
                 bool can_have_left_bitshift_by_1 = pawn_file != 7;
 
-                uint64_t squaresToCheck = (can_have_right_bitshift_by_1 ? mv >> 1 : 0) | (can_have_left_bitshift_by_1 ? mv << 1 : 0);
+                uint64_t passingSquares = (can_have_right_bitshift_by_1 ? mv >> 1 : 0) | (can_have_left_bitshift_by_1 ? mv << 1 : 0);
 
-                if(board.getPiecesByColorConst(!isWhiteTurn)[PieceType::Pawn] & squaresToCheck) {
+                if(board.getPiecesByColorConst(!isWhiteTurn)[PieceType::Pawn] & passingSquares) {
                     // std::println("en passant move!!");
                     // helpers::printBitboard(mv | piece);
                     // helpers::printBitboard(squaresToCheck);
