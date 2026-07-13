@@ -55,6 +55,8 @@ struct chessBoard {
     // board.applyMove(myMove).applyMove(myMove) == board should always be true
     chessBoard& applyMoveImpure(const pieceMovement& move);
 
+    std::optional<pieceMovement> genPartialMove(std::string_view uciMove) const;
+
     private:
     void changeRank(std::string_view fenRank, size_t rankNum);
     void updateBoardState(std::string_view term, size_t termNumber);
@@ -73,3 +75,5 @@ struct guiBoard {
         return *this;
     }
 };
+
+std::optional<pieceMovement> searchAndSelectMove(const stackStack218& generatedMoves, const pieceMovement& canidateIncompleteMove);

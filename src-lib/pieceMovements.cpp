@@ -914,4 +914,35 @@ stackStack218 makeAllMoves(const chessBoard& boardInput) {
 
     return moveStack;
 }
+
+bool makeMovesFromUciSequence(chessBoard& board, std::string_view uciSeq) {
+    std::pair<std::string_view, std::optional<std::string_view>> splitResult = helpers::splitWord(uciSeq);
+    auto makeAndApplyMove = [&](std::string_view moveWord){
+        auto maybeMove = board.genPartialMove(moveWord).and_then(
+            [&](auto mv){ 
+                auto allMoves = makeAllMoves(board);
+                return searchAndSelectMove(allMoves, mv);
+        });
+
+        if (!maybeMove.has_value()) {
+            return false;
+        }
+
+        board.applyMoveImpure(maybeMove.value());
+        return true;
+    };
+
+    while (splitResult.second.has_value()) {
+        if (!makeAndApplyMove(splitResult.first))
+            return false;
+
+        splitResult = helpers::splitWord(splitResult.second.value());
+    }
+
+    if (!makeAndApplyMove(splitResult.first))
+        return false;
+
+    return true;
 }
+}
+

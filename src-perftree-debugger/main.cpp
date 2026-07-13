@@ -5,7 +5,9 @@
 #include <format>
 #include <map>
 #include <print>
+#include <sstream>
 #include <string>
+#include <string_view>
 #include "chessBoard.h"
 #include "helpers.hpp"
 #include "pieceMovements.hpp"
@@ -51,57 +53,130 @@ void moveToUci(const chessBoard& board, const pieceMovement& movement, char* ret
     }
 }
 
-int main (int argc, char *argv[]) {
-    char myargstring[256];
-    auto counter {0uz};
-    for (auto arr : std::span(argv, argc)) {
-        if (counter == 0) {
-            counter ++;
-            continue;
+template <bool recursiveCall>
+size_t perftreeRun(size_t perftnumber, chessBoard& board) {
+    auto allMoves = chessMoves::makeAllMoves(board);
+    size_t numMoves {perftnumber == 0 ? allMoves.numitems() : 0};
+
+    if(recursiveCall && perftnumber > 0) 
+    {
+        for (const auto& mv : allMoves) {
+            board.applyMoveImpure(mv);
+            size_t movesPerMove {perftreeRun<true>(perftnumber - 1, board)};
+            board.applyMoveImpure(mv);
+            numMoves += movesPerMove;
+        }
+        return numMoves;
+    } 
+    else if (recursiveCall && perftnumber == 0) 
+    {
+        return numMoves;
+    } 
+    else if (!recursiveCall && perftnumber > 0) 
+    {
+        for (const auto& mv : allMoves) {
+            char uciMove[6];
+            moveToUci(board, mv, uciMove);
+            std::print("{}", uciMove);
+            board.applyMoveImpure(mv);
+            size_t movesPerMove {perftreeRun<true>(perftnumber - 1, board)};
+            board.applyMoveImpure(mv);
+            std::println(" {}", movesPerMove);
+            numMoves += movesPerMove;
+        }
+        std::println("\n{}", numMoves);
+
+        return numMoves;
+    } 
+    else
+    {
+        for (const auto& mv : allMoves) {
+            char uciMove[6];
+            moveToUci(board, mv, uciMove);
+            std::println("{} 1", uciMove);
         }
 
-        for (auto c : std::string_view(arr)) {
-            assert(counter < 256);
-            myargstring[counter-1] = c;
-            counter ++;
-        }   
-        assert(counter < 256);
-        myargstring[counter-1] = ' ';
-        counter ++;
+        std::println("\n{}", numMoves);
+
+        return numMoves;
+    } 
+}
+
+
+
+void perftree(size_t perftnumber=1, std::string_view fenArgument="rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", std::string_view movesToMake = "") {
+    chessBoard board {fenArgument};
+
+    if(movesToMake != "" && !chessMoves::makeMovesFromUciSequence(board, movesToMake))
+        return;
+
+    perftreeRun<false>(perftnumber-1, board);
+}
+
+int main (int argc, char *argv[]) {
+
+    // perftreeRun<false>(3, board1);
+    // perftree();
+    switch(argc) {
+        case (1) : perftree(); break;
+        case (2) : perftree(std::stoul(argv[1])); break;
+        case (3) : perftree(std::stoul(argv[1]), argv[2]); break;
+        case (4) : perftree(std::stoul(argv[1]), argv[2], argv[3]); break;
     }
-    myargstring[counter-1] = '\0';
-    std::string_view fenArgument = argc > 1 ? std::string_view(myargstring) : "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
-    chessBoard board{fenArgument};
-    chessBoard boardCopy{board};
-    
-    auto allMoves = chessMoves::makeAllMoves(board);
-
-    std::println("using make while copying the chess board and discarding the copy");
-
-    for (const auto& mv : allMoves) {
-        char uciMove[6];
-        moveToUci(board, mv, uciMove);
-        std::print("{}", uciMove);
-        chessBoard boardClone = board.applyMovePure(mv);
-        auto allMovesOrder2 = chessMoves::makeAllMoves(boardClone);
-        std::println(" {}", allMovesOrder2.numitems());
-    }
-
-    std::println("using unmake and make with make move impure!!\n");
-
-    for (const auto& mv : allMoves) {
-        char uciMove[6];
-        moveToUci(boardCopy, mv, uciMove);
-        std::print("{}", uciMove);
-        boardCopy.applyMoveImpure(mv);
-        auto allMovesOrder2 = chessMoves::makeAllMoves(boardCopy);
-        boardCopy.applyMoveImpure(mv);
-        std::println(" {}", allMovesOrder2.numitems());
-    }
-    
-
-    std::println("{} moves in this position", allMoves.numitems());
-
+    // if (chessMoves::makeMovesFromUciSequence(board1, "e2e4 e7e5 g1f3 b8c6"))
+    //     std::println("sucess");
+    // char myargstring[256];
+    // auto counter {0uz};
+    // for (auto arr : std::span(argv, argc)) {
+    //     if (counter == 0) {
+    //         counter ++;
+    //         continue;
+    //     }
+    //
+    //     for (auto c : std::string_view(arr)) {
+    //         assert(counter < 256);
+    //         myargstring[counter-1] = c;
+    //         counter ++;
+    //     }   
+    //     assert(counter < 256);
+    //     myargstring[counter-1] = ' ';
+    //     counter ++;
+    // }
+    // myargstring[counter-1] = '\0';
+    // std::string_view fenArgument = argc > 1 ? std::string_view(myargstring) : "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    //
+    // chessBoard board{fenArgument};
+    // chessBoard boardCopy{board};
+    //
+    // auto allMoves = chessMoves::makeAllMoves(board);
+    //
+    // std::println("using make while copying the chess board and discarding the copy");
+    //
+    // for (const auto& mv : allMoves) {
+    //     mv.printThis();
+    //     char uciMove[6];
+    //     moveToUci(board, mv, uciMove);
+    //     std::print("{}", uciMove);
+    //     chessBoard boardClone = board.applyMovePure(mv);
+    //     auto allMovesOrder2 = chessMoves::makeAllMoves(boardClone);
+    //     std::println(" {}", allMovesOrder2.numitems());
+    // }
+    //
+    // std::println("using unmake and make with make move impure!!\n");
+    //
+    // for (const auto& mv : allMoves) {
+    //     char uciMove[6];
+    //     moveToUci(boardCopy, mv, uciMove);
+    //     std::print("{}", uciMove);
+    //     boardCopy.applyMoveImpure(mv);
+    //     auto allMovesOrder2 = chessMoves::makeAllMoves(boardCopy);
+    //     boardCopy.applyMoveImpure(mv);
+    //     std::println(" {}", allMovesOrder2.numitems());
+    // }
+    //
+    //
+    // std::println("{} moves in this position", allMoves.numitems());
+    //
     return 0;
 }

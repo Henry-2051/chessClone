@@ -41,9 +41,12 @@
         myBuildInputs = with pkgs; [
           bashInteractive
         ];
+        thirdPartyChessEngines = with pkgs; [
+          stockfish
+        ];
         sharedAttributes = {
             buildInputs = myBuildInputs;
-            packages = miscPackages ++ graphicsPackages ++ mathsPackages ++ lspAndTestPackages ;
+            packages = miscPackages ++ graphicsPackages ++ mathsPackages ++ lspAndTestPackages ++ thirdPartyChessEngines;
             shellHook = ''export SHELL=${pkgs.bashInteractive}/bin/bash'';
         };
         in {

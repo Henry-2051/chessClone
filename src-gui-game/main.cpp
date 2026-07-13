@@ -76,7 +76,7 @@ void printInt8_t(std::int8_t value) {
 std::optional<pieceMovement> checkMoveLegal(pieceMovement move, const stackStack218& moveStack) {
     for (const pieceMovement& generated_move : moveStack) {
         // printCustomStruct(generated_move);
-        if (generated_move.guiShouldSelect(move)) {
+        if (generated_move.compareForSelection(move)) {
             // std::cout << std::format("verified move!!") << std::endl;
             // printCustomStruct(move);
             return generated_move;
@@ -553,6 +553,8 @@ userInput makeImguiInfoAndControlWindow(windowCtx& w_ctx, userInput input) {
     return input; 
 }
 
+
+
 int main(int argc, char *argv[])
 {
     char myargstring[256];
@@ -576,6 +578,8 @@ int main(int argc, char *argv[])
     std::string_view fenArgument = argc > 1 ? std::string_view(myargstring) : "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
     windowCtx w_ctx(fenArgument);
+    if (!chessMoves::makeMovesFromUciSequence(w_ctx.board, "e2e4 e7e5 f1g3"))
+        return -1;
 
     userInput input_ctx;
 

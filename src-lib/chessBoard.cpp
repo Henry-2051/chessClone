@@ -321,3 +321,54 @@ PieceType chessBoard::figureOutTypeOfPieceOnSquare(uint64_t square, bool checkWh
 chessBoard::chessBoard(std::string_view fenString) {
     readFenAndUpdate(fenString);
 }
+
+std::optional<pieceMovement> chessBoard::genPartialMove(std::string_view uciMove) const {
+    assert(uciMove.size() <= 5);
+
+    bool isWhiteTurn = m_board_state & board_state::WhiteTurn;
+
+    static const std::map<char, uint8_t> charToBoardPosition {
+        {'a', 0},  {'b', 1},  {'c', 2},  {'d', 3},  {'e', 4},  {'f', 5},  {'g', 6}, {'h', 7},
+        {'1', 56}, {'2', 48}, {'3', 40}, {'4', 32}, {'5', 24}, {'6', 16}, {'7', 8}, {'8', 0}
+    };
+
+    if (uciMove.size() < 4)
+        return std::nullopt;
+
+    uint64_t from_offset = charToBoardPosition.at(uciMove.data()[0]) + charToBoardPosition.at(uciMove.data()[1]);
+    uint64_t to_offset   = charToBoardPosition.at(uciMove.data()[2]) + charToBoardPosition.at(uciMove.data()[3]);
+
+    static const std::map<char, PieceType> charToPromotionPiece {
+        {'r', PieceType::Rook}, {'n', PieceType::Knight}, {'b', PieceType::Bishop}, {'q', PieceType::Queen}
+    };
+
+    std::optional<PieceType> promotionValue = uciMove.size() == 5 
+        ? std::optional<PieceType>{charToPromotionPiece.at(uciMove.data()[4])} 
+        : std::nullopt;
+
+    pieceMovement partialMovement;
+
+    // in the case of a capture this is the piece type of the enemy piece which is captured
+
+    // another thing, its alright to generate junk moves here since we are going to use this to search through the move generators outputs
+
+    if (promotionValue.has_value()) {
+        PieceType pieceTypeOnMoveTo = figureOutTypeOfPieceOnSquare(1ULL << to_offset, !isWhiteTurn);
+        partialMovement = isWhiteTurn ? 
+            pieceMovement{1ULL << from_offset, 1ULL << to_offset, PieceType::Pawn, PieceType::NotAPiece, promotionValue.value(), pieceTypeOnMoveTo} : 
+            pieceMovement{1ULL << from_offset, 1ULL << to_offset, PieceType::NotAPiece, PieceType::Pawn, pieceTypeOnMoveTo, promotionValue.value()};
+    } else {
+        // the type of piece (friendly we are moving)
+        partialMovement = pieceMovement{1ULL << from_offset | 1ULL << to_offset};
+    }
+    
+    return partialMovement;
+}
+
+std::optional<pieceMovement> searchAndSelectMove(const stackStack218 &generatedMoves, const pieceMovement &canidateIncompleteMove) {
+    for (const auto& mv : generatedMoves) {
+        if (mv.compareForSelection(canidateIncompleteMove))
+            return mv;
+    }
+    return std::nullopt;
+}

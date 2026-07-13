@@ -1,6 +1,7 @@
 // #include <algorithm>
 #include <array>
 #include <bit>
+#include <cassert>
 #include <print>
 #include <cstdint>
 #include <format>
@@ -12,6 +13,7 @@
 #include <utility>
 #include <iostream>
 #include "boardState.hpp"
+#include <map>
 #include "helpers.hpp"
 
 
@@ -86,7 +88,7 @@ struct pieceMovement {
     
     //TODO halfmove and fullmove clock
 
-    bool guiShouldSelect(const pieceMovement& rval) const {
+    bool compareForSelection(const pieceMovement& rval) const {
         // were going to be hacky and only compare the first part unless its pawn promoiton
         if (std::popcount(movement) == 1 && std::popcount(rval.movement) == 1) {
             return (movement | secondMovement) == (rval.movement | rval.secondMovement) && 
@@ -240,6 +242,7 @@ struct FastStack
 
 using stackStack218 = FastStack<pieceMovement, 218>;
 
+ 
 
 
 // struct singleColorChessMoveStack : stackStack218 {

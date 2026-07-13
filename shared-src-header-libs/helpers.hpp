@@ -21,6 +21,15 @@ inline std::vector<int> getOnes(uint64_t b) {
     return ones;
 }
 
+inline std::pair<std::string_view, std::optional<std::string_view>> splitWord(std::string_view s) {
+    auto spacePos = s.find_first_of(' ');
+    
+    if (spacePos != s.npos && spacePos + 1 != s.size()) {
+        return {s.substr(0, spacePos), {s.substr(spacePos + 1)}};
+    }
+    return {s, std::nullopt};
+}
+
 inline std::vector<std::pair<uint32_t, uint32_t>> getChessCoordinates(std::vector<int> ones) {
     std::vector<std::pair<uint32_t, uint32_t>>   result = {};
     for (auto p : ones) {
