@@ -8,6 +8,7 @@
 #include "chessBoard.h"
 #include "helpers.hpp"
 #include "stackStack.hpp"
+#include "timer.hpp"
 
 #ifndef SEPERATE_BITBOARD
 #define SEPERATE_BITBOARD
@@ -31,6 +32,7 @@ seperateBitboard(uint64_t pieces) {
 template <size_t N>
 FastStack<uint64_t, N>
 seperateBitboardFastStackReturn(uint64_t pieces) {
+    // Timer<Timers::SeperateBitboardFastStack> t{};
     FastStack<uint64_t, N> resultSeperatedBitboard{};
     auto num_zeros{ std::countr_zero(pieces)};
     while (pieces != 0) {
@@ -43,6 +45,7 @@ seperateBitboardFastStackReturn(uint64_t pieces) {
 
 template<size_t N>
 void addAttacksToStack218(uint64_t piece, uint64_t attacked_squares, PieceType typeofPiece, stackStack218& moveStack, bool isWhiteTurn, const chessBoard& board) {
+    // Timer<Timers::AddToStack218> t{};
     assert(std::popcount(attacked_squares) <= static_cast<int>(N));
 
     // if (std::popcount(attacked_squares) > static_cast<int>(N)) {
@@ -56,9 +59,10 @@ void addAttacksToStack218(uint64_t piece, uint64_t attacked_squares, PieceType t
     uint64_t whiteLeftCorner = blackLeftCorner << 56;
     uint64_t whiteRightCorner = blackRightCorner << 56;
 
-    FastStack<uint64_t, N> seperatedmoves = seperateBitboardFastStackReturn<N>(attacked_squares);
-    for (uint64_t mv : seperatedmoves) {
 
+    while (attacked_squares != 0) {
+        size_t mv = 1ULL << std::countr_zero(attacked_squares);
+        attacked_squares &= ~mv;
         // if (std::popcount(mv) != 1) {
         //     std::println("seperation failed : ");
         //     helpers::printBitboard(mv);

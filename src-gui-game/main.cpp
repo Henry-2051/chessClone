@@ -403,7 +403,7 @@ userInput processUserInput(userInput input, const chessBoard& board) {
 std::pair<userInput, std::optional<pieceMovement>> consumeStagedMoveVerifyAndApply(userInput input, chessBoard& board) {
     if (input.stagedForApplicationMove.has_value()) {
 
-        stackStack218 allMoves = helpers::timeFunction(chessMoves::makeAllMoves, board);
+        stackStack218 allMoves = chessMoves::makeAllMoves(board);
         
         std::optional<pieceMovement> legalCheckResult = checkMoveLegal(input.stagedForApplicationMove.value(), allMoves);
         input.stagedForApplicationMove = std::nullopt;
@@ -578,8 +578,6 @@ int main(int argc, char *argv[])
     std::string_view fenArgument = argc > 1 ? std::string_view(myargstring) : "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
 
     windowCtx w_ctx(fenArgument);
-    if (!chessMoves::makeMovesFromUciSequence(w_ctx.board, "e2e4 e7e5 f1g3"))
-        return -1;
 
     userInput input_ctx;
 

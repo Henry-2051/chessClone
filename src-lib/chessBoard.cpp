@@ -23,6 +23,7 @@ uint64_t chessBoard::blackPieces() const {
          bitboards[PieceType::Queen] | bitboards[PieceType::King];
 }
 
+
 uint64_t* chessBoard::getPiecesByColor(bool isWhiteTurn) {
     if (isWhiteTurn) {
         return &bitboards[0] + 6;
@@ -295,11 +296,13 @@ chessBoard chessBoard::applyMovePure(const pieceMovement& move) const {
 
 PieceType chessBoard::figureOutTypeOfPieceOnSquare(uint64_t square, bool checkWhiteColor) const {
     // there should only be 1 bitboard that satisfies the condition in the loop, this should be simd able 
-    if (std::popcount(square) != 1) {
-        std::println("failed with invalid argument, argument passed : ");
-        helpers::printBitboard(square);
-        throw std::runtime_error("invalid argument");
-    }
+
+    assert(std::popcount(square) == 1);
+    // if (std::popcount(square) != 1) {
+    //     std::println("failed with invalid argument, argument passed : ");
+    //     helpers::printBitboard(square);
+    //     throw std::runtime_error("invalid argument");
+    // }
 
     const uint64_t* bbPtr = this->getPiecesByColorConst(checkWhiteColor);
 

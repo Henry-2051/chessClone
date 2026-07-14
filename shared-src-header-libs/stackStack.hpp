@@ -35,6 +35,11 @@ enum PieceType : uint8_t {
     NotAPiece = 0b1000,
 };
 
+// enum PieceTypePlusOne : uint8_t {
+//     Pawn = 0b1,
+//     Rook =
+// }
+
 inline std::string_view getPieceTypeString(PieceType pt) {
     switch (pt) {
         case (PieceType::Bishop):

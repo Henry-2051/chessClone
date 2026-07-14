@@ -14,6 +14,8 @@
 #include "seperateBitboard.hpp"
 #include "helpers.hpp"
 
+#include "timer.hpp"
+
 namespace chessMoves {
 
 uint64_t generateSimpleBlackPawnCaptureNoTeleport(uint64_t black_pawn, uint64_t occupied);
@@ -46,7 +48,7 @@ uint64_t dummyKingMoveGenerationNoTeleportation(uint64_t king, uint64_t friendly
 
 // must also take into account the enemies attacked squares so we must either pass in an array of attack lines or a single bitboard of all the attacked squares, 
 // passing the array seems like the better option since 
-stackStack218 makeAllMoves(const chessBoard& boardInput);
+const stackStack218& makeAllMoves(const chessBoard& boardInput);
 
 bool makeMovesFromUciSequence(chessBoard& board, std::string_view uciSeq);
 }

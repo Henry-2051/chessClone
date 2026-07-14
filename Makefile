@@ -156,6 +156,19 @@ chessBoard/fast:
 .PHONY : chessBoard/fast
 
 #=============================================================================
+# Target rules for targets named timer
+
+# Build rule for target.
+timer: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 timer
+.PHONY : timer
+
+# fast build rule for target.
+timer/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/timer.dir/build.make CMakeFiles/timer.dir/build
+.PHONY : timer/fast
+
+#=============================================================================
 # Target rules for targets named pieceMovements
 
 # Build rule for target.
@@ -303,6 +316,30 @@ src-lib/pieceMovements.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/pieceMovements.dir/build.make CMakeFiles/pieceMovements.dir/src-lib/pieceMovements.cpp.s
 .PHONY : src-lib/pieceMovements.cpp.s
 
+src-lib/timer.o: src-lib/timer.cpp.o
+.PHONY : src-lib/timer.o
+
+# target to build an object file
+src-lib/timer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/timer.dir/build.make CMakeFiles/timer.dir/src-lib/timer.cpp.o
+.PHONY : src-lib/timer.cpp.o
+
+src-lib/timer.i: src-lib/timer.cpp.i
+.PHONY : src-lib/timer.i
+
+# target to preprocess a source file
+src-lib/timer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/timer.dir/build.make CMakeFiles/timer.dir/src-lib/timer.cpp.i
+.PHONY : src-lib/timer.cpp.i
+
+src-lib/timer.s: src-lib/timer.cpp.s
+.PHONY : src-lib/timer.s
+
+# target to generate assembly for a file
+src-lib/timer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/timer.dir/build.make CMakeFiles/timer.dir/src-lib/timer.cpp.s
+.PHONY : src-lib/timer.cpp.s
+
 src-perftree-debugger/main.o: src-perftree-debugger/main.cpp.o
 .PHONY : src-perftree-debugger/main.o
 
@@ -342,6 +379,7 @@ help:
 	@echo "... gui_chess_game"
 	@echo "... pertree_debugger"
 	@echo "... pieceMovements"
+	@echo "... timer"
 	@echo "... src-gui-game/imgui-sfml/imgui-SFML.o"
 	@echo "... src-gui-game/imgui-sfml/imgui-SFML.i"
 	@echo "... src-gui-game/imgui-sfml/imgui-SFML.s"
@@ -354,6 +392,9 @@ help:
 	@echo "... src-lib/pieceMovements.o"
 	@echo "... src-lib/pieceMovements.i"
 	@echo "... src-lib/pieceMovements.s"
+	@echo "... src-lib/timer.o"
+	@echo "... src-lib/timer.i"
+	@echo "... src-lib/timer.s"
 	@echo "... src-perftree-debugger/main.o"
 	@echo "... src-perftree-debugger/main.i"
 	@echo "... src-perftree-debugger/main.s"

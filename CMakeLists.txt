@@ -5,12 +5,15 @@ project(chess_clone VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_CXX_FLAGS="pg")
 
 # Set a default build type if none is specified.
 if(NOT CMAKE_BUILD_TYPE)
   message(STATUS "No build type specified, defaulting to Debug")
   set(CMAKE_BUILD_TYPE Debug CACHE STRING "Choose the type of build (Debug, Release)" FORCE)
 endif()
+
+
 
 # Common compile options for Unix-like systems.
 if(UNIX)
@@ -69,7 +72,7 @@ target_include_directories(gui_chess_game PRIVATE
   "${CMAKE_SOURCE_DIR}/src-gui-game"
   "${CMAKE_SOURCE_DIR}/src-lib"
   "${CMAKE_SOURCE_DIR}/shared-src-header-libs"
-  "${CMAKE_SOURCE_DIR}/src/imgui-sfml")
+  "${CMAKE_SOURCE_DIR}/src-gui-game/imgui-sfml")
 
 add_executable(pertree_debugger
     ./src-perftree-debugger/main.cpp
@@ -79,11 +82,18 @@ target_include_directories(pertree_debugger PRIVATE
   "${CMAKE_SOURCE_DIR}/src-perftree-debugger"
   "${CMAKE_SOURCE_DIR}/src-lib"
   "${CMAKE_SOURCE_DIR}/shared-src-header-libs"
-  "${CMAKE_SOURCE_DIR}/src/imgui-sfml")
+  "${CMAKE_SOURCE_DIR}/src-gui-game/imgui-sfml")
 
 add_library(chessBoard ./src-lib/chessBoard.cpp)
 
 target_include_directories(chessBoard PRIVATE
+    "${CMAKE_SOURCE_DIR}/src-lib/"
+    "${CMAKE_SOURCE_DIR}/shared-src-header-libs/"
+)
+
+add_library(timer ./src-lib/timer.cpp)
+
+target_include_directories(timer PRIVATE
     "${CMAKE_SOURCE_DIR}/src-lib/"
     "${CMAKE_SOURCE_DIR}/shared-src-header-libs/"
 )
@@ -110,11 +120,13 @@ target_link_libraries(gui_chess_game PRIVATE
   GL
   chessBoard
   pieceMovements
+  timer
   )
 
 target_link_libraries(pertree_debugger PRIVATE
   chessBoard
   pieceMovements
+  timer
 )
 
 # --------------------------------------------------------------------

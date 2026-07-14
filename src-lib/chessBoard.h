@@ -24,6 +24,8 @@ struct chessBoard {
     // uint64_t m_white_queens = 0;
     // uint64_t m_white_king = 0;
     
+    // there are no guarantees as to whether these will reflect the state of bitboards
+
     uint8_t m_board_state = board_state::WhiteTurn;
 
     int8_t enPassantState = {-1}; 
@@ -56,6 +58,8 @@ struct chessBoard {
     chessBoard& applyMoveImpure(const pieceMovement& move);
 
     std::optional<pieceMovement> genPartialMove(std::string_view uciMove) const;
+
+
 
     private:
     void changeRank(std::string_view fenRank, size_t rankNum);

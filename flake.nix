@@ -19,6 +19,7 @@
         let miscPackages = with pkgs; [
           boost
           cmake
+          perf
         ];
         graphicsPackages = with pkgs; [
           glfw

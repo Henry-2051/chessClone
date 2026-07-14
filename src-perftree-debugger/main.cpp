@@ -8,9 +8,11 @@
 #include <sstream>
 #include <string>
 #include <string_view>
+#include <utility>
 #include "chessBoard.h"
 #include "helpers.hpp"
 #include "pieceMovements.hpp"
+#include "timer.hpp"
 
 
 void mapBitboardSquareToDescription(size_t placeNum, char* returnBuffer) {
@@ -54,42 +56,42 @@ void moveToUci(const chessBoard& board, const pieceMovement& movement, char* ret
 }
 
 template <bool recursiveCall>
-size_t perftreeRun(size_t perftnumber, chessBoard& board) {
-    auto allMoves = chessMoves::makeAllMoves(board);
-    size_t numMoves {perftnumber == 0 ? allMoves.numitems() : 0};
+void perftreeRun(size_t perftnumber, chessBoard& board, size_t& numMoves) {
+    stackStack218 allMoves = chessMoves::makeAllMoves(board);
 
     if(recursiveCall && perftnumber > 0) 
     {
         for (const auto& mv : allMoves) {
             board.applyMoveImpure(mv);
-            size_t movesPerMove {perftreeRun<true>(perftnumber - 1, board)};
+            perftreeRun<true>(perftnumber - 1, board, numMoves);
             board.applyMoveImpure(mv);
-            numMoves += movesPerMove;
         }
-        return numMoves;
     } 
     else if (recursiveCall && perftnumber == 0) 
     {
-        return numMoves;
+        numMoves += allMoves.numitems();
     } 
     else if (!recursiveCall && perftnumber > 0) 
     {
+        numMoves = 0;
+
         for (const auto& mv : allMoves) {
             char uciMove[6];
             moveToUci(board, mv, uciMove);
             std::print("{}", uciMove);
             board.applyMoveImpure(mv);
-            size_t movesPerMove {perftreeRun<true>(perftnumber - 1, board)};
+            size_t movesPerMove {0};
+            perftreeRun<true>(perftnumber - 1, board, movesPerMove);
             board.applyMoveImpure(mv);
             std::println(" {}", movesPerMove);
             numMoves += movesPerMove;
         }
         std::println("\n{}", numMoves);
-
-        return numMoves;
     } 
     else
     {
+        numMoves = allMoves.numitems();
+
         for (const auto& mv : allMoves) {
             char uciMove[6];
             moveToUci(board, mv, uciMove);
@@ -97,8 +99,6 @@ size_t perftreeRun(size_t perftnumber, chessBoard& board) {
         }
 
         std::println("\n{}", numMoves);
-
-        return numMoves;
     } 
 }
 
@@ -110,7 +110,32 @@ void perftree(size_t perftnumber=1, std::string_view fenArgument="rnbqkbnr/ppppp
     if(movesToMake != "" && !chessMoves::makeMovesFromUciSequence(board, movesToMake))
         return;
 
-    perftreeRun<false>(perftnumber-1, board);
+    size_t numMoves;
+    perftreeRun<false>(perftnumber-1, board, numMoves);
+    
+    // Timer<Timers::SlidingAttackRook>::printAverageTimeNanoseconds();
+    // Timer<Timers::SlidingAttackBishop>::printAverageTimeNanoseconds();
+    // Timer<Timers::KingMoveFunction>::printAverageTimeNanoseconds();
+    // Timer<Timers::ComputePinMasks>::printAverageTimeNanoseconds();
+    // Timer<Timers::ComputeCheckMasks>::printAverageTimeNanoseconds();
+    // Timer<Timers::AddToStack218>::printAverageTimeNanoseconds();
+    // Timer<Timers::MakeAllMoves>::printAverageTimeNanoseconds();
+    // Timer<Timers::AttackCreationRook>::printAverageTimeNanoseconds();
+    // Timer<Timers::AttackCreationBishop>::printAverageTimeNanoseconds();
+    // Timer<Timers::QueenAttack>::printAverageTimeNanoseconds();
+    // Timer<Timers::SeperateBitboardFastStack>::printAverageTimeNanoseconds();
+    //
+    // Timer<Timers::SlidingAttackRook>::printTotalTimeMilliseconds();
+    // Timer<Timers::SlidingAttackBishop>::printTotalTimeMilliseconds();
+    // Timer<Timers::KingMoveFunction>::printTotalTimeMilliseconds();
+    // Timer<Timers::ComputePinMasks>::printTotalTimeMilliseconds();
+    // Timer<Timers::ComputeCheckMasks>::printTotalTimeMilliseconds();
+    // Timer<Timers::AddToStack218>::printTotalTimeMilliseconds();
+    // Timer<Timers::MakeAllMoves>::printTotalTimeMilliseconds();
+    // Timer<Timers::AttackCreationRook>::printTotalTimeMilliseconds();
+    // Timer<Timers::AttackCreationBishop>::printTotalTimeMilliseconds();
+    // Timer<Timers::QueenAttack>::printTotalTimeMilliseconds();
+    // Timer<Timers::SeperateBitboardFastStack>::printTotalTimeMilliseconds();
 }
 
 int main (int argc, char *argv[]) {

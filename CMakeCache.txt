@@ -184,8 +184,9 @@ CMAKE_ADDR2LINE:FILEPATH=/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper
 //Path to a program.
 CMAKE_AR:FILEPATH=/nix/store/x8mydcgbry214s802nzvy7fdljx404ym-gcc-wrapper-14.3.0/bin/ar
 
-//Choose the type of build (Debug, Release)
-CMAKE_BUILD_TYPE:STRING=Debug
+//Choose the type of build, options are: None Debug Release RelWithDebInfo
+// MinSizeRel ...
+CMAKE_BUILD_TYPE:STRING=Release
 
 //Enable/Disable color output during build.
 CMAKE_COLOR_MAKEFILE:BOOL=ON
