@@ -43,8 +43,7 @@ seperateBitboardFastStackReturn(uint64_t pieces) {
     return resultSeperatedBitboard;
 }
 
-template<size_t N>
-void addAttacksToStack218(uint64_t piece, uint64_t attacked_squares, PieceType typeofPiece, stackStack218& moveStack, bool isWhiteTurn, const chessBoard& board) {
+inline void addAttacksToStack218(uint64_t piece, uint64_t attacked_squares, PieceType typeofPiece, stackStack218& moveStack, bool isWhiteTurn, const chessBoard& board, uint64_t enemies) {
     // Timer<Timers::AddToStack218> t{};
     assert(std::popcount(attacked_squares) <= static_cast<int>(N));
 
@@ -68,8 +67,10 @@ void addAttacksToStack218(uint64_t piece, uint64_t attacked_squares, PieceType t
         //     helpers::printBitboard(mv);
         //     throw std::runtime_error("seperation failed");
         // }
+        PieceType enemyPieceType = PieceType::NotAPiece;
+        if (mv & enemies) 
+            enemyPieceType = board.figureOutTypeOfPieceOnSquare(mv, !isWhiteTurn);
 
-        PieceType enemyPieceType = board.figureOutTypeOfPieceOnSquare(mv, !isWhiteTurn);
         bool destinationOccupiedByEnemy = enemyPieceType != PieceType::NotAPiece ? mv : 0;
         uint8_t pieceMovementBoardState = board_state::WhiteTurn;
 
@@ -106,7 +107,7 @@ void addAttacksToStack218(uint64_t piece, uint64_t attacked_squares, PieceType t
                     // helpers::printBitboard(mv | piece);
                     // helpers::printBitboard(squaresToCheck);
                     // std::println("pawnFile : {}", pawn_file);
-                    enPassantState = std::countr_zero(isWhiteTurn ? mv << 8 : mv >> 8);
+                    enPassantState ^= std::countr_zero(isWhiteTurn ? mv << 8 : mv >> 8);
                 }
             }
         }

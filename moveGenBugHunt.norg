@@ -134,61 +134,10 @@
   so the function itself isnt taking much cpu time but the overhead of creating and destroying a lot of 
   small arrays probably contiributes significantly to the running time of the program
 
-  Measuring performance with perf
 
-Samples: 17K of event 'cycles:Pu', Event count (approx.): 19348234180
-  Children      Self  Command          Shared Object         Symbol
-+   99.98%     0.00%  pertree_debugge  pertree_debugger      [.] _start                                                                                                                                                                                                       ▒
-+   99.98%     0.00%  pertree_debugge  libc.so.6             [.] __libc_start_main@@GLIBC_2.34                                                                                                                                                                                ▒
-+   99.98%     0.00%  pertree_debugge  libc.so.6             [.] __libc_start_call_main                                                                                                                                                                                       ▒
-+   99.98%     0.00%  pertree_debugge  pertree_debugger      [.] main                                                                                                                                                                                                         ▒
-+   99.98%     0.00%  pertree_debugge  pertree_debugger      [.] perftree(unsigned long, std::basic_string_view<char, std::char_traits<char> >, std::basic_string_view<char, std::char_traits<char> >)                                                                        ▒
-+   99.98%     0.00%  pertree_debugge  pertree_debugger      [.] void perftreeRun<false>(unsigned long, chessBoard&, unsigned long&)                                                                                                                                          ▒
-+   99.88%     4.87%  pertree_debugge  pertree_debugger      [.] void perftreeRun<true>(unsigned long, chessBoard&, unsigned long&)                                                                                                                                           ▒
--   84.32%    15.59%  pertree_debugge  pertree_debugger      [.] chessMoves::makeAllMoves(chessBoard const&)                                                                                                                                                                  ▒
-   + 68.73% chessMoves::makeAllMoves(chessBoard const&)                                                                                                                                                                                                                       ▒
-   + 15.59% _start                                                                                                                                                                                                                                                            ▒
-+   18.23%    15.50%  pertree_debugge  pertree_debugger      [.] chessMoves::attack_with_increment_sliding_piece(unsigned long, unsigned long, std::pair<int, int>, std::pair<int, int>)                                                                                      ▒
-+   14.47%    14.05%  pertree_debugge  pertree_debugger      [.] chessMoves::singlePawnMove(unsigned long, unsigned long, unsigned long, unsigned long, FastStack<unsigned long, 13ul> const&, FastStack<unsigned long, 2ul> const&, chessBoard const&)                       ▒
-+   10.86%     4.85%  pertree_debugge  pertree_debugger      [.] chessMoves::calculate_pin_lines(chessBoard const&)                                                                                                                                                           ▒
-+    9.37%     3.99%  pertree_debugge  pertree_debugger      [.] chessMoves::singleBihopMoveNoPinOrCheck_forLoop(unsigned long, unsigned long, unsigned long)                                                                                                                 ▒
-+    9.26%     4.03%  pertree_debugge  pertree_debugger      [.] chessMoves::singleRookMoveNoPinOrCheck_forLoop(unsigned long, unsigned long, unsigned long)                                                                                                                  ▒
-+    8.30%     7.34%  pertree_debugge  pertree_debugger      [.] chessMoves::innerMachinations::scanPinRay(unsigned long, unsigned long, unsigned long, int, int, int, int)                                                                                                   ▒
-+    7.13%     6.25%  pertree_debugge  pertree_debugger      [.] chessBoard::figureOutTypeOfPieceOnSquare(unsigned long, bool) const                                                                                                                                          ▒
--    5.63%     5.42%  pertree_debugge  pertree_debugger      [.] FastStack<unsigned long, 27ul> seperateBitboardFastStackReturn<27ul>(unsigned long)                                                                                                                          ▒
-     5.42% _start                                                                                                                                                                                                                                                             ▒
-        __libc_start_main@@GLIBC_2.34                                                                                                                                                                                                                                         ▒
-        __libc_start_call_main                                                                                                                                                                                                                                                ▒
-        main                                                                                                                                                                                                                                                                  ▒
-        perftree(unsigned long, std::basic_string_view<char, std::char_traits<char> >, std::basic_string_view<char, std::char_traits<char> >)                                                                                                                                 ▒
-        void perftreeRun<false>(unsigned long, chessBoard&, unsigned long&)                                                                                                                                                                                                   ▒
-      + void perftreeRun<true>(unsigned long, chessBoard&, unsigned long&)                                                                                                                                                                                                    ▒
--    4.84%     4.51%  pertree_debugge  pertree_debugger      [.] FastStack<unsigned long, 10ul> seperateBitboardFastStackReturn<10ul>(unsigned long)                                                                                                                          ▒
-     4.51% _start                                                                                                                                                                                                                                                             ▒
-        __libc_start_main@@GLIBC_2.34                                                                                                                                                                                                                                         ◆
-        __libc_start_call_main                                                                                                                                                                                                                                                ▒
-        main                                                                                                                                                                                                                                                                  ▒
-        perftree(unsigned long, std::basic_string_view<char, std::char_traits<char> >, std::basic_string_view<char, std::char_traits<char> >)                                                                                                                                 ▒
-        void perftreeRun<false>(unsigned long, chessBoard&, unsigned long&)                                                                                                                                                                                                   ▒
-      + void perftreeRun<true>(unsigned long, chessBoard&, unsigned long&)                                                                                                                                                                                                    ▒
-+    4.31%     0.65%  pertree_debugge  pertree_debugger      [.] chessMoves::singleBishopMove(unsigned long, chessBoard const&, FastStack<unsigned long, 13ul> const&, FastStack<unsigned long, 2ul> const&)                                                                  ▒
-+    3.80%     0.39%  pertree_debugge  pertree_debugger      [.] chessMoves::singleQueenMove(unsigned long, chessBoard const&, FastStack<unsigned long, 13ul> const&, FastStack<unsigned long, 2ul> const&)                                                                   ▒
-+    3.78%     0.56%  pertree_debugge  pertree_debugger      [.] chessMoves::calculateChecks(bool, chessBoard const&)                                                                                                                                                         ▒
-+    3.57%     0.67%  pertree_debugge  pertree_debugger      [.] chessMoves::singleRookMove(unsigned long, chessBoard const&, FastStack<unsigned long, 13ul> const&, FastStack<unsigned long, 2ul> const&)                                                                    ▒
-+    3.22%     1.85%  pertree_debugge  pertree_debugger      [.] chessBoard::getPiecesByColorConst(bool) const                                                                                                                                                                ▒
-+    1.76%     1.39%  pertree_debugge  pertree_debugger      [.] chessMoves::innerMachinations::applyPinsToPiece(unsigned long, unsigned long, FastStack<unsigned long, 13ul> const&)                                                                                         ▒
-+    1.70%     1.56%  pertree_debugge  pertree_debugger      [.] chessMoves::generateKnightMovesNoPinCheckTeleport(unsigned long, unsigned long)                                                                                                                              ▒
-+    1.66%     1.44%  pertree_debugge  pertree_debugger      [.] FastStack<unsigned long, 4ul> seperateBitboardFastStackReturn<4ul>(unsigned long)                                                                                                                            ▒
-+    1.46%     0.89%  pertree_debugge  pertree_debugger      [.] chessMoves::innerMachinations::applyChecksToPiece(unsigned long, unsigned long, FastStack<unsigned long, 2ul> const&)                                                                                        ▒
-+    1.09%     0.72%  pertree_debugge  pertree_debugger      [.] chessBoard::blackPieces() const                                                                                                                                                                              ▒
-+    1.03%     0.84%  pertree_debugge  pertree_debugger      [.] chessBoard::applyMoveImpure(pieceMovement const&)                                                                                                                                                            ▒
-+    0.77%     0.59%  pertree_debugge  pertree_debugger      [.] chessMoves::singleKnightMove(unsigned long, chessBoard const&, FastStack<unsigned long, 13ul> const&, FastStack<unsigned long, 2ul> const&)                                                                  ▒
-+    0.74%     0.54%  pertree_debugge  pertree_debugger      [.] chessBoard::whitePieces() const                                                                                                                                                                              ▒
-+    0.74%     0.57%  pertree_debugge  pertree_debugger      [.] chessMoves::singleKingMove(unsigned long, chessBoard const&, std::optional<unsigned long>)                                                                                                                   ▒
-+    0.59%     0.55%  pertree_debugge  pertree_debugger      [.] chessMoves::dummyKingMoveGenerationNoTeleportation(unsigned long, unsigned long)   
-  
   After measuring with linux perf and removing SeperateBitboardFastStack the performance increased by 18% 
 
+  Before : 
   [quartz@laptop1A:~/sync/codingProjects/learning_cpp/chessClone/bin]$ sudo perf stat ./pertree_debugger 6
   [sudo] password for quartz:
   a2a4 5363555
@@ -281,6 +230,193 @@ Samples: 17K of event 'cycles:Pu', Event count (approx.): 19348234180
          0.000972000 seconds sys
 
 
+
+  After cleaning up pawn move generation
+  [quartz@laptop1A:~/sync/codingProjects/learning_cpp/chessClone/bin]$ sudo perf stat ./pertree_debugger 6
+  a2a4 5363555
+  a2a3 4463267
+  b2b4 5293555
+  b2b3 5310358
+  c2c4 5866666
+  c2c3 5417640
+  d2d4 8879566
+  d2d3 8073082
+  e2e4 9771632
+  e2e3 9726018
+  f2f4 4890429
+  f2f3 4404141
+  g2g4 5239875
+  g2g3 5346260
+  h2h4 5385554
+  h2h3 4463070
+  b1a3 4856835
+  b1c3 5708064
+  g1f3 5723523
+  g1h3 4877234
+  
+  119060324
+  
+   Performance counter stats for './pertree_debugger 6':
+  
+       3,422,839,005      task-clock                       #    1.000 CPUs utilized             
+                  26      context-switches                 #    7.596 /sec                      
+                   1      cpu-migrations                   #    0.292 /sec                      
+                 173      page-faults                      #   50.543 /sec                      
+      54,783,532,220      instructions                     #    3.64  insn per cycle            
+      15,031,370,754      cycles                           #    4.391 GHz                       
+       6,893,848,029      branches                         #    2.014 G/sec                     
+          23,774,293      branch-misses                    #    0.34% of all branches           
+   #      3.7 %  tma_backend_bound      
+                                                    #      5.3 %  tma_bad_speculation    
+                                                    #     16.4 %  tma_frontend_bound     
+                                                    #     74.5 %  tma_retiring           
+  
+         3.424311216 seconds time elapsed
+  
+         3.416318000 seconds user
+         0.001991000 seconds sys
+  
+  
+  added a guard around figure out type of piece on square, performance increased substantially 
+  changed 
+
+  PieceType enemyPieceTypeOnPromotionSquare = board.figureOutTypeOfPieceOnSquare(pp, !isWhiteTurn);
+
+  to
+
+  PieceType enemyPieceTypeOnPromotionSquare = PieceType::NotAPiece;
+  if (pp & enemy_pieces) {
+  enemyPieceTypeOnPromotionSquare = board.figureOutTypeOfPieceOnSquare(pp, !isWhiteTurn);
+  }
+  [quartz@laptop1A:~/sync/codingProjects/learning_cpp/chessClone/bin]$ sudo perf stat ./pertree_debugger 6
+  [sudo] password for quartz: 
+  a2a4 5363555
+  a2a3 4463267
+  b2b4 5293555
+  b2b3 5310358
+  c2c4 5866666
+  c2c3 5417640
+  d2d4 8879566
+  d2d3 8073082
+  e2e4 9771632
+  e2e3 9726018
+  f2f4 4890429
+  f2f3 4404141
+  g2g4 5239875
+  g2g3 5346260
+  h2h4 5385554
+  h2h3 4463070
+  b1a3 4856835
+  b1c3 5708064
+  g1f3 5723523
+  g1h3 4877234
+  
+  119060324
+  
+   Performance counter stats for './pertree_debugger 6':
+  
+       3,052,799,227      task-clock                       #    0.999 CPUs utilized             
+                  29      context-switches                 #    9.499 /sec                      
+                   1      cpu-migrations                   #    0.328 /sec                      
+                 176      page-faults                      #   57.652 /sec                      
+      48,769,275,734      instructions                     #    3.56  insn per cycle            
+      13,684,655,115      cycles                           #    4.483 GHz                       
+       6,320,008,841      branches                         #    2.070 G/sec                     
+          24,103,441      branch-misses                    #    0.38% of all branches           
+   #      4.1 %  tma_backend_bound      
+                                                    #      6.1 %  tma_bad_speculation    
+                                                    #     17.2 %  tma_frontend_bound     
+                                                    #     72.5 %  tma_retiring           
+  
+         3.054907070 seconds time elapsed
+  
+         3.049264000 seconds user
+         0.000995000 seconds sys
+
+  I noticed in perf that certain functions were taking a lot of the total execution time, after inlining them I found another massive performance increase
+
+  [quartz@laptop1A:~/sync/codingProjects/learning_cpp/chessClone/bin]$ sudo perf stat ./pertree_debugger 6
+  [sudo] password for quartz: 
+  a2a4 5363555
+  a2a3 4463267
+  b2b4 5293555
+  b2b3 5310358
+  c2c4 5866666
+  c2c3 5417640
+  d2d4 8879566
+  d2d3 8073082
+  e2e4 9771632
+  e2e3 9726018
+  f2f4 4890429
+  f2f3 4404141
+  g2g4 5239875
+  g2g3 5346260
+  h2h4 5385554
+  h2h3 4463070
+  b1a3 4856835
+  b1c3 5708064
+  g1f3 5723523
+  g1h3 4877234
+  
+  119060324
+  
+   Performance counter stats for './pertree_debugger 6':
+  
+       2,438,127,198      task-clock                       #    0.999 CPUs utilized             
+                  18      context-switches                 #    7.383 /sec                      
+                   0      cpu-migrations                   #    0.000 /sec                      
+                 165      page-faults                      #   67.675 /sec                      
+      40,114,993,302      instructions                     #    3.65  insn per cycle            
+      11,004,862,194      cycles                           #    4.514 GHz                       
+       5,151,448,782      branches                         #    2.113 G/sec                     
+          25,276,543      branch-misses                    #    0.49% of all branches           
+   #      7.3 %  tma_backend_bound      
+                                                    #      8.0 %  tma_bad_speculation    
+                                                    #     12.5 %  tma_frontend_bound     
+                                                    #     72.2 %  tma_retiring           
+  
+         2.439495743 seconds time elapsed
+  
+         2.434189000 seconds user
+         0.001994000 seconds sys
+  
+
+
+  
+  
+  I think to optimise further I would want to implemnt magic bitboards since about 33% of the total time is spend on either sliding piece
+  moves or computing pins, which use similar for loops, although I could
+
+  in user mode we get this result 
+  [quartz@laptop1A:~/sync/codingProjects/learning_cpp/chessClone/bin]$ time ./pertree_debugger 6
+  a2a4 5363555
+  a2a3 4463267
+  b2b4 5293555
+  b2b3 5310358
+  c2c4 5866666
+  c2c3 5417640
+  d2d4 8879566
+  d2d3 8073082
+  e2e4 9771632
+  e2e3 9726018
+  f2f4 4890429
+  f2f3 4404141
+  g2g4 5239875
+  g2g3 5346260
+  h2h4 5385554
+  h2h3 4463070
+  b1a3 4856835
+  b1c3 5708064
+  g1f3 5723523
+  g1h3 4877234
+  
+  119060324
+  
+  real    0m2.545s
+  user    0m2.537s
+  sys     0m0.002s
+  
+  this is 46.7M nodes per second, thats a 71% improvement and the code is signifficantly cleaner
   ---
 
   

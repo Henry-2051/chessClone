@@ -11,34 +11,6 @@
 #include <string_view>
 
 
-uint64_t chessBoard::whitePieces() const {
-  return bitboards[PieceType::Rook + 6] | bitboards[PieceType::Pawn + 6] |
-         bitboards[PieceType::Knight + 6] | bitboards[PieceType::Bishop + 6] |
-         bitboards[PieceType::Queen + 6] | bitboards[PieceType::King + 6];
-}
-
-uint64_t chessBoard::blackPieces() const {
-  return bitboards[PieceType::Bishop] | bitboards[PieceType::Pawn] |
-         bitboards[PieceType::Rook] | bitboards[PieceType::Knight] |
-         bitboards[PieceType::Queen] | bitboards[PieceType::King];
-}
-
-
-uint64_t* chessBoard::getPiecesByColor(bool isWhiteTurn) {
-    if (isWhiteTurn) {
-        return &bitboards[0] + 6;
-    } else {
-        return bitboards;
-    }
-}
-
-const uint64_t* chessBoard::getPiecesByColorConst(bool isWhiteTurn) const {
-    if (isWhiteTurn) {
-        return &bitboards[0] + 6;
-    } else {
-        return bitboards;
-    }
-}
 
 using annoying_return_type = std::vector<std::vector<std::pair<uint32_t, uint32_t>>>;
 
@@ -265,25 +237,7 @@ chessBoard& chessBoard::applyMoveImpure(const pieceMovement& move) {
 
     m_board_state ^= move.boardStateChange;
 
-    // en passant clarification (how en passant works)
-    //
-    // we have write our method such that boards in the sequence of do and undo have identical en passant states
-    //
-    // when a pawn moves 2 squares an en passant square is created behind it, this square can be captured, but what if we want to undo an en passant move
-    // to get back to our board state with en passant then an en passant capture must induce an enpassant state in the chess board, but after we have
-    // captured en passant the boards en passant state must be null (-1)
-    //
-    // we do this by having a move en passant state identical to a board en passant state cancel out, this ensures that there will only be 1 board state
-    // with en passant capture available under our apply operation
-    //
-    // the normal behavior is that a move with en passant square induces that square into the board state, if the above scenario doesnt occur.
-    // otherwise the en passant state decays back to null 
-    
-    if (enPassantState == move.enPassantState) {
-        enPassantState = -1;
-    } else {
-        enPassantState = move.enPassantState;
-    }
+    enPassantState ^= move.enPassantState;
 
     return *this;
 }
@@ -294,32 +248,6 @@ chessBoard chessBoard::applyMovePure(const pieceMovement& move) const {
     return boardCopy;
 }
 
-PieceType chessBoard::figureOutTypeOfPieceOnSquare(uint64_t square, bool checkWhiteColor) const {
-    // there should only be 1 bitboard that satisfies the condition in the loop, this should be simd able 
-
-    assert(std::popcount(square) == 1);
-    // if (std::popcount(square) != 1) {
-    //     std::println("failed with invalid argument, argument passed : ");
-    //     helpers::printBitboard(square);
-    //     throw std::runtime_error("invalid argument");
-    // }
-
-    const uint64_t* bbPtr = this->getPiecesByColorConst(checkWhiteColor);
-
-    uint8_t pieceType =   (bbPtr[PieceType::Pawn]   & square ? PieceType::Pawn+1   : 0)
-                        | (bbPtr[PieceType::Bishop] & square ? PieceType::Bishop+1 : 0)
-                        | (bbPtr[PieceType::Rook]   & square ? PieceType::Rook+1   : 0)
-                        | (bbPtr[PieceType::Knight] & square ? PieceType::Knight+1 : 0)
-                        | (bbPtr[PieceType::Queen]  & square ? PieceType::Queen+1  : 0)
-                        | (bbPtr[PieceType::King]   & square ? PieceType::King+1   : 0);
-
-    if (pieceType == 0) {
-        return PieceType::NotAPiece;
-    }
-    pieceType --;
-
-    return PieceType(pieceType);
-}
 
 chessBoard::chessBoard(std::string_view fenString) {
     readFenAndUpdate(fenString);
