@@ -204,100 +204,6 @@ void pawnMoveEPP(uint64_t pawn, uint64_t enemies, uint64_t friendly, uint64_t en
 }
 
 
-// inline
-// uint64_t scanPinRay(uint64_t pieces_of_the_same_color_as_the_attacker, uint64_t opposite_pieces, uint64_t opposite_king, int r, int f, int df, int dr) {
-//     uint64_t trial_attack = 1ULL << (f + 8 * r); // this line needs some explanation, the piece isnt actually attacking this square but it is the square that the pinning piece
-//                                                  // sits in, therefore when we apply the pin by anding the pinned pieces attack and the pin we must allow the pinned piece to capture the pinner 
-//
-//     bool hit_enemy_piece = false; // we cant have a pin if there are 2 pieces inbetween our attacking piece and the enemy king
-//     r += dr;
-//     f += df;
-//     while (r >= 0 && r < 8 && f >= 0 && f < 8) {
-//         uint64_t looking_at = 1ULL << (f + 8 * r);
-//         if (looking_at & opposite_king) {
-//             // if its an open line to the king then this is a check not a pin
-//             if (!hit_enemy_piece) {
-//                 return 0;
-//             }
-//             return trial_attack;
-//         } else if (looking_at & pieces_of_the_same_color_as_the_attacker) {
-//             return 0;
-//         } else if (looking_at & opposite_pieces) {
-//             if (hit_enemy_piece) {
-//                 return 0;
-//             }
-//             trial_attack |= looking_at;
-//             hit_enemy_piece = true;
-//         } else {
-//             trial_attack |= looking_at;
-//         }
-//         r += dr;
-//         f += df;
-//     }
-//     return 0;
-// }
-
-// inline
-// uint64_t scanPinRayFromKing(uint64_t enemyPieces, uint64_t ourKing, uint64_t enemyKing, uint64_t friendlyPieces, int r, int f, int df, int dr) {
-//     uint64_t trial_attack {0}; // this line needs some explanation, the piece isnt actually attacking this square but it is the square that the pinning piece
-//                                // sits in, therefore when we apply the pin by anding the pinned pieces attack and the pin we must allow the pinned piece to capture the pinner 
-//
-//     // loop conditions 
-//     //
-//     bool hit_enemy_piece = false; // we cant have a pin if there are 2 pieces inbetween our attacking piece and the enemy king
-//     r += dr;
-//     f += df;
-//     while (r >= 0 && r < 8 && f >= 0 && f < 8) {
-//         uint64_t looking_at = 1ULL << (f + 8 * r);
-//         if (looking_at & opposite_king) {
-//             // if its an open line to the king then this is a check not a pin
-//             if (!hit_enemy_piece) {
-//                 return 0;
-//             }
-//             return trial_attack;
-//         } else if (looking_at & pieces_of_the_same_color_as_the_attacker) {
-//             return 0;
-//         } else if (looking_at & opposite_pieces) {
-//             if (hit_enemy_piece) {
-//                 return 0;
-//             }
-//             trial_attack |= looking_at;
-//             hit_enemy_piece = true;
-//         } else {
-//             trial_attack |= looking_at;
-//         }
-//         r += dr;
-//         f += df;
-//     }
-//     return 0;
-// }
-
-// template <PieceType pt>
-// requires SlidingPiece<pt>
-// uint64_t output_pinned_squares_for_piece(uint64_t pinning_piece, uint64_t same_color_pieces, uint64_t opposite_pieces, uint64_t opposite_king) {
-//     int piece_place = __builtin_ctzll(pinning_piece);
-//     int piece_rank = piece_place / 8;
-//     int piece_file = piece_place % 8;
-//
-//     uint64_t pinned_squares = 0;
-//
-//     if (pt == PieceType::Bishop) {
-//         for (auto &mov : how_the_bishop_moves) {
-//             pinned_squares |= scanPinRay(same_color_pieces, opposite_pieces, opposite_king, piece_rank, piece_file, mov[0], mov[1]);
-//         }
-//     } else if (pt == PieceType::Rook) {
-//         for (auto &mov : how_the_rook_moves) {
-//             pinned_squares |= scanPinRay(same_color_pieces, opposite_pieces, opposite_king, piece_rank, piece_file, mov[0], mov[1]);
-//         }
-//     } else if (pt == PieceType::Queen) {
-//         for (auto &mov : how_the_queen_moves) {
-//             pinned_squares |= scanPinRay(same_color_pieces, opposite_pieces, opposite_king, piece_rank, piece_file, mov[0], mov[1]);
-//         }
-//     } 
-//
-//     return pinned_squares;
-// }
-
 
 pawnMoveReturn
 inline singlePawnMove(uint64_t attacking_pawn, uint64_t enemies, uint64_t friendly,  uint64_t enemy_pawns, const FastStack<uint64_t, 13>& pinLines, const FastStack<uint64_t, 2>& checkingAttacks, const chessBoard& board) {
@@ -390,13 +296,6 @@ inline uint64_t pseudoLegalBishopMoves(uint64_t bishop, uint64_t enemies, uint64
 }
 
 inline uint64_t calculatePinLineMasks(const chessBoard& board, FastStack<uint64_t, 13>& pin_lines, uint64_t enemies, uint64_t friendly, bool isWhiteTurn) {
-    // Timer<Timers::ComputePinMasks> t{};
-
-    // uint64_t friendly_king = isWhiteTurn ? board.m_white_king : board.m_black_king;
-    //
-    // uint64_t enemy_rooks = !isWhiteTurn ? board.m_white_rooks : board.m_black_rooks;
-    // uint64_t enemy_bishops = !isWhiteTurn ? board.m_white_bishops : board.m_black_bishops;
-    // uint64_t enemy_queens = !isWhiteTurn ? board.m_white_queens : board.m_black_queens;
 
     uint64_t pinsMushed {0};
     uint64_t friendly_king = isWhiteTurn ? board.bitboards[PieceType::King + 6] : board.bitboards[PieceType::King];
@@ -474,47 +373,6 @@ inline uint64_t calculatePinLineMasks(const chessBoard& board, FastStack<uint64_
     }
 
     return pinsMushed;
-    
-    // uint64_t friendly_king = isWhiteTurn ? board.bitboards[PieceType::King + 6] : board.bitboards[PieceType::King];
-    // uint64_t enemy_rooks = !isWhiteTurn ? board.bitboards[PieceType::Rook + 6] : board.bitboards[PieceType::Rook];
-    // uint64_t enemy_bishops = !isWhiteTurn ? board.bitboards[PieceType::Bishop + 6] : board.bitboards[PieceType::Bishop];
-    // uint64_t enemy_queens = !isWhiteTurn ? board.bitboards[PieceType::Queen + 6] : board.bitboards[PieceType::Queen];
-    //
-    //
-    // uint64_t pinnsMushed {0};
-
-    // actually this is the wrong way to go about this, we should actually be going from the king outwards
-
-    // while (enemy_rooks) {
-    //     uint64_t rook {enemy_rooks & -enemy_rooks};
-    //     enemy_rooks &= enemy_rooks -1;
-    //     auto pin = output_pinned_squares_for_piece<PieceType::Rook>(rook, enemies, friendly, friendly_king);
-    //     if (pin != 0) {
-    //         pin_lines.push(pin);
-    //         pinnsMushed |= pin;
-    //     }
-    // }
-    //
-    // while (enemy_bishops) {
-    //     uint64_t bishop {enemy_bishops & -enemy_bishops};
-    //     enemy_bishops &= enemy_bishops -1;
-    //     auto pin = output_pinned_squares_for_piece<PieceType::Bishop>(bishop, enemies, friendly, friendly_king);
-    //     if (pin != 0) {
-    //         pin_lines.push(pin);
-    //         pinnsMushed |= pin;
-    //     }
-    // }
-    //
-    // while (enemy_queens) {
-    //     uint64_t queen {enemy_queens & -enemy_queens};
-    //     enemy_queens &= enemy_queens -1;
-    //     auto pin = output_pinned_squares_for_piece<PieceType::Queen>(queen, enemies, friendly, friendly_king);
-    //     if (pin != 0) {
-    //         pin_lines.push(pin);
-    //         pinnsMushed |= pin;
-    //     }
-    // }
-    // return pinnsMushed;
 }
 
 
@@ -958,21 +816,14 @@ const stackStack218& makeAllMoves(const chessBoard& boardInput) {
         enemyAttackmaskLoop<PieceType::Queen> (friendlyInner, enemies, board, isWhiteTurn)  |
         enemyAttackmaskLoop<PieceType::King>  (friendlyInner, enemies, board, isWhiteTurn);
 
-    // std::println("############ pins and checks ############");
-    // calculating the moves
+
     FastStack<uint64_t, 13> pinLines {};
     uint64_t pinsMushed {chessMoves::calculatePinLineMasks(board, pinLines, enemies, friendly, isWhiteTurn)};
-    // for (auto pin : pinLines) {
-    //     std::println("pins for this move");
-    //     helpers::printBitboard(pin);
-    // }
+
 
     FastStack<uint64_t, 2> checkingAttacks{};
     chessMoves::calculateCheckMasks(isWhiteTurn, board, enemies, friendly, checkingAttacks, enemyPawns);
-    // for (auto check : checkingAttacks) {
-    //     std::println("checks for this move");
-    //     helpers::printBitboard(check);
-    // }
+
 
     makeLegalMoves<PieceType::Pawn>(enemies, friendly, enemyPawns, enemy_attacks_mushed, pinsMushed, pinLines, checkingAttacks, board, moveStack, isWhiteTurn);
     makeLegalMoves<PieceType::Rook>(enemies, friendly, enemyPawns, enemy_attacks_mushed, pinsMushed, pinLines, checkingAttacks, board, moveStack, isWhiteTurn);
