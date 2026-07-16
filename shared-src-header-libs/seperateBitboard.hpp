@@ -101,7 +101,7 @@ inline void addAttacksToStack218(uint64_t piece, uint64_t attacked_squares, Piec
         auto moveToPush = isWhiteTurn ? pieceMovement{mv | piece, destinationOccupiedByEnemy ? mv : 0, typeofPiece, PieceType::NotAPiece, PieceType::NotAPiece, enemyPieceType, enPassantState, pieceMovementBoardState} :
                                         pieceMovement{mv | piece, destinationOccupiedByEnemy ? mv : 0, PieceType::NotAPiece, typeofPiece, enemyPieceType, PieceType::NotAPiece, enPassantState, pieceMovementBoardState};
 
-        moveStack.push(moveToPush);
+        moveStack.push(std::move(moveToPush));
     }
 }
 

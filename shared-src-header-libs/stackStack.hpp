@@ -192,7 +192,8 @@ struct FastStack
         return internalArray[currentNumberItems-1];
     }
 
-    FastStack<T, mN>& push(T value) {
+    inline
+    FastStack<T, mN>& push(T&& value) {
         if (currentNumberItems == mN) { 
             std::println("overflow error readout : FastStack<{}, {}>", typeid(T).name(), mN);
             std::println("trying to push item");
@@ -205,6 +206,28 @@ struct FastStack
         ++currentNumberItems;
         return *this;
     }
+
+    inline
+    FastStack<T, mN>& pushVal(T value) {
+        if (currentNumberItems == mN) { 
+            std::println("overflow error readout : FastStack<{}, {}>", typeid(T).name(), mN);
+            std::println("trying to push item");
+            if constexpr (typeid(T) == typeid(uint64_t)) {
+                helpers::printBitboard(value);
+            }
+            throw std::overflow_error("stack overflow, trying to push while at capacity"); 
+        }
+        internalArray[currentNumberItems] = value;
+        ++currentNumberItems;
+        return *this;
+    }
+
+    // inline
+    // FastStack<T, mN>& push(std::optional<T> value) {
+    //     if (value.has_value())
+    //         return push(*value);
+    //     return *this;
+    // }
 
     template<std::size_t P>
     FastStack<T, mN>& pushItems(const std::array<T, P>& item_array, std::size_t numberOfItems) {

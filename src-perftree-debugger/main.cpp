@@ -119,7 +119,7 @@ void perftree(size_t perftnumber=1, std::string_view fenArgument="rnbqkbnr/ppppp
     // Timer<Timers::ComputePinMasks>::printAverageTimeNanoseconds();
     // Timer<Timers::ComputeCheckMasks>::printAverageTimeNanoseconds();
     // Timer<Timers::AddToStack218>::printAverageTimeNanoseconds();
-    // Timer<Timers::MakeAllMoves>::printAverageTimeNanoseconds();
+    Timer<Timers::MakeAllMoves>::printAverageTimeNanoseconds();
     // Timer<Timers::AttackCreationRook>::printAverageTimeNanoseconds();
     // Timer<Timers::AttackCreationBishop>::printAverageTimeNanoseconds();
     // Timer<Timers::QueenAttack>::printAverageTimeNanoseconds();
@@ -131,7 +131,7 @@ void perftree(size_t perftnumber=1, std::string_view fenArgument="rnbqkbnr/ppppp
     // Timer<Timers::ComputePinMasks>::printTotalTimeMilliseconds();
     // Timer<Timers::ComputeCheckMasks>::printTotalTimeMilliseconds();
     // Timer<Timers::AddToStack218>::printTotalTimeMilliseconds();
-    // Timer<Timers::MakeAllMoves>::printTotalTimeMilliseconds();
+    Timer<Timers::MakeAllMoves>::printTotalTimeMilliseconds();
     // Timer<Timers::AttackCreationRook>::printTotalTimeMilliseconds();
     // Timer<Timers::AttackCreationBishop>::printTotalTimeMilliseconds();
     // Timer<Timers::QueenAttack>::printTotalTimeMilliseconds();

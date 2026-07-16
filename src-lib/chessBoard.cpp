@@ -196,7 +196,7 @@ void chessBoard::readFenAndUpdate(std::string_view inputFen) {
                 updateBoardState(termString, termCounter);
             }
 
-            termSeperations.push(counter);
+            termSeperations.pushVal(counter);
             termCounter ++;
 
         } else if (c == '/' && termSeperations.isEmpty()) {
@@ -204,14 +204,14 @@ void chessBoard::readFenAndUpdate(std::string_view inputFen) {
             auto individualRankSubstring = inputFen.substr(previous_place, counter - previous_place -1);
             // std::println("rank {} : {}", rankCounter, individualRankSubstring);
             changeRank(individualRankSubstring, rankCounter);
-            slashPlaces.push(counter);
+            slashPlaces.pushVal(counter);
             rankCounter ++;
         } else if (c == '.') {
             size_t previous_place = termSeperations.peek();
             std::string_view termString {inputFen.substr(previous_place, counter - previous_place -1)};
             // std::println("term : {}", termString);
             updateBoardState(termString, termCounter);
-            termSeperations.push(counter);
+            termSeperations.pushVal(counter);
             break;
         }
         counter ++;

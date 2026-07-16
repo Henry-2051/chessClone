@@ -30,19 +30,19 @@ template struct Timer<Timers::AttackCreationBishop>;
 
 
 template<Timers T>
-double Timer<T>::timeInNanoseconds {0.0};
+long Timer<T>::timeInNanoseconds {0};
 
 template<Timers T>
 long Timer<T>::numEvents{0};
 
 template<Timers T>
 Timer<T>::Timer() {
-    local_start = std::chrono::high_resolution_clock::now();
+    local_start = std::chrono::steady_clock::now();
 }
 
 template<Timers T>
 Timer<T>::~Timer() {
-    auto stop = std::chrono::high_resolution_clock::now();
+    auto stop = std::chrono::steady_clock::now();
     auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - local_start).count();
 
     numEvents ++;

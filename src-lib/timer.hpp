@@ -28,10 +28,10 @@ struct Timer{
     // using TimeMap = std::map<char[3], std::chrono::time_point<std::chrono::nanoseconds>>;
     
     static std::map<Timers, std::string> timerNames;
-    static double timeInNanoseconds;
+    static long timeInNanoseconds;
     static long numEvents;
 
-    std::chrono::time_point<std::chrono::high_resolution_clock, std::chrono::nanoseconds> local_start;
+    std::chrono::time_point<std::chrono::steady_clock, std::chrono::nanoseconds> local_start;
 
     Timer();
 

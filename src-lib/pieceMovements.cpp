@@ -10,14 +10,11 @@
 #include "seperateBitboard.hpp"
 #include <stdexcept>
 
-
 struct pawnMoveReturn {
     uint64_t normalMovedTo{0};
     uint64_t enPassantPawnCapture {0};
     uint64_t enPassantMoveToSquare {0};
 };
-
-
 
 struct kingMoveReturn {
     uint64_t normalMoves;
@@ -296,6 +293,7 @@ inline uint64_t pseudoLegalBishopMoves(uint64_t bishop, uint64_t enemies, uint64
 }
 
 inline uint64_t calculatePinLineMasks(const chessBoard& board, FastStack<uint64_t, 13>& pin_lines, uint64_t enemies, uint64_t friendly, bool isWhiteTurn) {
+    // Timer<Timers::MakeAllMoves> t{};
 
     uint64_t pinsMushed {0};
     uint64_t friendly_king = isWhiteTurn ? board.bitboards[PieceType::King + 6] : board.bitboards[PieceType::King];
@@ -315,7 +313,7 @@ inline uint64_t calculatePinLineMasks(const chessBoard& board, FastStack<uint64_
             uint64_t candiatePin {kingScanRayRookLike & rookRayIncRook};
 
             if (std::popcount(candiatePin & friendly) == 1) {
-                pin_lines.push(candiatePin);
+                pin_lines.push(std::move(candiatePin));
                 pinsMushed |= candiatePin;
             }
         }
@@ -331,7 +329,7 @@ inline uint64_t calculatePinLineMasks(const chessBoard& board, FastStack<uint64_
             uint64_t candiatePin {kingScanRayRookLike & queenRayRookLikeIncQueen};
 
             if (std::popcount(candiatePin & friendly) == 1) {
-                pin_lines.push(candiatePin);
+                pin_lines.push(std::move(candiatePin));
                 pinsMushed |= candiatePin;
             }
         }
@@ -350,7 +348,7 @@ inline uint64_t calculatePinLineMasks(const chessBoard& board, FastStack<uint64_
             uint64_t candiatePin = kingScanRayBishopLike & bishopRayIncBishop;
 
             if (std::popcount(candiatePin & friendly) == 1) {
-                pin_lines.push(candiatePin);
+                pin_lines.push(std::move(candiatePin));
                 pinsMushed |= candiatePin;
             }
         }
@@ -366,7 +364,7 @@ inline uint64_t calculatePinLineMasks(const chessBoard& board, FastStack<uint64_
             uint64_t candiatePin = kingScanRayBishopLike & queenRayBishopLikeIncQueen;
 
             if (std::popcount(candiatePin & friendly) == 1) {
-                pin_lines.push(candiatePin);
+                pin_lines.push(std::move(candiatePin));
                 pinsMushed |= candiatePin;
             }
         }
@@ -575,22 +573,58 @@ inline uint64_t pseudoLegalKingMoves(uint64_t king, uint64_t friendly) {
 };
 
 
-inline kingMoveReturn singleKingMove(uint64_t king, const chessBoard& board, uint64_t attackMask, uint64_t enemies, uint64_t friendly) {
+// this function does way to much, should have seperate functions for right and left castling, and push to the stack in the outer function 
+inline uint64_t singleKingMove(uint64_t king, const chessBoard& board, uint64_t attackMask, uint64_t enemies, uint64_t friendly, stackStack218& moves) {
     // Timer<Timers::KingMoveFunction> t{};
-    bool isWhiteTurn = board.m_board_state & board_state::WhiteTurn;
-    kingMoveReturn retVal;
-
+    uint64_t attacked_squares {0};
     uint64_t center = 0x7e7e7e7e7e7e00;
     if (king & center)
-        retVal.normalMoves = pseudoLegalKingMoves<false>(king, friendly);
+        attacked_squares = pseudoLegalKingMoves<false>(king, friendly);
     else
-        retVal.normalMoves = pseudoLegalKingMoves<true>(king, friendly);
+        attacked_squares = pseudoLegalKingMoves<true>(king, friendly);
 
     // helpers::printBitboard(retVal.normalMoves);
-    retVal.normalMoves &= (~friendly) & (~attackMask);
+    attacked_squares &= (~friendly) & (~attackMask);
 
-    uint64_t all_pieces = enemies | friendly;
 
+    return attacked_squares;
+}
+
+std::optional<pieceMovement> kingCastlingShort(uint64_t king, const chessBoard& board, bool isWhiteTurn, uint64_t all_pieces, uint64_t attackMask) {
+    // can castle right (board state)
+    if (!(board.m_board_state & (isWhiteTurn ? board_state::WhiteLostCastlingRightsRight : board_state::BlacklostCastlingRightsRight))) {
+        uint64_t bKingStart = 0x10, bSquaresEmptyAndNotAttacked = 0x60, bShortRookStart = 0x80;
+
+        // check the squares have what they should, redundant by design with the above check
+        if(!((isWhiteTurn ? bSquaresEmptyAndNotAttacked << 56 : bSquaresEmptyAndNotAttacked) & (all_pieces | attackMask))) 
+        {
+            uint8_t boardStateToXor = isWhiteTurn ? 
+                    board_state::WhiteTurn | board_state::WhiteLostCastlingRightsRight | board_state::WhiteLostCastlingRightsLeft : 
+                    board_state::WhiteTurn | board_state::BlacklostCastlingRightsRight | board_state::BlackLostCastlingRightsLeft;
+
+            boardStateToXor ^= board.m_board_state & boardStateToXor & board_state::allCastlingFields_const;
+
+            return (isWhiteTurn ?
+                pieceMovement{
+                    (bKingStart << 2 | bKingStart) << 56, 
+                    (bShortRookStart | bShortRookStart >> 2) << 56, 
+                    PieceType::King, PieceType::NotAPiece,
+                    PieceType::Rook, PieceType::NotAPiece, 
+                    board.enPassantState, boardStateToXor
+                } :
+                pieceMovement{
+                    bKingStart << 2 | bKingStart,
+                    bShortRookStart | bShortRookStart >> 2,
+                    PieceType::NotAPiece, PieceType::King, 
+                    PieceType::NotAPiece, PieceType::Rook, 
+                    board.enPassantState, boardStateToXor
+                });
+        }
+    }
+    return std::nullopt;
+}
+
+inline std::optional<pieceMovement> kingCastlingLong(uint64_t king, const chessBoard& board, bool isWhiteTurn, uint64_t all_pieces, uint64_t attackMask) {
     if (!(board.m_board_state & (isWhiteTurn ? board_state::WhiteLostCastlingRightsLeft : board_state::BlackLostCastlingRightsLeft))) {
 
         uint64_t bKingStart = 0x10, bLongRookStart = 0x1, bSquareNotAttacked= 0xc, bSquaresEmpty = 0xe;
@@ -605,7 +639,7 @@ inline kingMoveReturn singleKingMove(uint64_t king, const chessBoard& board, uin
 
             boardStateToXor ^= board.m_board_state & boardStateToXor & board_state::allCastlingFields_const;
 
-            retVal.castlingLeft = isWhiteTurn ? 
+            return(isWhiteTurn ? 
                 pieceMovement{
                     (bKingStart >> 2 | bKingStart) << 56, 
                     (bLongRookStart | bLongRookStart << 3) << 56, 
@@ -619,44 +653,12 @@ inline kingMoveReturn singleKingMove(uint64_t king, const chessBoard& board, uin
                     PieceType::NotAPiece, PieceType::King, 
                     PieceType::NotAPiece, PieceType::Rook, 
                     board.enPassantState, boardStateToXor
-                };
+                });
         }
     }
-
-    // can castle right (board state)
-    if (!(board.m_board_state & (isWhiteTurn ? board_state::WhiteLostCastlingRightsRight : board_state::BlacklostCastlingRightsRight))) {
-        uint64_t bKingStart = 0x10, bSquaresEmptyAndNotAttacked = 0x60, bShortRookStart = 0x80;
-
-        // check the squares have what they should, redundant by design with the above check
-        if(!((isWhiteTurn ? bSquaresEmptyAndNotAttacked << 56 : bSquaresEmptyAndNotAttacked) & (all_pieces | attackMask))) 
-        {
-            uint8_t boardStateToXor = isWhiteTurn ? 
-                    board_state::WhiteTurn | board_state::WhiteLostCastlingRightsRight | board_state::WhiteLostCastlingRightsLeft : 
-                    board_state::WhiteTurn | board_state::BlacklostCastlingRightsRight | board_state::BlackLostCastlingRightsLeft;
-
-            boardStateToXor ^= board.m_board_state & boardStateToXor & board_state::allCastlingFields_const;
-
-            retVal.castlingRight = isWhiteTurn ?
-                pieceMovement{
-                    (bKingStart << 2 | bKingStart) << 56, 
-                    (bShortRookStart | bShortRookStart >> 2) << 56, 
-                    PieceType::King, PieceType::NotAPiece,
-                    PieceType::Rook, PieceType::NotAPiece, 
-                    board.enPassantState, boardStateToXor
-                } :
-                pieceMovement{
-                    bKingStart << 2 | bKingStart,
-                    bShortRookStart | bShortRookStart >> 2,
-                    PieceType::NotAPiece, PieceType::King, 
-                    PieceType::NotAPiece, PieceType::Rook, 
-                    board.enPassantState, boardStateToXor
-                };
-        }
-    }
-    
-
-    return retVal;
+    return std::nullopt;
 }
+
 
 template <PieceType pt>
 uint64_t enemyAttackmaskLoop(uint64_t friendly, uint64_t enemies, const chessBoard& board, bool isWhiteTurn) {
@@ -756,7 +758,7 @@ void makeLegalMoves(uint64_t enemies, uint64_t friendly, uint64_t enemy_pawns, u
                         }
                         // std::println("generated promotion move:");
                         // promotionMove.printThis();
-                        moveStack.push(promotionMove);
+                        moveStack.push(std::move(promotionMove));
                     }
                 }
             }
@@ -773,28 +775,28 @@ void makeLegalMoves(uint64_t enemies, uint64_t friendly, uint64_t enemy_pawns, u
         } else if (pt == PieceType::Queen) {
             uint64_t normalRet = chessMoves::singleQueenMove(piece, board, pinLines, checkingAttacks, enemies, friendly);
             addAttacksToStack218(piece, normalRet, pt, moveStack, isWhiteTurn, board, enemies);
-
         } else if (pt == PieceType::King) {
-            kingMoveReturn kingRet = chessMoves::singleKingMove(piece, board, enemy_attacks_mushed, enemies, friendly);
-            addAttacksToStack218(piece, kingRet.normalMoves, pt, moveStack, isWhiteTurn, board, enemies);
+            uint64_t normalRet = chessMoves::singleKingMove(piece, board, enemy_attacks_mushed, enemies, friendly, moveStack);
+            addAttacksToStack218(piece, normalRet, pt, moveStack, isWhiteTurn, board, enemies);
 
-            if(kingRet.castlingRight.has_value()) {
-                moveStack.push(kingRet.castlingRight.value());
-            }
+            uint64_t all_pieces = enemies | friendly;
 
-            if(kingRet.castlingLeft.has_value()) {
-                moveStack.push(kingRet.castlingLeft.value());
-            }
+            auto cas = kingCastlingLong(piece, board, isWhiteTurn, all_pieces, enemy_attacks_mushed);
+            if (cas.has_value())
+                moveStack.push(std::move(*cas));
+
+            cas = kingCastlingShort(piece, board, isWhiteTurn, all_pieces, enemy_attacks_mushed);
+            if (cas.has_value())
+                moveStack.push(std::move(*cas));
         }
     }
 }
 
-const stackStack218& makeAllMoves(const chessBoard& boardInput) {
+const stackStack218& makeAllMoves(const chessBoard& board) {
     // Timer<Timers::MakeAllMoves> t {};
     static stackStack218 moveStack {};
     moveStack.currentNumberItems = 0;
 
-    chessBoard board {boardInput}; // interesting copying the board seems to increase the cache hit rate and increase performance
 
 
     bool isWhiteTurn = (board_state::WhiteTurn & board.m_board_state) != 0;
@@ -805,8 +807,6 @@ const stackStack218& makeAllMoves(const chessBoard& boardInput) {
     uint64_t ourKing =    board.pieceToBitboardConst<PieceType::King>(isWhiteTurn);
 
     uint64_t friendlyInner = friendly & ~ourKing;
-
-    ;
 
     uint64_t enemy_attacks_mushed = 
         enemyAttackmaskLoop<PieceType::Pawn>  (friendlyInner, enemies, board, isWhiteTurn)   |
@@ -820,10 +820,8 @@ const stackStack218& makeAllMoves(const chessBoard& boardInput) {
     FastStack<uint64_t, 13> pinLines {};
     uint64_t pinsMushed {chessMoves::calculatePinLineMasks(board, pinLines, enemies, friendly, isWhiteTurn)};
 
-
     FastStack<uint64_t, 2> checkingAttacks{};
     chessMoves::calculateCheckMasks(isWhiteTurn, board, enemies, friendly, checkingAttacks, enemyPawns);
-
 
     makeLegalMoves<PieceType::Pawn>(enemies, friendly, enemyPawns, enemy_attacks_mushed, pinsMushed, pinLines, checkingAttacks, board, moveStack, isWhiteTurn);
     makeLegalMoves<PieceType::Rook>(enemies, friendly, enemyPawns, enemy_attacks_mushed, pinsMushed, pinLines, checkingAttacks, board, moveStack, isWhiteTurn);
@@ -865,4 +863,3 @@ bool makeMovesFromUciSequence(chessBoard& board, std::string_view uciSeq) {
     return true;
 }
 }
-
