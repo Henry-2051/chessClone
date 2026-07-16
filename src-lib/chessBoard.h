@@ -1,6 +1,7 @@
 #include <cstdint>
 #include <string>
 #include <string_view>
+#include <utility>
 #include <vector>
 #include "boardState.hpp"
 #include "stackStack.hpp"
@@ -70,6 +71,15 @@ struct chessBoard {
 
     void readFenAndUpdate(std::string_view inputFen);
 
+    template <PieceType pt>
+    inline uint64_t pieceToBitboardConst(bool isWhiteTurn) const {
+        if (isWhiteTurn) {
+            return bitboards[std::to_underlying(pt)+6];
+        } else {
+            return bitboards[std::to_underlying(pt)];
+        }
+    }
+
     inline PieceType figureOutTypeOfPieceOnSquare(uint64_t square, bool checkWhiteColor) const {
         // there should only be 1 bitboard that satisfies the condition in the loop, this should be simd able 
 
@@ -101,7 +111,29 @@ struct chessBoard {
     chessBoard applyMovePure(const pieceMovement& move) const;
 
     // board.applyMove(myMove).applyMove(myMove) == board should always be true
-    chessBoard& applyMoveImpure(const pieceMovement& move);
+    inline chessBoard& applyMoveImpure(const pieceMovement& move) {
+        uint64_t* whitePieces = getPiecesByColor(true);
+        uint64_t* blackPieces = getPiecesByColor(false);
+
+        if (move.movement1WhiteBB != PieceType::NotAPiece) {
+            whitePieces[move.movement1WhiteBB] ^= move.movement;
+        }
+        if (move.movement1BlackBB != PieceType::NotAPiece) {
+            blackPieces[move.movement1BlackBB] ^= move.movement;
+        }
+        if (move.movement2WhiteBB != PieceType::NotAPiece) {
+            whitePieces[move.movement2WhiteBB] ^= move.secondMovement;
+        }
+        if (move.movement2BlackBB != PieceType::NotAPiece) {
+            blackPieces[move.movement2BlackBB] ^= move.secondMovement;
+        }
+
+        m_board_state ^= move.boardStateChange;
+
+        enPassantState ^= move.enPassantState;
+
+        return *this;
+    }
 
     std::optional<pieceMovement> genPartialMove(std::string_view uciMove) const;
 

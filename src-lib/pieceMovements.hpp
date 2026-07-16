@@ -11,7 +11,6 @@
 #include "stackStack.hpp"
 #include "boardState.hpp"
 #include "chessBoard.h"
-#include "seperateBitboard.hpp"
 #include "helpers.hpp"
 
 #include "timer.hpp"

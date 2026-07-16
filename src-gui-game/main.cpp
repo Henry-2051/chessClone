@@ -26,7 +26,6 @@
 #include <utility>
 
 #include "pieceMovements.hpp"
-#include "seperateBitboard.hpp"
 #include "stackStack.hpp"
 
 #include <SFML/Graphics.hpp>
@@ -403,7 +402,10 @@ userInput processUserInput(userInput input, const chessBoard& board) {
 std::pair<userInput, std::optional<pieceMovement>> consumeStagedMoveVerifyAndApply(userInput input, chessBoard& board) {
     if (input.stagedForApplicationMove.has_value()) {
 
+        // auto start = std::chrono::steady_clock::now();
         stackStack218 allMoves = chessMoves::makeAllMoves(board);
+        // auto stop = std::chrono::steady_clock::now();
+        // std::println("make moves took {}ns", std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start).count());
         
         std::optional<pieceMovement> legalCheckResult = checkMoveLegal(input.stagedForApplicationMove.value(), allMoves);
         input.stagedForApplicationMove = std::nullopt;

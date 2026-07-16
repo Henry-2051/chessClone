@@ -222,8 +222,12 @@ struct FastStack
         return pushItems(itemsStack.internalArray, itemsStack.currentNumberItems);
     }
 
-    bool isEmpty() const {
+    inline bool isEmpty() const {
         return currentNumberItems == 0;
+    }
+
+    inline bool notEmpty() const {
+        return currentNumberItems != 0;
     }
 
     size_t numitems() const {

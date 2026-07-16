@@ -6,7 +6,8 @@
 #include <print>
 #pragma once
 
-// added real timing 
+// timing has 90ns overhead, this is too much for measuring chess movegen
+// switched to useing perf stat and perf report, increased performance by 70%
 enum class Timers : int{
     AddToStack218 =0,
     SlidingAttackBishop,

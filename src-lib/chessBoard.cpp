@@ -218,29 +218,6 @@ void chessBoard::readFenAndUpdate(std::string_view inputFen) {
     }
 }
 
-chessBoard& chessBoard::applyMoveImpure(const pieceMovement& move) {
-    uint64_t* whitePieces = getPiecesByColor(true);
-    uint64_t* blackPieces = getPiecesByColor(false);
-
-    if (move.movement1WhiteBB != PieceType::NotAPiece) {
-        whitePieces[move.movement1WhiteBB] ^= move.movement;
-    }
-    if (move.movement1BlackBB != PieceType::NotAPiece) {
-        blackPieces[move.movement1BlackBB] ^= move.movement;
-    }
-    if (move.movement2WhiteBB != PieceType::NotAPiece) {
-        whitePieces[move.movement2WhiteBB] ^= move.secondMovement;
-    }
-    if (move.movement2BlackBB != PieceType::NotAPiece) {
-        blackPieces[move.movement2BlackBB] ^= move.secondMovement;
-    }
-
-    m_board_state ^= move.boardStateChange;
-
-    enPassantState ^= move.enPassantState;
-
-    return *this;
-}
 
 chessBoard chessBoard::applyMovePure(const pieceMovement& move) const {
     chessBoard boardCopy = *this;
