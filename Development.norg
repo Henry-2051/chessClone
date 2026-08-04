@@ -1,0 +1,72 @@
+* Ideas for development
+  move ordering : 
+  - same move as best variation from previous iterator, basically principe variation 
+  - try capturing any hanging pieces on the board
+    in make moves function an enemy attack mask is already generated, just do enemy_pieces & (~attack mask)
+    to get all the undefended pieces then when we loop through our attacks assign a higher score to moves that capture an undefended piece -- will definitely increase pruning 
+  - killer moves 
+  @code cpp
+  namespace AlphaBeta {
+
+  using EvalFunction = int (*) (const chessBoard&, bool, bool);
+  template <EvalFunction eval>
+  searchAnswer alphaBeta(searchState st, chessBoard board, int depthleft) {
+      bool isWhiteTurn = board.m_board_state & board_state::WhiteTurn;
+      bool endgame = false;
+      searchAnswer bestMove {-1000000000};
+      auto allMoves = chessMoves::makeAllMoves(board);
+
+      if (depthleft == 0 || allMoves.numitems() == 0)
+          return searchAnswer{eval(board, isWhiteTurn, endgame)}; // TODO : change this to quiessence search
+
+      for (const auto& mv : allMoves) {
+          chessBoard newBoard = board.applyMovePure(mv);
+          searchAnswer possibleAnswer = alphaBeta<eval>(st.reflectPure(), newBoard, depthleft-1).negate();
+
+          if (possibleAnswer.evalScore > bestMove.evalScore) {
+              bestMove.evalScore = possibleAnswer.evalScore;
+              bestMove.move = mv;
+          }
+
+          // if the best move for the node is better than the worst that the opponent can do 
+          // then the move is good enough for the other player to choose a different line 
+
+          // therefore in this specific position playing this specific move is very good 
+          // therefore we should note down agains the node hash that this move is a killer move? 
+          if (possibleAnswer.evalScore >= st.beta) {
+              break;
+          }
+
+          // 
+          st.alpha = std::max(st.alpha, possibleAnswer.evalScore);
+      }
+
+      return bestMove;
+  }
+  
+  @end
+    
+  -- capture of last moved piece + 10 pawns, should always try this 
+
+  - try captures that win material first 
+    neutral captures next then captures that lose materal way at the bottom
+
+
+  - static capture evaluation relies on movegen, must write a whole function for this and test it, basically the same as check masks, how this is done is take a capture chain we want to analyse, ie a move that captures a defended piece, then from that
+    square we draw out diagonal and horizontal rays and l shaped knight moves, then the first enemy piece we find we add it to a 
+    bitboard representing enemy pieces and add its value to the score, then we do the same for our pieces with the same set of 
+    attack patterns. add it to our bitmap, 
+    these bitmaps we use to erase captured pieces with an and not operation such that we dont need to copy the chess board. 
+    do this until we dont find any pieces, this is going to be a a for loop with maybe 4 or 5 iterations max and some bitwise 
+    operations.
+
+
+  - quiessence search 
+    what if we say that all the moves which dont capture a piece are the same and give them the same eval 
+    then for all the capturing moves play them out until there are no more captures available. 
+
+    to implement: add a metadata field to moves that tell us whether they are captures or not 
+    this will be easy and can be implenented by changing the code in 2 places.
+
+  - transposition table 
+

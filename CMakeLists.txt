@@ -84,6 +84,22 @@ target_include_directories(pertree_debugger PRIVATE
   "${CMAKE_SOURCE_DIR}/shared-src-header-libs"
   "${CMAKE_SOURCE_DIR}/src-gui-game/imgui-sfml")
 
+add_executable(engine
+    ./engine-src/main.cpp
+)
+
+target_include_directories(engine PRIVATE
+  "${CMAKE_SOURCE_DIR}/engine-src"
+  "${CMAKE_SOURCE_DIR}/src-lib"
+  "${CMAKE_SOURCE_DIR}/shared-src-header-libs"
+  "${CMAKE_SOURCE_DIR}/src-gui-game/imgui-sfml")
+
+target_include_directories(pertree_debugger PRIVATE
+  "${CMAKE_SOURCE_DIR}/src-perftree-debugger"
+  "${CMAKE_SOURCE_DIR}/src-lib"
+  "${CMAKE_SOURCE_DIR}/shared-src-header-libs"
+  "${CMAKE_SOURCE_DIR}/src-gui-game/imgui-sfml")
+
 add_library(chessBoard ./src-lib/chessBoard.cpp)
 
 target_include_directories(chessBoard PRIVATE
@@ -111,6 +127,9 @@ set_target_properties(gui_chess_game PROPERTIES
 set_target_properties(pertree_debugger PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
+set_target_properties(engine PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
+
 target_link_libraries(gui_chess_game PRIVATE
   sfml-graphics
   sfml-window
@@ -124,6 +143,12 @@ target_link_libraries(gui_chess_game PRIVATE
   )
 
 target_link_libraries(pertree_debugger PRIVATE
+  chessBoard
+  pieceMovements
+  timer
+)
+
+target_link_libraries(engine PRIVATE
   chessBoard
   pieceMovements
   timer

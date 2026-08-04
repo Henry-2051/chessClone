@@ -34,6 +34,8 @@ struct chessBoard {
     size_t halfMoveClock {0};
     size_t moveNumber {0};
 
+    chessBoard();
+
     chessBoard(std::string_view fenString);
 
     using annoying_return_type = std::vector<std::vector<std::pair<uint32_t, uint32_t>>>;
@@ -73,6 +75,32 @@ struct chessBoard {
 
     template <PieceType pt>
     inline uint64_t pieceToBitboardConst(bool isWhiteTurn) const {
+        if (isWhiteTurn) {
+            return bitboards[std::to_underlying(pt)+6];
+        } else {
+            return bitboards[std::to_underlying(pt)];
+        }
+    }
+
+    // this function is so slow because if we know what pt is at compile time when we 
+    // call this function the cpu doenst branch
+    // predict properly, we essentially increase the branching factor by a factor of 6 
+    // this effect has been measured using linux perf to be signifficant
+    //
+    // but sometimes pt is dynamic like when we want to make a uci move so this needs to exist
+    // we actually never use this in the move gen code, and it shouldnt be used in the hot path
+    // if we can avoid it
+
+    inline uint64_t slowPieceToBitboardConst(bool isWhiteTurn, PieceType pt) const {
+        if (isWhiteTurn) {
+            return bitboards[std::to_underlying(pt)+6];
+        } else {
+            return bitboards[std::to_underlying(pt)];
+        }
+    }
+
+    template <bool isWhiteTurn>
+    inline uint64_t slightlySlowPieceToBitboardConst(PieceType pt) const {
         if (isWhiteTurn) {
             return bitboards[std::to_underlying(pt)+6];
         } else {
@@ -136,6 +164,8 @@ struct chessBoard {
     }
 
     std::optional<pieceMovement> genPartialMove(std::string_view uciMove) const;
+
+    std::string uciStringMove(pieceMovement move) const;
 
     private:
     void changeRank(std::string_view fenRank, size_t rankNum);

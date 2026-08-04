@@ -8,6 +8,7 @@
 #include <functional>
 #include <ranges>
 #include <span>
+#include <sstream>
 #include <stdexcept>
 #include <string_view>
 #include <utility>
@@ -83,13 +84,19 @@ struct pieceMovement {
     PieceType movement2BlackBB {NotAPiece};
     int8_t enPassantState{-1}; // en passant behavior
                                //
-                               // this basically tells us whether the board used the generate the move had an en passant state
-                               // this is so when undoing a move we can remake the original en passant state
-                               // if a board has en passant state then the move with the same en passant state is the forward move and the move with different state is the undoing move 
-                               // if a board doesnt have en passant state and a move does have en passant state then when we apply the move the resulting board will have that en passant state
-                               // it tells us that a pawn was moved 2 squares past a pawn in the move before
+                               // represents the square that can be en passant captured into
+                               // if blacks a pawn moves 2 squares and our pawn was on b5 then 
+                               // an en passant capture square would be generated on b6 
+                               // values from 0-63 represent en passant capture 
+                               // -1 represents no en passant capture, everything else is an error 
+                               //
+                               // when we apply the move we simply xor, using the xor proprties of 
+                               // commutivity and that they cancel out, we can encode previous en passant 
+                               // states where moves work to update the boards state in a fully reversible way
+                               // meaning board.applyMove(mv).applyMove(mv) === board for any valid move 
     
     uint8_t boardStateChange {board_state::WhiteTurn};
+
     
     //TODO halfmove and fullmove clock
 
@@ -166,6 +173,14 @@ struct FastStack
 
     T* end() {
         return internalArray.data() + currentNumberItems;
+    }
+
+    T& operator[](size_t idx) {
+        return internalArray[idx];
+    }
+
+    const T& operator[](size_t idx) const {
+        return internalArray[idx];
     }
 
     const T* begin() const {

@@ -6,6 +6,7 @@
 #include <cstdint>
 #include <map>
 #include <print>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -84,6 +85,89 @@ void chessBoard::changeRank(std::string_view fenRank, size_t rankNum) {
         if (fileNum == 8) {
             return;
         }
+    }
+}
+
+std::string chessBoard::uciStringMove(pieceMovement move) const {
+    bool whiteMoving = move.movement1WhiteBB != PieceType::NotAPiece;
+    
+    std::map<PieceType, char> promotablePieceMap{
+        {PieceType::Rook,   'r'},
+        {PieceType::Knight, 'n'},
+        {PieceType::Bishop, 'b'},
+        {PieceType::Queen,  'q'}
+    };
+
+    std::stringstream uciMoveOutputSS;
+
+    auto addFileRankInfo = [](int originalSquare, int squareMovedTo, std::stringstream& ss) {
+        std::map<int, char> fileMap {
+            {0, 'a'},
+            {1, 'b'},
+            {2, 'c'},
+            {3, 'd'},
+            {4, 'e'},
+            {5, 'f'},
+            {6, 'g'},
+            {7, 'h'}
+        };
+
+        std::map<int, char> rankMap {
+            {0, '8'},
+            {1, '7'},
+            {2, '6'},
+            {3, '5'},
+            {4, '4'},
+            {5, '3'},
+            {6, '2'},
+            {7, '1'}
+        };
+        int originalRank = originalSquare / 8;
+        int originalFile = originalSquare % 8;
+
+        int newRank = squareMovedTo / 8;
+        int newFile = squareMovedTo % 8;
+
+        if (!(fileMap.contains(originalFile) && fileMap.contains(newFile) && rankMap.contains(originalRank) && rankMap.contains(newRank))) {
+            return;
+        }
+
+        ss << fileMap.find(originalFile)->second;
+        ss << rankMap.find(originalRank)->second;
+
+        ss << fileMap.find(newFile)->second;
+        ss << rankMap.find(newRank)->second;
+    };
+
+    // pawn promotion
+    if (std::popcount(move.movement) == 1) {
+        int pawnPlace = std::countr_zero(move.movement);
+        int promotionPlace = std::countr_zero(move.secondMovement);
+
+        addFileRankInfo(pawnPlace, promotionPlace, uciMoveOutputSS);
+
+        PieceType promotingPieceType {whiteMoving ? move.movement2WhiteBB : move.movement2BlackBB};
+
+        if (!promotablePieceMap.contains(promotingPieceType))
+            return "";
+
+        uciMoveOutputSS << promotablePieceMap.find(promotingPieceType)->second;
+
+        return uciMoveOutputSS.str();
+    } 
+    // not pawn promotion
+    else {
+        assert(std::popcount(move.movement) == 2);
+        PieceType movingPT = whiteMoving ? move.movement1WhiteBB : move.movement1BlackBB;       
+
+        uint64_t movingFromPieceTypeBB= slowPieceToBitboardConst(whiteMoving, movingPT);
+
+        int pieceFromPlace = std::countr_zero(movingFromPieceTypeBB & move.movement);
+        int pieceToPlace   = std::countr_zero(move.movement & ~(movingFromPieceTypeBB & move.movement));
+
+        addFileRankInfo(pieceFromPlace, pieceToPlace, uciMoveOutputSS);
+
+        return uciMoveOutputSS.str();
     }
 }
 
@@ -225,6 +309,9 @@ chessBoard chessBoard::applyMovePure(const pieceMovement& move) const {
     return boardCopy;
 }
 
+chessBoard::chessBoard() {
+    readFenAndUpdate("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1");
+}
 
 chessBoard::chessBoard(std::string_view fenString) {
     readFenAndUpdate(fenString);

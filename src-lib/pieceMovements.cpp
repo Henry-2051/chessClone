@@ -16,36 +16,6 @@ struct pawnMoveReturn {
     uint64_t enPassantMoveToSquare {0};
 };
 
-struct kingMoveReturn {
-    uint64_t normalMoves;
-    std::optional<pieceMovement> castlingRight;
-    std::optional<pieceMovement> castlingLeft;
-    
-    void printThis() const {
-        std::println("kingMoveReturn{{");
-
-        std::println("normalMoves:");
-        helpers::printBitboard(normalMoves);
-        std::println(",");
-
-        std::println("castlingRight:");
-        if (castlingRight.has_value()) {
-            castlingRight->printThis();
-        } else {
-            std::println("std::nullopt");
-        }
-        std::println(",");
-
-        std::println("castlingLeft:");
-        if (castlingLeft.has_value()) {
-            castlingLeft->printThis();
-        } else {
-            std::println("std::nullopt");
-        }
-
-        std::println("}}");
-    }
-};
 
 namespace chessMoves {
 
@@ -99,8 +69,6 @@ static constexpr int how_the_knight_moves[8][2] = {
     {-1, -2}
 };
 
-
-
 inline uint64_t applyPinsToPiece(uint64_t piece, uint64_t attacked_squares, const FastStack<uint64_t, 13>& pins) {
     for (const auto& p: pins) {
         if (p & piece) {
@@ -123,6 +91,7 @@ inline uint64_t simpleWhitePawnCapture(uint64_t white_pawn, uint64_t occupied) {
     if (!teleportCheck)
         return ((white_pawn >> 7) & occupied) | ((white_pawn >> 9) & occupied);
 
+    // Right bit shift is legal, ie wont teleport the pawn
     uint64_t haveRbs {0x1010101010100};
     uint64_t haveLbs {0x80808080808000};
     haveRbs = ~haveRbs;
@@ -292,85 +261,81 @@ inline uint64_t pseudoLegalBishopMoves(uint64_t bishop, uint64_t enemies, uint64
     return attacked_squares;
 }
 
-inline uint64_t calculatePinLineMasks(const chessBoard& board, FastStack<uint64_t, 13>& pin_lines, uint64_t enemies, uint64_t friendly, bool isWhiteTurn) {
+using AttackGen = uint64_t (*) (uint64_t, uint64_t, uint64_t);
+template <AttackGen aGen>
+requires(aGen == pseudoLegalBishopMoves || aGen == pseudoLegalRookMoves)
+inline uint64_t addPinsToPinArray(uint64_t candiatePinners, uint64_t friendly_king, uint64_t enemies, uint64_t friendly,FastStack<uint64_t, 13>& pins) {
+
+    uint64_t kingRays {aGen(friendly_king, enemies, 0)};
+    uint64_t pinsMushed {0};
+
+    candiatePinners &= kingRays;
+    while (candiatePinners) {
+        uint64_t candiate {candiatePinners & -candiatePinners};
+        candiatePinners &= candiatePinners -1;
+
+        uint64_t candiatePin {(aGen(candiate, friendly_king, enemies) | candiate) & kingRays};
+
+        if (std::popcount(candiatePin & friendly) == 1) {
+            pins.pushVal(candiatePin);
+            pinsMushed |= candiatePin;
+        }
+    }
+    return pinsMushed;
+}
+
+inline uint64_t calculatePinLineMasks(const chessBoard& board, FastStack<uint64_t, 13>& pinArray, uint64_t enemies, uint64_t friendly, bool isWhiteTurn) {
     // Timer<Timers::MakeAllMoves> t{};
 
     uint64_t pinsMushed {0};
     uint64_t friendly_king = isWhiteTurn ? board.bitboards[PieceType::King + 6] : board.bitboards[PieceType::King];
 
+    // uint64_t kingScanRayRookLike = pseudoLegalRookMoves(friendly_king, enemies, 0);
+    // uint64_t kingScanRayBishopLike = pseudoLegalBishopMoves(friendly_king, enemies, 0);
 
-    uint64_t kingScanRayRookLike = pseudoLegalRookMoves(friendly_king, enemies, 0);
-    uint64_t enemyRooks  {board.pieceToBitboardConst<PieceType::Rook>(!isWhiteTurn)};
     uint64_t enemyQueens {board.pieceToBitboardConst<PieceType::Queen>(!isWhiteTurn)};
+    uint64_t enemyRooksAndQueens  {board.pieceToBitboardConst<PieceType::Rook>(!isWhiteTurn) | enemyQueens};
+    uint64_t enemyBishopsAndQueens {board.pieceToBitboardConst<PieceType::Bishop>(!isWhiteTurn) | enemyQueens};
     
-    if (kingScanRayRookLike & enemyRooks) {
-        uint64_t seenRooks {kingScanRayRookLike & enemyRooks};
-        while (seenRooks) {
-            uint64_t piece = seenRooks & -seenRooks;
-            seenRooks &= seenRooks -1;
-
-            uint64_t rookRayIncRook {pseudoLegalRookMoves(piece, friendly_king, enemies) | piece};
-            uint64_t candiatePin {kingScanRayRookLike & rookRayIncRook};
-
-            if (std::popcount(candiatePin & friendly) == 1) {
-                pin_lines.push(std::move(candiatePin));
-                pinsMushed |= candiatePin;
-            }
-        }
-    }
-
-    if (kingScanRayRookLike & enemyQueens) {
-        uint64_t seenQueens{kingScanRayRookLike & enemyQueens};
-        while (seenQueens) {
-            uint64_t piece = seenQueens & -seenQueens;
-            seenQueens &= seenQueens-1;
-
-            uint64_t queenRayRookLikeIncQueen {pseudoLegalRookMoves(piece, friendly_king, enemies) | piece};
-            uint64_t candiatePin {kingScanRayRookLike & queenRayRookLikeIncQueen};
-
-            if (std::popcount(candiatePin & friendly) == 1) {
-                pin_lines.push(std::move(candiatePin));
-                pinsMushed |= candiatePin;
-            }
-        }
-    }
-
-    uint64_t kingScanRayBishopLike = pseudoLegalBishopMoves(friendly_king, enemies, 0);
-    uint64_t enemyBishops {board.pieceToBitboardConst<PieceType::Bishop>(!isWhiteTurn)};
-
-    if (kingScanRayBishopLike & enemyBishops) {
-        uint64_t seenBishops {kingScanRayBishopLike & enemyBishops};
-        while (seenBishops) {
-            uint64_t piece = seenBishops & -seenBishops;
-            seenBishops &= seenBishops -1;
-
-            uint64_t bishopRayIncBishop = pseudoLegalBishopMoves(piece, friendly_king, enemies) | piece;
-            uint64_t candiatePin = kingScanRayBishopLike & bishopRayIncBishop;
-
-            if (std::popcount(candiatePin & friendly) == 1) {
-                pin_lines.push(std::move(candiatePin));
-                pinsMushed |= candiatePin;
-            }
-        }
-    }
-
-    if (kingScanRayBishopLike & enemyQueens) {
-        uint64_t seenQueens {kingScanRayBishopLike & enemyQueens};
-        while (seenQueens) {
-            uint64_t piece = seenQueens & -seenQueens;
-            seenQueens &= seenQueens-1;
-
-            uint64_t queenRayBishopLikeIncQueen = pseudoLegalBishopMoves(piece, friendly_king, enemies) | piece;
-            uint64_t candiatePin = kingScanRayBishopLike & queenRayBishopLikeIncQueen;
-
-            if (std::popcount(candiatePin & friendly) == 1) {
-                pin_lines.push(std::move(candiatePin));
-                pinsMushed |= candiatePin;
-            }
-        }
-    }
+    pinsMushed |= addPinsToPinArray<pseudoLegalRookMoves>(enemyRooksAndQueens, friendly_king, enemies, friendly, pinArray);
+    pinsMushed |= addPinsToPinArray<pseudoLegalBishopMoves>(enemyBishopsAndQueens, friendly_king, enemies, friendly, pinArray);
 
     return pinsMushed;
+
+    // I think this is a lot easier to read so I shall leave it here
+
+    // if (kingScanRayRookLike & enemyRooksAndQueens) {
+    //     uint64_t seenRooks {kingScanRayRookLike & enemyRooksAndQueens};
+    //     while (seenRooks) {
+    //         uint64_t piece = seenRooks & -seenRooks;
+    //         seenRooks &= seenRooks -1;
+    //
+    //         uint64_t rookRayIncRook {pseudoLegalRookMoves(piece, friendly_king, enemies) | piece};
+    //         uint64_t candiatePin {kingScanRayRookLike & rookRayIncRook};
+    //
+    //         if (std::popcount(candiatePin & friendly) == 1) {
+    //             pin_lines.push(std::move(candiatePin));
+    //             pinsMushed |= candiatePin;
+    //         }
+    //     }
+    // }
+
+
+    // if (kingScanRayBishopLike & enemyBishopsAndQueens) {
+    //     uint64_t seenBishops {kingScanRayBishopLike & enemyBishopsAndQueens};
+    //     while (seenBishops) {
+    //         uint64_t piece = seenBishops & -seenBishops;
+    //         seenBishops &= seenBishops -1;
+    //
+    //         uint64_t bishopRayIncBishop = pseudoLegalBishopMoves(piece, friendly_king, enemies) | piece;
+    //         uint64_t candiatePin = kingScanRayBishopLike & bishopRayIncBishop;
+    //
+    //         if (std::popcount(candiatePin & friendly) == 1) {
+    //             pin_lines.push(std::move(candiatePin));
+    //             pinsMushed |= candiatePin;
+    //         }
+    //     }
+    // }
 }
 
 
@@ -469,8 +434,6 @@ inline uint64_t singleKnightMove(uint64_t knight, const chessBoard& board, const
     return attacked_squares;
 }
 
-// we can pass in the sliding piece attacks since we now know this function will only be ran once per turn due to simply not generating moves that end with us in check
-// passing in the sliding piece attacks saves on computation, limiting the number of sliding piece calculations we need to perform
 inline void calculateCheckMasks(bool isWhiteTheColorBeingChecked, const chessBoard& board, uint64_t enemies, uint64_t friendly, FastStack<uint64_t, 2>& checks, uint64_t enemyPawns) {
     // Timer<Timers::ComputeCheckMasks> t{};
    
@@ -792,7 +755,7 @@ void makeLegalMoves(uint64_t enemies, uint64_t friendly, uint64_t enemy_pawns, u
     }
 }
 
-const stackStack218& makeAllMoves(const chessBoard& board) {
+stackStack218 makeAllMoves(const chessBoard& board) {
     // Timer<Timers::MakeAllMoves> t {};
     static stackStack218 moveStack {};
     moveStack.currentNumberItems = 0;
@@ -833,6 +796,52 @@ const stackStack218& makeAllMoves(const chessBoard& board) {
     return moveStack;
 }
 
+std::pair<stackStack218, movegenEngineData> makeAllMovesWithDataReturn(const chessBoard& board) {
+    // Timer<Timers::MakeAllMoves> t {};
+    static stackStack218 moveStack {};
+    moveStack.currentNumberItems = 0;
+
+    // very cool check detection idea 
+    // basically at the top level (here) store the squres where if a friendly piece was moved to it would put the enemy king 
+    // in check
+
+    bool isWhiteTurn = (board_state::WhiteTurn & board.m_board_state) != 0;
+    uint64_t friendly = isWhiteTurn ? board.whitePieces() : board.blackPieces();
+    uint64_t enemies = !isWhiteTurn ? board.whitePieces() : board.blackPieces();
+
+    uint64_t enemyPawns = board.pieceToBitboardConst<PieceType::Pawn>(!isWhiteTurn);
+    uint64_t ourKing =    board.pieceToBitboardConst<PieceType::King>(isWhiteTurn);
+
+    uint64_t friendlyInner = friendly & ~ourKing; // if we used friendly we would be able to move our 
+                                                  // king backwards when checked by a sliding piece, this would 
+                                                  // be illegal
+
+    uint64_t enemy_attacks_mushed = 
+        enemyAttackmaskLoop<PieceType::Pawn>  (friendlyInner, enemies, board, isWhiteTurn)   |
+        enemyAttackmaskLoop<PieceType::Rook>  (friendlyInner, enemies, board, isWhiteTurn)   |
+        enemyAttackmaskLoop<PieceType::Knight>(friendlyInner, enemies, board, isWhiteTurn)   |
+        enemyAttackmaskLoop<PieceType::Bishop>(friendlyInner, enemies, board, isWhiteTurn)   |
+        enemyAttackmaskLoop<PieceType::Queen> (friendlyInner, enemies, board, isWhiteTurn)   |
+        enemyAttackmaskLoop<PieceType::King>  (friendlyInner, enemies, board, isWhiteTurn);
+
+
+    FastStack<uint64_t, 13> pinLines {};
+    uint64_t pinsMushed {chessMoves::calculatePinLineMasks(board, pinLines, enemies, friendly, isWhiteTurn)};
+
+    FastStack<uint64_t, 2> checkingAttacks{};
+    chessMoves::calculateCheckMasks(isWhiteTurn, board, enemies, friendly, checkingAttacks, enemyPawns);
+
+    makeLegalMoves<PieceType::Pawn>(enemies, friendly, enemyPawns, enemy_attacks_mushed, pinsMushed, pinLines, checkingAttacks, board, moveStack, isWhiteTurn);
+    makeLegalMoves<PieceType::Rook>(enemies, friendly, enemyPawns, enemy_attacks_mushed, pinsMushed, pinLines, checkingAttacks, board, moveStack, isWhiteTurn);
+    makeLegalMoves<PieceType::Knight>(enemies, friendly, enemyPawns, enemy_attacks_mushed, pinsMushed, pinLines, checkingAttacks, board, moveStack, isWhiteTurn);
+    makeLegalMoves<PieceType::Bishop>(enemies, friendly, enemyPawns, enemy_attacks_mushed, pinsMushed, pinLines, checkingAttacks, board, moveStack, isWhiteTurn);
+    makeLegalMoves<PieceType::Queen>(enemies, friendly, enemyPawns, enemy_attacks_mushed, pinsMushed, pinLines, checkingAttacks, board, moveStack, isWhiteTurn);
+    makeLegalMoves<PieceType::King>(enemies, friendly, enemyPawns, enemy_attacks_mushed, pinsMushed, pinLines, checkingAttacks, board, moveStack, isWhiteTurn);
+
+    return {moveStack, {enemy_attacks_mushed}};
+};
+
+// possible bug here when entering an incorrect uci sequence 
 bool makeMovesFromUciSequence(chessBoard& board, std::string_view uciSeq) {
     std::pair<std::string_view, std::optional<std::string_view>> splitResult = helpers::splitWord(uciSeq);
     auto makeAndApplyMove = [&](std::string_view moveWord){

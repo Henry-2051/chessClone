@@ -17,6 +17,10 @@
 
 namespace chessMoves {
 
+struct movegenEngineData {
+    uint64_t enemyAttacksMushed;
+};
+
 // uint64_t generateSimpleBlackPawnCaptureNoTeleport(uint64_t black_pawn, uint64_t occupied);
 
 // uint64_t generateSimpleWhitePawnCaptureNoTeleport(uint64_t white_pawn, uint64_t occupied);
@@ -47,7 +51,8 @@ namespace chessMoves {
 
 // must also take into account the enemies attacked squares so we must either pass in an array of attack lines or a single bitboard of all the attacked squares, 
 // passing the array seems like the better option since 
-const stackStack218& makeAllMoves(const chessBoard& boardInput);
+stackStack218 makeAllMoves(const chessBoard& boardInput);
+std::pair<stackStack218, movegenEngineData> makeAllMovesWithDataReturn(const chessBoard& boardInput);
 
 bool makeMovesFromUciSequence(chessBoard& board, std::string_view uciSeq);
 }
