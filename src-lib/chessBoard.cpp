@@ -330,6 +330,12 @@ std::optional<pieceMovement> chessBoard::genPartialMove(std::string_view uciMove
     if (uciMove.size() < 4)
         return std::nullopt;
 
+    // added validity checking
+    for (size_t i{0}; i < 4; i ++) {
+        if(!charToBoardPosition.contains(uciMove.data()[i]))
+            return std::nullopt;
+    }
+
     uint64_t from_offset = charToBoardPosition.at(uciMove.data()[0]) + charToBoardPosition.at(uciMove.data()[1]);
     uint64_t to_offset   = charToBoardPosition.at(uciMove.data()[2]) + charToBoardPosition.at(uciMove.data()[3]);
 

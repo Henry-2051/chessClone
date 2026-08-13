@@ -6,16 +6,27 @@
 #include <array>
 #include <bit>
 #include <cassert>
+#include <chrono>
 #include <climits>
 #include <cstddef>
 #include <cstdint>
+#include <cstring>
+#include <format>
+#include <functional>
+#include <future>
 #include <iterator>
 #include <map>
+#include <mutex>
 #include <numeric>
+#include <optional>
 #include <print>
 #include <stdexcept>
+#include <stop_token>
+#include <string_view>
 #include <sys/types.h>
+#include <thread>
 #include <utility>
+#include "threaddedBuffer.h"
 
 
 // negamax search
@@ -347,7 +358,7 @@ inline int negaMax(int depth, chessBoard board) {
     if (depth == 0)
         return isWhiteTurn ? eval(board, false) : -eval(board, false);
 
-    int max = -1000000000;
+    int max = -100000000;
     auto allMoves = chessMoves::makeAllMoves(board);
     for (auto mv : allMoves) {
         int score;
@@ -369,6 +380,7 @@ inline int negaMax(int depth, chessBoard board) {
 struct searchAnswer {
     int evalScore;
     pieceMovement move;
+    bool terminate = false; // used to terminate up the call stack
 
     searchAnswer& negate() {
         evalScore = -evalScore;
@@ -393,9 +405,11 @@ struct searchState {
 
 struct searchTelemetry {
     size_t numEvals{0};
+    size_t numMovegens {0};
+    size_t nodes {0};
 };
 
-int scoreMove(const pieceMovement& mv, const chessBoard& board, const chessMoves::movegenEngineData& data, searchState st) {
+inline int scoreMove(const pieceMovement& mv, const chessBoard& board, const chessMoves::movegenEngineData& data, searchState st) {
     // weighting parameters
     
     // the idea behind this is we want to try all the captures that win us material first then all the captures
@@ -463,7 +477,8 @@ int scoreMove(const pieceMovement& mv, const chessBoard& board, const chessMoves
 
 // returns a permutation array of sorted moves from best to worst
 // the iterator is a sentinal value 
-inline FastStack<size_t, 218> orderMoves(const stackStack218& unorderedMoves, const chessBoard& board, const chessMoves::movegenEngineData& data, searchState st) {
+inline FastStack<size_t, 218> orderMoves(const stackStack218& unorderedMoves, const chessBoard& board, 
+                                         const chessMoves::movegenEngineData& data, searchState st) {
     std::array<int, 218> moveScores {};
     FastStack<size_t, 218> permutations {};
     {
@@ -486,11 +501,10 @@ inline FastStack<size_t, 218> orderMoves(const stackStack218& unorderedMoves, co
 
 namespace AlphaBeta {
     template <EvalFunction eval>
-    searchAnswer alphaBeta(searchState st, chessBoard board, int depthleft, searchTelemetry* tele=nullptr) {
+    searchAnswer alphaBeta(searchState st, chessBoard board, int depthleft, searchTelemetry* tele=nullptr, std::optional<std::stop_token> stop_token = {}) {
         bool isWhiteTurn = board.m_board_state & board_state::WhiteTurn;
         // bool endgame = false;
         searchAnswer bestMove {-100000000};
-        // auto allMoves = chessMoves::makeAllMoves(board);
         
         auto [allMoves, moveGenData] = chessMoves::makeAllMovesWithDataReturn(board);
 
@@ -500,13 +514,15 @@ namespace AlphaBeta {
             return isWhiteTurn ? searchAnswer{eval(board, false)} : searchAnswer{-eval(board, false)}; 
         }
 
-        FastStack<size_t, 218> sortedPerms {orderMoves(allMoves, board, moveGenData, st)};
-        // std::println("{}",sortedMovePermutation[0]);
+        // check at depth = 2, 
+        if (depthleft == 2 && stop_token.has_value()) {
+            if (stop_token->stop_requested()) {
+                bestMove.terminate = true;
+                return bestMove;
+            }
+        }
 
-        // for (size_t idx : sortedPerms) {
-        //     std::print("{}, ",idx);
-        // }
-        // std::println("");
+        FastStack<size_t, 218> sortedPerms {orderMoves(allMoves, board, moveGenData, st)};
 
         for (size_t idx : sortedPerms) {
         // for (const auto& mv : allMoves) {
@@ -514,15 +530,13 @@ namespace AlphaBeta {
             st.lastMove = mv;
             chessBoard newBoard = board.applyMovePure(mv);
 
-            // reflectPure just does alpha = -beta and beta = -alpha 
-            // we're doing this so that as the complexity of the search grows and we need to pass more 
-            // state / information down the call stack our number of function parameters doesnt become 
-            // unmanagable. 
-            // for instance at the moment we pass down the last move so that move ordering 
-            // can prioritise playing out capture chains.
-            // later we might want to pass down principle variation and killer moves
-            
-            int score = -alphaBeta<eval>(st.reflectPure(), newBoard, depthleft-1, tele).evalScore;
+            auto searchReturn = alphaBeta<eval>(st.reflectPure(), newBoard, depthleft-1, tele, stop_token); 
+
+            if (searchReturn.terminate) {
+                return searchAnswer{-100000000, {}, true};
+            }
+
+            int score = -searchReturn.evalScore;
 
             if (score > bestMove.evalScore) {
                 bestMove.evalScore = score;
@@ -600,10 +614,10 @@ namespace AlphaBeta {
 }
 
 template <EvalFunction eval>
-inline searchAnswer alphaBeta(int depth, chessBoard board, searchTelemetry* tele= nullptr) {
+inline searchAnswer alphaBeta(int depth, chessBoard board, searchTelemetry* tele= nullptr, std::optional<std::stop_token> stop_token = {}) {
     searchState st {-1000000000, 1000000000};
     bool isWhiteTurn = board.m_board_state & board_state::WhiteTurn;
-    return isWhiteTurn ? AlphaBeta::alphaBeta<eval>(st, board, depth, tele) : AlphaBeta::alphaBeta<eval>(st, board, depth, tele).negate();
+    return isWhiteTurn ? AlphaBeta::alphaBeta<eval>(st, board, depth, tele, stop_token) : AlphaBeta::alphaBeta<eval>(st, board, depth, tele, stop_token).negate();
 }
 
 template <EvalFunction eval>
@@ -612,3 +626,163 @@ inline searchAnswer alphaBetaUnordered(int depth, chessBoard board, searchTeleme
     bool isWhiteTurn = board.m_board_state & board_state::WhiteTurn;
     return isWhiteTurn ? AlphaBeta::alphaBetaUnordered<eval>(st, board, depth, tele) : AlphaBeta::alphaBetaUnordered<eval>(st, board, depth, tele).negate();
 }
+
+struct threaddedSearchAnswer {
+    std::mutex mu;
+    std::optional<searchAnswer> answer;
+};
+
+struct argumentValue {
+    std::optional<std::string> fen {"rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"};
+    std::optional<std::string> moves {};
+};
+
+inline
+argumentValue argumentParser(int argc, char* argv[]) {
+    argumentValue gs;
+    // handle --uci 
+    int lastLoadedParameter {argc};
+    for (int i {argc}; i-- > 1;) {
+        std::string uciString {"--uci"};
+        if (std::strcmp(argv[i], uciString.c_str()) == 0) {
+            // gs.uciMode = true;
+            // Engine only handles uci
+            lastLoadedParameter = i;
+        }
+    
+        std::string fenString {"--fen"};
+        if (std::strcmp(argv[i], fenString.c_str()) == 0) {
+            gs.fen = "";
+            for (int j {i+1}; j < lastLoadedParameter; j++) {
+                if (!gs.fen.has_value())
+                    gs.fen = argv[j];
+                else 
+                    *gs.fen += (std::string(" ") + argv[j]);
+            }
+
+            lastLoadedParameter = i;
+        }
+        std::string movesString {"--moves"};
+        std::string moves {""};
+        if (std::strcmp(argv[i], movesString.c_str()) == 0) {
+            for (int j {i+1}; j < lastLoadedParameter; j++) {
+                if (!gs.moves.has_value())
+                    gs.moves = argv[j];
+                else 
+                    *gs.moves += (std::string(" ") + argv[j]);
+            }
+
+            lastLoadedParameter = i;
+        }
+
+    }
+    return gs;
+}
+
+class chessEngine {
+    bool m_isthinking {false};
+    threaddedSearchAnswer m_sharedAnswer;
+    std::optional<searchAnswer> m_answer {std::nullopt};
+    std::jthread m_searchThread;
+
+    public:
+    chessBoard m_chessBoard;
+    interfacePrinterState* m_printerState{nullptr};
+
+
+    static void iterativeSearch(std::stop_token st, chessBoard board, threaddedSearchAnswer& sharedAnswer, interfacePrinterState* printerState = nullptr) {
+        int depth {2};
+        
+        while(!st.stop_requested()) {
+            // std::println("Executing to depth {}", depth);
+            searchTelemetry telemetry {};
+            auto start = std::chrono::steady_clock::now();
+            auto ans = alphaBeta<pieceWiseEval>(depth, board, &telemetry, st);
+            auto stop = std::chrono::steady_clock::now();
+            if (!ans.terminate) {
+                std::optional<pieceMovement> lastMove {std::nullopt};
+                {
+                    //another thread could be trying to write to this, causing a race condition
+                    std::lock_guard<std::mutex > lock{sharedAnswer.mu};
+                    lastMove = sharedAnswer.answer.has_value() ? std::optional<pieceMovement>(sharedAnswer.answer->move) : std::nullopt;
+                    sharedAnswer.answer = ans;
+                }
+
+                if((lastMove.has_value() && !(lastMove->compareForSelection(ans.move))) || !lastMove.has_value()) {
+                    auto searchTimeMs = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+                    std::string info = std::format("info currmove {} depth {} searchtime_ms {} numEvals {}", board.uciStringMove(ans.move), depth, searchTimeMs, telemetry.numEvals);
+
+                    {
+                    std::lock_guard<std::mutex> lock {printerState->stdoutBuffer.bufferMutex};
+                    printerState->stdoutBuffer.buffer.push_back(std::move(info));
+                    }
+
+                    printerState->flushBuffer.notify_one();
+                }
+            }
+            depth++;
+        }
+    }
+
+    // chessEngine() = default;
+
+    // replaces the internal chess board with one of the supplied position and moves, if no arguments are provided uses the default start position
+    // note will not return false if given an invalid fenString
+    // you cannont return a bool from a constructor without passing an extra reference
+    bool 
+    loadPosition(std::optional<std::string_view> fenString = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1", std::optional<std::string_view> moves = {}) 
+    {
+        // TODO : add logging 
+        // if (fenString.has_value())
+        //     std::println("loading fen : {}", *fenString);
+        // if (moves.has_value())
+        //     std::println("loading moves : {}", *moves);
+        //
+        // if there is a value then load it 
+        // otherwise we dont change the board state
+        if (fenString == "startpos" || fenString == "") {
+            m_chessBoard = chessBoard();
+        } else {
+            if (fenString.has_value()) {
+                m_chessBoard = chessBoard(*fenString);
+            }
+        }
+
+        bool sucess = moves.has_value() ? chessMoves::makeMovesFromUciSequence(m_chessBoard, *moves) : true;
+
+        return sucess;
+    };
+
+    // starts searching in a seperate thread
+    bool startSearch() {
+        if (m_isthinking)
+            return false;
+
+        m_searchThread = std::jthread(chessEngine::iterativeSearch,  m_chessBoard, std::ref(m_sharedAnswer), m_printerState);
+        m_isthinking = true;
+        bool sucess = true;
+        return sucess;
+    };
+
+    // updates the internal search answer state in a thread safe manner and returns the new state
+    // if the engine isnt thinking then it just returns gets the most recent answer
+    std::optional<searchAnswer> getAnswer() {
+        if (m_isthinking) {
+            m_sharedAnswer.mu.lock();
+            m_answer = m_sharedAnswer.answer;
+            m_sharedAnswer.mu.unlock();
+        }
+
+        return m_answer;
+    };
+
+    // stops all searching and updates the internal answer with the final threadded answer incase a new depth has been
+    // completed since getAnswer was called
+    bool stopSearching() {
+        m_searchThread.request_stop();
+        m_searchThread.join();
+        m_isthinking = false;
+        m_answer = m_sharedAnswer.answer;
+        return true;
+    };
+};

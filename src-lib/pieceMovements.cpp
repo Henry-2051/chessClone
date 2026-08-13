@@ -841,7 +841,11 @@ std::pair<stackStack218, movegenEngineData> makeAllMovesWithDataReturn(const che
     return {moveStack, {enemy_attacks_mushed}};
 };
 
-// possible bug here when entering an incorrect uci sequence 
+// when a sequence of uci moves are entered, this function applies moves until it either reaches the end 
+// or it reaches a move which is syntactically invalid or doesnt exist in the current board state 
+// in the case of all ok it returns true, otherwise false
+// if it can only apply some of the moves in the sequence the board will still be changed by the valid moves 
+// in the sequence
 bool makeMovesFromUciSequence(chessBoard& board, std::string_view uciSeq) {
     std::pair<std::string_view, std::optional<std::string_view>> splitResult = helpers::splitWord(uciSeq);
     auto makeAndApplyMove = [&](std::string_view moveWord){

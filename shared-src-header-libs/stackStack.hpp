@@ -75,6 +75,7 @@ enum IsCapture : uint8_t {
 
 
 struct pieceMovement {
+    // we represent all chess moves as board transformations, infact we can represent all chess moves as 2 bitwise xor operations
     uint64_t  movement;
     uint64_t  secondMovement;
     // Bitboard 1 {White, Black}, Bitboard 2 {White, Black}
@@ -101,7 +102,8 @@ struct pieceMovement {
     //TODO halfmove and fullmove clock
 
     bool compareForSelection(const pieceMovement& rval) const {
-        // were going to be hacky and only compare the first part unless its pawn promoiton
+        // compare the move from->to unless its a pawn promotion, if pawn promotion then also compare the promotion piece
+        // if its white to move then movement2WhiteBB will be the piece type and the black value will be NotAPiece
         if (std::popcount(movement) == 1 && std::popcount(rval.movement) == 1) {
             return (movement | secondMovement) == (rval.movement | rval.secondMovement) && 
                 movement2WhiteBB == rval.movement2WhiteBB && movement2BlackBB == rval.movement2BlackBB;

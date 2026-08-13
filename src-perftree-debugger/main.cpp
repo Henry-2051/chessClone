@@ -114,28 +114,8 @@ void perftree(size_t perftnumber=1, std::string_view fenArgument="rnbqkbnr/ppppp
     perftreeRun<false>(perftnumber-1, board, numMoves);
     
     // Timer<Timers::SlidingAttackRook>::printAverageTimeNanoseconds();
-    // Timer<Timers::SlidingAttackBishop>::printAverageTimeNanoseconds();
-    // Timer<Timers::KingMoveFunction>::printAverageTimeNanoseconds();
-    // Timer<Timers::ComputePinMasks>::printAverageTimeNanoseconds();
-    // Timer<Timers::ComputeCheckMasks>::printAverageTimeNanoseconds();
-    // Timer<Timers::AddToStack218>::printAverageTimeNanoseconds();
-    // Timer<Timers::MakeAllMoves>::printAverageTimeNanoseconds();
-    // Timer<Timers::AttackCreationRook>::printAverageTimeNanoseconds();
-    // Timer<Timers::AttackCreationBishop>::printAverageTimeNanoseconds();
-    // Timer<Timers::QueenAttack>::printAverageTimeNanoseconds();
-    // Timer<Timers::SeperateBitboardFastStack>::printAverageTimeNanoseconds();
     //
     // Timer<Timers::SlidingAttackRook>::printTotalTimeMilliseconds();
-    // Timer<Timers::SlidingAttackBishop>::printTotalTimeMilliseconds();
-    // Timer<Timers::KingMoveFunction>::printTotalTimeMilliseconds();
-    // Timer<Timers::ComputePinMasks>::printTotalTimeMilliseconds();
-    // Timer<Timers::ComputeCheckMasks>::printTotalTimeMilliseconds();
-    // Timer<Timers::AddToStack218>::printTotalTimeMilliseconds();
-    // Timer<Timers::MakeAllMoves>::printTotalTimeMilliseconds();
-    // Timer<Timers::AttackCreationRook>::printTotalTimeMilliseconds();
-    // Timer<Timers::AttackCreationBishop>::printTotalTimeMilliseconds();
-    // Timer<Timers::QueenAttack>::printTotalTimeMilliseconds();
-    // Timer<Timers::SeperateBitboardFastStack>::printTotalTimeMilliseconds();
 }
 
 int main (int argc, char *argv[]) {
@@ -149,59 +129,5 @@ int main (int argc, char *argv[]) {
         case (4) : perftree(std::stoul(argv[1]), argv[2], argv[3]); break;
     }
 
-    // if (chessMoves::makeMovesFromUciSequence(board1, "e2e4 e7e5 g1f3 b8c6"))
-    //     std::println("sucess");
-    // char myargstring[256];
-    // auto counter {0uz};
-    // for (auto arr : std::span(argv, argc)) {
-    //     if (counter == 0) {
-    //         counter ++;
-    //         continue;
-    //     }
-    //
-    //     for (auto c : std::string_view(arr)) {
-    //         assert(counter < 256);
-    //         myargstring[counter-1] = c;
-    //         counter ++;
-    //     }   
-    //     assert(counter < 256);
-    //     myargstring[counter-1] = ' ';
-    //     counter ++;
-    // }
-    // myargstring[counter-1] = '\0';
-    // std::string_view fenArgument = argc > 1 ? std::string_view(myargstring) : "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    //
-    // chessBoard board{fenArgument};
-    // chessBoard boardCopy{board};
-    //
-    // auto allMoves = chessMoves::makeAllMoves(board);
-    //
-    // std::println("using make while copying the chess board and discarding the copy");
-    //
-    // for (const auto& mv : allMoves) {
-    //     mv.printThis();
-    //     char uciMove[6];
-    //     moveToUci(board, mv, uciMove);
-    //     std::print("{}", uciMove);
-    //     chessBoard boardClone = board.applyMovePure(mv);
-    //     auto allMovesOrder2 = chessMoves::makeAllMoves(boardClone);
-    //     std::println(" {}", allMovesOrder2.numitems());
-    // }
-    //
-    // std::println("using unmake and make with make move impure!!\n");
-    //
-    // for (const auto& mv : allMoves) {
-    //     char uciMove[6];
-    //     moveToUci(boardCopy, mv, uciMove);
-    //     std::print("{}", uciMove);
-    //     boardCopy.applyMoveImpure(mv);
-    //     auto allMovesOrder2 = chessMoves::makeAllMoves(boardCopy);
-    //     boardCopy.applyMoveImpure(mv);
-    //     std::println(" {}", allMovesOrder2.numitems());
-    // }
-    //
-    //
-    // std::println("{} moves in this position", allMoves.numitems());
-    //
     return 0;
 }
