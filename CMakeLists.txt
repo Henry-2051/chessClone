@@ -1,5 +1,5 @@
-cmake_minimum_required(VERSION 3.16)
-project(chess_clone VERSION 1.0 LANGUAGES CXX)
+cmake_minimum_required(VERSION 3.31)
+project(whatnotChess VERSION 1.0 LANGUAGES CXX)
 
 # Set the C++ standard globally.
 set(CMAKE_CXX_STANDARD 23)
@@ -20,16 +20,16 @@ if(UNIX)
   add_compile_options(-Wall -pedantic-errors)
 endif()
 
-# --------------------------------------------------------------------
-# Additional options for a Debug (testing) build.
-if(CMAKE_BUILD_TYPE MATCHES Debug)
-  message(STATUS "Configuring Debug build: enabling assertions and extra checks")
-  add_compile_definitions(DEBUG_BUILD)
-  if(UNIX)
-    # Consider using -Og for debugging rather than -O2.
-    add_compile_options(-O2)
-  endif()
-endif()
+# # --------------------------------------------------------------------
+# # Additional options for a Debug (testing) build.
+# if(CMAKE_BUILD_TYPE MATCHES Debug)
+#   message(STATUS "Configuring Debug build: enabling assertions and extra checks")
+#   add_compile_definitions(DEBUG_BUILD)
+#   if(UNIX)
+#     # Consider using -Og for debugging rather than -O2.
+#     add_compile_options(-O2)
+#   endif()
+# endif()
 
 # --------------------------------------------------------------------
 # Set up Catch2 via FetchContent.
@@ -41,96 +41,69 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(catch2)
 
-# --------------------------------------------------------------------
-# Unit Testing Setup in the main CMake file.
-# (If you choose to have your tests here, you may remove add_subdirectory(tests))
-# add_executable(unit_tests test_main.cpp)
-# target_link_libraries(unit_tests PRIVATE Catch2::Catch2WithMain)
-# include(CTest)
-# include(Catch)
-# catch_discover_tests(unit_tests)
+add_library(misc_libraries INTERFACE)
 
-# Alternatively, if you prefer tests in a subdirectory:
-
-# disable for now until we have the library structure figured out
-
-# option(ENABLE_UNIT_TESTS "Enable building unit tests" ON)
-# if(ENABLE_UNIT_TESTS)
-#   enable_testing()
-#   add_subdirectory(tests)
-# endif()
-
-# --------------------------------------------------------------------
-# Configure main executable target.
-
-add_executable(gui_chess_game 
-    ./src-gui-game/main.cpp
-    ./src-gui-game/imgui-sfml/imgui-SFML.cpp
+target_include_directories(misc_libraries INTERFACE
+    "${CMAKE_SOURCE_DIR}/src/misc-lib"
+    "${CMAKE_SOURCE_DIR}/src/shared-src-header-libs"
 )
 
-target_include_directories(gui_chess_game PRIVATE
-  "${CMAKE_SOURCE_DIR}/src-gui-game"
-  "${CMAKE_SOURCE_DIR}/src-lib"
-  "${CMAKE_SOURCE_DIR}/shared-src-header-libs"
-  "${CMAKE_SOURCE_DIR}/src-gui-game/imgui-sfml")
+add_library(imgui_sfml INTERFACE)
 
-add_executable(pertree_debugger
-    ./src-perftree-debugger/main.cpp
+target_include_directories(imgui_sfml INTERFACE
+  "${CMAKE_SOURCE_DIR}/src/gui/imgui-sfml"
 )
 
-target_include_directories(pertree_debugger PRIVATE
-  "${CMAKE_SOURCE_DIR}/src-perftree-debugger"
-  "${CMAKE_SOURCE_DIR}/src-lib"
-  "${CMAKE_SOURCE_DIR}/shared-src-header-libs"
-  "${CMAKE_SOURCE_DIR}/src-gui-game/imgui-sfml")
+add_executable(whatnotGui 
+    ./src/gui/main.cpp
+    ./src/gui/imgui-sfml/imgui-SFML.cpp
+)
+
+
+target_include_directories(whatnotGui PRIVATE
+  "${CMAKE_SOURCE_DIR}/src/gui"
+)
+
+add_executable(perftree_debugger
+    ./src/perftree-debugger/main.cpp
+)
+
+target_include_directories(perftree_debugger PRIVATE
+  "${CMAKE_SOURCE_DIR}/src/perftree-debugger"
+)
 
 add_executable(engine
-    ./engine-src/main.cpp
+    ./src/engine/main.cpp
 )
 
 target_include_directories(engine PRIVATE
-  "${CMAKE_SOURCE_DIR}/engine-src"
-  "${CMAKE_SOURCE_DIR}/src-lib"
-  "${CMAKE_SOURCE_DIR}/shared-src-header-libs"
-  "${CMAKE_SOURCE_DIR}/src-gui-game/imgui-sfml")
-
-target_include_directories(pertree_debugger PRIVATE
-  "${CMAKE_SOURCE_DIR}/src-perftree-debugger"
-  "${CMAKE_SOURCE_DIR}/src-lib"
-  "${CMAKE_SOURCE_DIR}/shared-src-header-libs"
-  "${CMAKE_SOURCE_DIR}/src-gui-game/imgui-sfml")
-
-add_library(chessBoard ./src-lib/chessBoard.cpp)
-
-target_include_directories(chessBoard PRIVATE
-    "${CMAKE_SOURCE_DIR}/src-lib/"
-    "${CMAKE_SOURCE_DIR}/shared-src-header-libs/"
+  "${CMAKE_SOURCE_DIR}/src/engine-src"
 )
 
-add_library(timer ./src-lib/timer.cpp)
 
-target_include_directories(timer PRIVATE
-    "${CMAKE_SOURCE_DIR}/src-lib/"
-    "${CMAKE_SOURCE_DIR}/shared-src-header-libs/"
+target_include_directories(perftree_debugger PRIVATE
+  "${CMAKE_SOURCE_DIR}/src/perftree-debugger"
 )
 
-add_library(pieceMovements ./src-lib/pieceMovements.cpp)
+add_library(chessBoard ./src/misc-lib/chessBoard.cpp)
 
-target_include_directories(pieceMovements PRIVATE
-    "${CMAKE_SOURCE_DIR}/src-lib/"
-    "${CMAKE_SOURCE_DIR}/shared-src-header-libs/"
-)
 
-set_target_properties(gui_chess_game PROPERTIES
+add_library(timer ./src/misc-lib/timer.cpp)
+
+
+add_library(pieceMovements ./src/misc-lib/pieceMovements.cpp)
+
+
+set_target_properties(whatnotGui PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
-set_target_properties(pertree_debugger PROPERTIES
+set_target_properties(perftree_debugger PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
 set_target_properties(engine PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
-target_link_libraries(gui_chess_game PRIVATE
+target_link_libraries(whatnotGui PRIVATE
   sfml-graphics
   sfml-window
   sfml-system
@@ -140,18 +113,27 @@ target_link_libraries(gui_chess_game PRIVATE
   chessBoard
   pieceMovements
   timer
-  )
+  misc_libraries
+)
 
-target_link_libraries(pertree_debugger PRIVATE
+target_link_libraries(chessBoard PRIVATE
+  misc_libraries
+)
+
+target_link_libraries(pieceMovements PRIVATE misc_libraries)
+
+target_link_libraries(perftree_debugger PRIVATE
   chessBoard
   pieceMovements
   timer
+  misc_libraries
 )
 
 target_link_libraries(engine PRIVATE
   chessBoard
   pieceMovements
   timer
+  misc_libraries
 )
 
 # --------------------------------------------------------------------

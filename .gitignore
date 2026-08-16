@@ -6,6 +6,7 @@ src/.clangd/
 # CMake build files generated in source tree
 CMakeCache.txt
 CMakeFiles/
+builds/
 cmake_install.cmake
 CTestTestfile.cmake
 DartConfiguration.tcl

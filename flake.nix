@@ -37,6 +37,8 @@
         ];
         lspAndTestPackages = with pkgs; [
           clang-tools
+          marksman
+          icu
           catch2
         ];
         myBuildInputs = with pkgs; [
@@ -48,7 +50,12 @@
         sharedAttributes = {
             buildInputs = myBuildInputs;
             packages = miscPackages ++ graphicsPackages ++ mathsPackages ++ lspAndTestPackages ++ thirdPartyChessEngines;
-            shellHook = ''export SHELL=${pkgs.bashInteractive}/bin/bash'';
+            shellHook = ''export SHELL=${pkgs.bashInteractive}/bin/bash
+                          # dotnet dependency
+                          # this line allows marksman to understand global languages intelligently, rather than interpreting everything as an array of bytes
+                          # eg can select words from languages without spaces or know that é is just e with an accent and not a completely different letter
+                          export LD_LIBRARY_PATH="${pkgs.lib.makeLibraryPath [ pkgs.icu ]}:$LD_LIBRARY_PATH"
+            '';
         };
         in {
           default = pkgs.mkShell sharedAttributes // {};
