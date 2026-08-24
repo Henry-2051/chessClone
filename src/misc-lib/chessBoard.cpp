@@ -246,6 +246,9 @@ void chessBoard::updateBoardState(std::string_view term, size_t termNumber) {
         }
         case (5) : {
             this->moveNumber = std::stoull(term.data());
+            bool isWhiteTurn = m_board_state & board_state::WhiteTurn;
+            // starts at zero and for each update to the board position is incremented
+            numPlys = (moveNumber - 1) + (!isWhiteTurn ? 1 : 0);
             break;
         }
     }

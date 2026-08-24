@@ -31,7 +31,9 @@ struct chessBoard {
 
     int8_t enPassantState = {-1}; 
 
+    uint16_t numPlys {0};
     size_t halfMoveClock {0};
+
     size_t moveNumber {0};
 
     chessBoard();
@@ -159,6 +161,8 @@ struct chessBoard {
         m_board_state ^= move.boardStateChange;
 
         enPassantState ^= move.enPassantState;
+
+        numPlys ^= move.plyStateChange;
 
         return *this;
     }

@@ -11,12 +11,14 @@
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
+#include <expected>
 #include <format>
 #include <functional>
-#include <future>
 #include <iterator>
 #include <map>
+#include <memory>
 #include <mutex>
+#include <new>
 #include <numeric>
 #include <optional>
 #include <print>
@@ -27,7 +29,7 @@
 #include <thread>
 #include <utility>
 #include "threaddedBuffer.h"
-
+#include "transpositionTable.h"
 
 // negamax search
 
@@ -42,12 +44,13 @@ struct pieceScores {
 };
 
 namespace pMaps {
-
 // we can make the eval function for a quiet position (with no available tactics, eg hanging pieces or forcing sequences) much
 // stronger by giving pieces on better squares higher scores
 
-// the method works by bitwise anding the uint64 score bitboard with the piece bitboard and calling std::popcount 
-// to determine the number of 1 bits in the result, then multiplying by the weighting 
+// this is bascially a bucketing approach where we collect the bitmap of peices on certain valued squares then run a popcount
+// the placement bitmaps have been checked against an array implementation. 
+//
+// this appreach gains us an about 5x speedup on eval which is very high impact
 
 static constexpr std::array<positionalBucket, 9> pawnPlacementScores {
     positionalBucket{65280, 50},
@@ -114,7 +117,6 @@ static constexpr std::array<positionalBucket, 8> kingEndgameScores {
     positionalBucket{0x8100000000000081, -50}
 };
 
-
 template<std::array<pieceScores, 6> scoreArray>
 constexpr bool n_validatePieceScoreArray() {
     constexpr PieceType pieces[6] {
@@ -137,6 +139,7 @@ static constexpr std::array<pieceScores, 6> pieceScoreArray{
     pieceScores{PieceType::King, 20000},
 };
 
+// experimenting with compile time functions 
 static_assert(n_validatePieceScoreArray<pieceScoreArray>(), "error piece score array is invalid");
 }
 namespace placementArrays {
@@ -379,7 +382,7 @@ inline int negaMax(int depth, chessBoard board) {
 
 struct searchAnswer {
     int evalScore;
-    pieceMovement move;
+    pieceMovement bestMove;
     bool terminate = false; // used to terminate up the call stack
 
     searchAnswer& negate() {
@@ -388,9 +391,15 @@ struct searchAnswer {
     }
 };
 
+struct searchAnswerInternal {
+    searchAnswer answer;
+    uint8_t bestMoveIdx;
+};
+
 struct searchState {
     int alpha;
     int beta;
+    const uint16_t rootNumPlys {0};
     std::optional<pieceMovement> lastMove;
 
     inline searchState reflectPure() const {
@@ -409,18 +418,34 @@ struct searchTelemetry {
     size_t nodes {0};
 };
 
-inline int scoreMove(const pieceMovement& mv, const chessBoard& board, const chessMoves::movegenEngineData& data, searchState st) {
+struct transpositionTableAccess {
+    // if either of these are nullptr then there isnt a valid table
+    TT::transpositionTableInterface* interface {nullptr}; // holds the hash function
+    TT::tableEntry* table {nullptr};                      // holds the data 
+
+    bool isValid() const {
+        return interface != nullptr && table != nullptr;
+    }
+};
+
+struct ttEntryCopy {
+    TT::tableEntry remoteEntry;
+    uint64_t positionHash;
+    bool remoteIsValid {false};
+};
+
+inline int 
+scoreMove(const pieceMovement& mv, const chessBoard& board, const chessMoves::movegenEngineData& data, searchState st) {
     // weighting parameters
     
-    // the idea behind this is we want to try all the captures that win us material first then all the captures
-    // of equal material weight and then all the captures that lose material
+    // the idea behind this is we want to try all the captures that win us material first, then non capturing moves and captures of equal material
+    // and lastly captures that lose material
     //
     // this plays out captue chains woah
     const int lastMoveCaptureRating{1000};
 
+
     // weighting parameters
-
-
 
     bool isWhiteTurn = board_state::WhiteTurn & board.m_board_state;
     uint64_t enemies = !isWhiteTurn ? board.whitePieces() : board.blackPieces();
@@ -428,23 +453,25 @@ inline int scoreMove(const pieceMovement& mv, const chessBoard& board, const che
     uint64_t undefendedEnemyPieces = enemies & (~data.enemyAttacksMushed);
     int runningTotal {0};
 
+    // we want to prioritise capturing the last moved piece to play out capture chains
     std::optional<uint64_t> squareMovedToLast {};
     if (st.lastMove.has_value()) {
         squareMovedToLast = st.lastMove->movement & board.slowPieceToBitboardConst(!isWhiteTurn, st.lastMove->movement1BlackBB);
     }
 
-    // condition: detect a (non en passant) capture, 
     // white captures black
     if (mv.movement1WhiteBB != PieceType::NotAPiece && mv.movement2BlackBB != PieceType::NotAPiece) {
 
+        // we want to prioritise capturing the last moved piece to play out capture chains
         if (squareMovedToLast.has_value() && (*squareMovedToLast & mv.secondMovement))
             runningTotal += lastMoveCaptureRating;
 
+        // the score of capturing an undefended piece is equal to that pieces value
         int valueOfCapturedPiece {pMaps::pieceScoreArray[mv.movement2BlackBB].score};
         if (mv.secondMovement & undefendedEnemyPieces) {
-            // scoreOnPieceMaterial has a static assert that verifies the indecies are correct
             runningTotal += valueOfCapturedPiece;
         } else {
+            // otherwise we score it as the value of the enemy piece minus the value of our piece
             int valueOfOurPiece {pMaps::pieceScoreArray[mv.movement1WhiteBB].score};
             runningTotal +=  valueOfCapturedPiece - valueOfOurPiece;
         }
@@ -457,8 +484,6 @@ inline int scoreMove(const pieceMovement& mv, const chessBoard& board, const che
         if (mv.secondMovement & undefendedEnemyPieces){
             runningTotal += valueOfCapturedPiece;
         } else {
-            // we want to incentivise capturing a piece even if it loses material in the short term
-            // for properly evaluating capture sequences 
             int valueOfOurPiece {pMaps::pieceScoreArray[mv.movement1BlackBB].score};
             runningTotal += valueOfCapturedPiece - valueOfOurPiece;
         }
@@ -477,22 +502,75 @@ inline int scoreMove(const pieceMovement& mv, const chessBoard& board, const che
 
 // returns a permutation array of sorted moves from best to worst
 // the iterator is a sentinal value 
-inline FastStack<size_t, 218> orderMoves(const stackStack218& unorderedMoves, const chessBoard& board, 
-                                         const chessMoves::movegenEngineData& data, searchState st) {
+inline FastStack<size_t, 218> 
+orderMoves(const stackStack218& unorderedMoves, const chessBoard& board, const chessMoves::movegenEngineData& data, 
+        searchState st,  TT::tableEntry* currentTTEntryVerified = nullptr) 
+{
+    const int previousBestMoveScore = 1000;
     std::array<int, 218> moveScores {};
     FastStack<size_t, 218> permutations {};
     {
         size_t scoreIdx {0};
         for (const auto& mv : unorderedMoves) {
-            moveScores[scoreIdx] = scoreMove(mv, board, data, st);
+            moveScores[scoreIdx] = scoreMove(mv, board, data, st) ;
             permutations.pushVal(scoreIdx);
             scoreIdx ++;
         }
     }
 
+    // use the transposition table entry to increase the score of the previous best move
+    if (currentTTEntryVerified != nullptr) {
+        moveScores[currentTTEntryVerified->bestMoveIdx] += previousBestMoveScore;
+        // for (int sc : moveScores) {
+        //     std::print("{}, ", sc);
+        // }
+        // std::println();
+    }
+
     std::sort(permutations.begin(), permutations.end(), [&](size_t idx1, size_t idx2) {
             // if this is true the left element goes first
-            return moveScores[idx1] < moveScores[idx2];
+            return moveScores[idx1] > moveScores[idx2];
+            });
+
+    return permutations;
+}
+
+// returns a permutation array of sorted moves from best to worst
+// the iterator is a sentinal value 
+inline FastStack<size_t, 218> 
+orderMovesTT(const stackStack218& unorderedMoves, const chessBoard& board, const chessMoves::movegenEngineData& data, 
+        searchState st, std::array<ttEntryCopy, 218>& ttEntries, transpositionTableAccess& tableAccess,
+        TT::tableEntry* currentTTEntryVerified = nullptr) 
+{
+    const int previousBestMoveScore = 1000;
+    std::array<int, 218> moveScores {};
+    FastStack<size_t, 218> permutations {};
+    {
+        size_t scoreIdx {0};
+        for (const auto& mv : unorderedMoves) {
+            chessBoard newBoard = board.applyMovePure(mv);
+            uint64_t zHash = tableAccess.interface->hashPosition(newBoard);
+            ttEntries[scoreIdx].positionHash = zHash;
+            ttEntries[scoreIdx].remoteEntry = tableAccess.interface->positionFromZHash(zHash, tableAccess.table);
+
+            TT::tableEntry& entry = ttEntries[scoreIdx].remoteEntry;
+            ttEntries[scoreIdx].remoteIsValid = entry.zHash == zHash;
+            bool isValid = ttEntries[scoreIdx].remoteIsValid;
+
+            moveScores[scoreIdx] = scoreMove(mv, board, data, st) - (isValid ? entry.score : 0);
+            permutations.pushVal(scoreIdx);
+            scoreIdx ++;
+        }
+    }
+
+    // use the transposition table entry to increase the score of the previous best move
+    if (currentTTEntryVerified != nullptr) {
+        moveScores[currentTTEntryVerified->bestMoveIdx] += previousBestMoveScore;
+    }
+
+    std::sort(permutations.begin(), permutations.end(), [&](size_t idx1, size_t idx2) {
+            // if this is true the left element goes first
+            return moveScores[idx1] > moveScores[idx2];
             });
 
     return permutations;
@@ -500,47 +578,110 @@ inline FastStack<size_t, 218> orderMoves(const stackStack218& unorderedMoves, co
 
 
 namespace AlphaBeta {
-    template <EvalFunction eval>
-    searchAnswer alphaBeta(searchState st, chessBoard board, int depthleft, searchTelemetry* tele=nullptr, std::optional<std::stop_token> stop_token = {}) {
+    template <EvalFunction eval, bool hasTranspositionTable>
+    searchAnswerInternal alphaBeta(searchState st, chessBoard board, int depthleft, transpositionTableAccess& tableAccess, 
+            const std::pair<stackStack218, chessMoves::movegenEngineData>& allMovesPair, 
+            searchTelemetry* tele=nullptr, std::optional<std::stop_token> stop_token = {}, TT::tableEntry* currentTTEntryVerified = nullptr) 
+    { 
         bool isWhiteTurn = board.m_board_state & board_state::WhiteTurn;
-        // bool endgame = false;
-        searchAnswer bestMove {-100000000};
         
-        auto [allMoves, moveGenData] = chessMoves::makeAllMovesWithDataReturn(board);
+        searchAnswer bestMove {-100000000};
+        uint8_t bestMoveIdx {0};
 
-        if (depthleft == 0 || allMoves.numitems() == 0) {
+        const stackStack218& allMoves = allMovesPair.first;
+        const chessMoves::movegenEngineData& moveGenData = allMovesPair.second;
+
+        // need to handle checkmate, although we will be able to capture the king though we dont have a string time preference
+        // which we would prefer
+        if (allMoves.numitems() == 0) {
             if (tele != nullptr)
                 tele->nodes ++;
             
-            return isWhiteTurn ? searchAnswer{eval(board, false)} : searchAnswer{-eval(board, false)}; 
+            return isWhiteTurn ? searchAnswerInternal{searchAnswer{eval(board, false)}, 0} : searchAnswerInternal{searchAnswer{-eval(board, false)}, 0}; 
         }
 
-        // check at depth = 2, 
         if (depthleft == 2 && stop_token.has_value()) {
             if (stop_token->stop_requested()) {
                 bestMove.terminate = true;
-                return bestMove;
+                return {bestMove};
             }
         }
 
-        FastStack<size_t, 218> sortedPerms {orderMoves(allMoves, board, moveGenData, st)};
+        if (depthleft == 1) {
+            // uint8_t idx {0};
+            for (const auto& mv : allMoves) {
+                chessBoard newBoard = board.applyMovePure(mv);
+                int score = !isWhiteTurn ? eval(newBoard, false) : -eval(newBoard, false);
+                score = -score;
+                tele->nodes ++;
+
+                if (score > bestMove.evalScore) {
+                    bestMove.evalScore = score;
+                    bestMove.bestMove = mv;
+                }
+
+                if (score >= st.beta)
+                    break;
+
+                // idx ++;
+            }
+            return searchAnswerInternal{bestMove};
+        }
+
+
+        std::array<ttEntryCopy, 218> ttEntries{};
+
+        FastStack<size_t, 218> sortedPerms {
+            hasTranspositionTable ? orderMovesTT(allMoves, board, moveGenData, st, ttEntries, tableAccess, currentTTEntryVerified) 
+                                  : orderMoves(allMoves, board, moveGenData, st, currentTTEntryVerified)
+        };
+        // FastStack<size_t, 218> sortedPerms {orderMoves(allMoves, board, moveGenData, st, currentTTEntryVerified)};
 
         for (size_t idx : sortedPerms) {
             const pieceMovement& mv = allMoves[idx];
             st.lastMove = mv;
             chessBoard newBoard = board.applyMovePure(mv);
 
-            auto searchReturn = alphaBeta<eval>(st.reflectPure(), newBoard, depthleft-1, tele, stop_token); 
+            searchAnswerInternal searchReturn;
+            // the mission of this code block is to populate searchReturn and add an entry to the transposition table
+            {
+                if (hasTranspositionTable && depthleft > 2) {
+                    auto movegenReturn {chessMoves::makeAllMovesWithDataReturn(newBoard)};
+                    const auto& moves = movegenReturn.first;
+                    
+                    // whether the table entry refers to the same position, since we use modular arithmatic to constrain the size of 
+                    // the hash table we must verify the hashes, in case of a true collision we also check the number of moves
 
-            if (searchReturn.terminate) {
-                return searchAnswer{-100000000, {}, true};
+                    TT::tableEntry& entry = ttEntries[idx].remoteEntry;
+                    bool ttEntryVerified = ttEntries[idx].remoteIsValid;
+                    ttEntryVerified &= moves.numitems() == entry.numMoves;
+
+                    if (ttEntryVerified && entry.depthSearched == depthleft-1) {
+                        searchReturn = {{entry.score, moves[entry.bestMoveIdx]}, entry.bestMoveIdx};
+                    }
+                    else {
+                        searchReturn = alphaBeta<eval, hasTranspositionTable>(st.reflectPure(), newBoard, depthleft-1, tableAccess, movegenReturn, tele, stop_token, ttEntryVerified ? &entry : nullptr); 
+
+                        TT::tableEntry candiate {ttEntries[idx].positionHash, searchReturn.answer.evalScore, newBoard.numPlys, depthleft-1, searchReturn.bestMoveIdx, static_cast<uint8_t>(moves.numitems())};
+
+                        tableAccess.interface->positionFromZHash(ttEntries[idx].positionHash, tableAccess.table) = TT::tableSelectionFunction(entry, candiate, st.rootNumPlys);
+                    }
+                } else {
+                    auto movegenReturn {chessMoves::makeAllMovesWithDataReturn(newBoard)};
+                    searchReturn     = alphaBeta<eval, hasTranspositionTable>(st.reflectPure(), newBoard, depthleft-1, tableAccess, movegenReturn, tele, stop_token); 
+                }
             }
 
-            int score = -searchReturn.evalScore;
+            if (searchReturn.answer.terminate) {
+                return searchAnswerInternal{searchAnswer{-100000000, {}, true}};
+            }
+
+            int score = -searchReturn.answer.evalScore;
 
             if (score > bestMove.evalScore) {
                 bestMove.evalScore = score;
-                bestMove.move = mv;
+                bestMove.bestMove = mv;
+                bestMoveIdx = idx;
             }
 
             if (score >= st.beta) {
@@ -552,7 +693,7 @@ namespace AlphaBeta {
 
         // std::println("");
 
-        return bestMove;
+        return {bestMove, bestMoveIdx};
     }
 
     template <EvalFunction eval>
@@ -571,15 +712,6 @@ namespace AlphaBeta {
             return isWhiteTurn ? searchAnswer{eval(board, false)} : searchAnswer{-eval(board, false)}; 
         }
 
-        // FastStack<size_t, 218> sortedPerms {orderMoves(allMoves, board, moveGenData, st)};
-        // std::println("{}",sortedMovePermutation[0]);
-
-        // for (size_t idx : sortedPerms) {
-        //     std::print("{}, ",idx);
-        // }
-        // std::println("");
-
-        // for (size_t idx : sortedPerms) {
         for (const auto& mv : allMoves) {
             // const pieceMovement& mv = allMoves[idx];
             st.lastMove = mv;
@@ -593,11 +725,11 @@ namespace AlphaBeta {
             // can prioritise playing out capture chains.
             // later we might want to pass down principle variation and killer moves
             
-            int score = -alphaBeta<eval>(st.reflectPure(), newBoard, depthleft-1, tele).evalScore;
+            int score = -alphaBetaUnordered<eval>(st.reflectPure(), newBoard, depthleft-1, tele).evalScore;
 
             if (score > bestMove.evalScore) {
                 bestMove.evalScore = score;
-                bestMove.move = mv;
+                bestMove.bestMove = mv;
             }
 
             if (score >= st.beta) {
@@ -614,10 +746,29 @@ namespace AlphaBeta {
 }
 
 template <EvalFunction eval>
-inline searchAnswer alphaBeta(int depth, chessBoard board, searchTelemetry* tele= nullptr, std::optional<std::stop_token> stop_token = {}) {
-    searchState st {-1000000000, 1000000000};
+inline searchAnswer alphaBeta(int depth, chessBoard board, transpositionTableAccess tableAccess, searchTelemetry* tele= nullptr, std::optional<std::stop_token> stop_token = {}) {
+    searchState st {-1000000000, 1000000000, board.numPlys};
     bool isWhiteTurn = board.m_board_state & board_state::WhiteTurn;
-    return isWhiteTurn ? AlphaBeta::alphaBeta<eval>(st, board, depth, tele, stop_token) : AlphaBeta::alphaBeta<eval>(st, board, depth, tele, stop_token).negate();
+    auto movegenReturn = chessMoves::makeAllMovesWithDataReturn(board);
+
+
+    if (tableAccess.table != nullptr && tableAccess.interface != nullptr) {
+        auto zHash = tableAccess.interface->hashPosition(board);
+        auto& entry = tableAccess.interface->positionFromZHash(zHash, tableAccess.table);
+        bool entryVerified = zHash == entry.zHash && movegenReturn.first.numitems() == entry.numMoves;
+        auto* entryPtrVerified = entryVerified ? &entry : nullptr;
+
+        if (isWhiteTurn)
+            return AlphaBeta::alphaBeta<eval, true>(st, board, depth, tableAccess, movegenReturn, tele, stop_token, entryPtrVerified).answer;
+        else 
+            return AlphaBeta::alphaBeta<eval, true>(st, board, depth, tableAccess,  movegenReturn, tele, stop_token, entryPtrVerified).answer.negate();
+    } else {
+        std::println("transposition tbale malformmed");
+        if (isWhiteTurn)
+            return AlphaBeta::alphaBeta<eval, false>(st, board, depth, tableAccess, movegenReturn, tele, stop_token, nullptr).answer;
+        else 
+            return AlphaBeta::alphaBeta<eval, false>(st, board, depth, tableAccess,  movegenReturn, tele, stop_token, nullptr).answer.negate();
+    }
 }
 
 template <EvalFunction eval>
@@ -679,40 +830,56 @@ argumentValue argumentParser(int argc, char* argv[]) {
     return gs;
 }
 
+
 class chessEngine {
     bool m_isthinking {false};
     threaddedSearchAnswer m_sharedAnswer;
     std::optional<searchAnswer> m_answer {std::nullopt};
     std::jthread m_searchThread;
 
+    // storing the pointer here eliminates the need for us to seperately bookkeep whether the table has been initialised or not, we use nullptr
+    TT::transpositionTableInterface m_TTAccess;
+    std::unique_ptr<TT::tableEntry[]> m_transpositionTable {nullptr};
+
     public:
     chessBoard m_chessBoard;
     interfacePrinterState* m_printerState{nullptr};
 
+    bool allocateTranspositionTable(int tableSizeMB) {
+        try {
+            m_TTAccess = TT::transpositionTableInterface(tableSizeMB);
+            m_transpositionTable = std::make_unique<TT::tableEntry[]>(m_TTAccess.tableSize) ;
+        } catch (std::bad_alloc) {
+            return false;
+        }
+        return true;
+    }
 
-    static void iterativeSearch(std::stop_token st, chessBoard board, threaddedSearchAnswer& sharedAnswer, interfacePrinterState* printerState = nullptr) {
+    static void iterativeSearch(std::stop_token st, chessBoard board, threaddedSearchAnswer& sharedAnswer, transpositionTableAccess tableAccess, interfacePrinterState* printerState = nullptr) {
         int depth {2};
         
         while(!st.stop_requested()) {
             // std::println("Executing to depth {}", depth);
             searchTelemetry telemetry {};
             auto start = std::chrono::steady_clock::now();
-            auto ans = alphaBeta<pieceWiseEval>(depth, board, &telemetry, st);
+            auto ans = alphaBeta<pieceWiseEval>(depth, board, tableAccess, &telemetry, st);
             auto stop = std::chrono::steady_clock::now();
+            // ans.terminate happens when we stop mid iteration
             if (!ans.terminate) {
                 std::optional<pieceMovement> lastMove {std::nullopt};
                 {
                     //another thread could be trying to write to this, causing a race condition
                     std::lock_guard<std::mutex > lock{sharedAnswer.mu};
-                    lastMove = sharedAnswer.answer.has_value() ? std::optional<pieceMovement>(sharedAnswer.answer->move) : std::nullopt;
+                    lastMove = sharedAnswer.answer.has_value() ? std::optional<pieceMovement>(sharedAnswer.answer->bestMove) : std::nullopt;
                     sharedAnswer.answer = ans;
                 }
 
+                if (printerState != nullptr)
                 {
                     long long searchTimeMs = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start).count();
 
                     double nodesPerSecond = (telemetry.nodes / static_cast<double>(std::max((int)searchTimeMs, 1))) / 1000.0;
-                    std::string info = std::format("info currmove {} depth {} searchtime_ms {} nodes {} MNodes per second {}", board.uciStringMove(ans.move), depth, searchTimeMs, telemetry.nodes, nodesPerSecond);
+                    std::string info = std::format("info currmove {} depth {} searchtime_ms {} MNodes {} MNodes per second {}", board.uciStringMove(ans.bestMove), depth, searchTimeMs, telemetry.nodes / 1000000, nodesPerSecond);
 
                     {
                     std::lock_guard<std::mutex> lock {printerState->stdoutBuffer.bufferMutex};
@@ -760,7 +927,9 @@ class chessEngine {
         if (m_isthinking)
             return false;
 
-        m_searchThread = std::jthread(chessEngine::iterativeSearch,  m_chessBoard, std::ref(m_sharedAnswer), m_printerState);
+
+        transpositionTableAccess tableAccess {&m_TTAccess, m_transpositionTable.get()};
+        m_searchThread = std::jthread(chessEngine::iterativeSearch,  m_chessBoard, std::ref(m_sharedAnswer), std::move(tableAccess), m_printerState);
         m_isthinking = true;
         bool sucess = true;
         return sucess;

@@ -419,5 +419,53 @@
   this is 46.7M nodes per second, thats a 71% improvement and the code is signifficantly cleaner
   ---
 
+2026-08-21 17:05
+made some more improvements by replacing if statements with branchless bitwise oprations, and compiling out 
+if statements with templates code, ~45% speedup at around 68M nodes per second, the next target will be sliding 
+piece attacks using magic bitboards to try and surpass 100M nodes per second 
+
+[quartz@laptop1A:~/sync/codingProjects/learning_cpp/chessClone/bin]$ perf stat ./perftree_debugger 6
+a2a4 5363555
+a2a3 4463267
+b2b4 5293555
+b2b3 5310358
+c2c4 5866666
+c2c3 5417640
+d2d4 8879566
+d2d3 8073082
+e2e4 9771632
+e2e3 9726018
+f2f4 4890429
+f2f3 4404141
+g2g4 5239875
+g2g3 5346260
+h2h4 5385554
+h2h3 4463070
+b1a3 4856835
+b1c3 5708064
+g1f3 5723523
+g1h3 4877234
+
+119060324
+
+ Performance counter stats for './perftree_debugger 6':
+
+     1,746,415,871      task-clock:u                     #    0.999 CPUs utilized             
+                 0      context-switches:u               #    0.000 /sec                      
+                 0      cpu-migrations:u                 #    0.000 /sec                      
+               161      page-faults:u                    #   92.189 /sec                      
+    27,763,164,364      instructions:u                   #    3.53  insn per cycle            
+     7,855,295,409      cycles:u                         #    4.498 GHz                       
+     3,621,808,724      branches:u                       #    2.074 G/sec                     
+        18,696,533      branch-misses:u                  #    0.52% of all branches           
+ #      4.6 %  tma_backend_bound      
+                                                  #      8.4 %  tma_bad_speculation    
+                                                  #     18.0 %  tma_frontend_bound     
+                                                  #     69.0 %  tma_retiring           
+
+       1.747545266 seconds time elapsed
+
+       1.744596000 seconds user
+       0.000000000 seconds sys
   
 

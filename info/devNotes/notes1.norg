@@ -1,0 +1,5 @@
+making a lot of changes at once and they all need to be checked manually 
+
+adding move counting to the chess board 
+will be using xor for unmake correctness 
+this wont be caught by perftree but will be vital for the transposition table

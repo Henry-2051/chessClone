@@ -15,37 +15,8 @@
 #ifndef SEPERATE_BITBOARD
 #define SEPERATE_BITBOARD
 
-// undefined behavior will result if the popcount of pieces is greater than N, either make sure this cant logically happen or add a runtime check
-template <size_t N>
-std::pair<std::array<uint64_t, N>, std::size_t> 
-seperateBitboard(uint64_t pieces) {
-    std::array<uint64_t, N> resultSeperatedBitboard{};
-    auto num_zeros{ std::countr_zero(pieces)};
-    size_t count {0};
-    while (pieces != 0) {
-        resultSeperatedBitboard[count] = 1ULL << num_zeros;
-        pieces &= (pieces - 1);
-        num_zeros = std::countr_zero(pieces);
-        ++ count;
-    }
-    return {resultSeperatedBitboard, count};
-}
-
-template <size_t N>
-FastStack<uint64_t, N>
-seperateBitboardFastStackReturn(uint64_t pieces) {
-    // Timer<Timers::SeperateBitboardFastStack> t{};
-    FastStack<uint64_t, N> resultSeperatedBitboard{};
-    auto num_zeros{ std::countr_zero(pieces)};
-    while (pieces != 0) {
-        resultSeperatedBitboard.push(1ULL << num_zeros);
-        pieces &= (pieces - 1);
-        num_zeros = std::countr_zero(pieces);
-    }
-    return resultSeperatedBitboard;
-}
-
-inline void addAttacksToStack218(uint64_t piece, uint64_t attacked_squares, PieceType typeofPiece, stackStack218& moveStack, bool isWhiteTurn, const chessBoard& board, uint64_t enemies) {
+template<PieceType typeofPiece>
+inline void addAttacksToStack218(uint64_t piece, uint64_t attacked_squares, stackStack218& moveStack, bool isWhiteTurn, const chessBoard& board, uint64_t enemies) {
     // Timer<Timers::AddToStack218> t{};
     assert(std::popcount(attacked_squares) <= static_cast<int>(N));
 
@@ -59,12 +30,28 @@ inline void addAttacksToStack218(uint64_t piece, uint64_t attacked_squares, Piec
         uint64_t mv = attacked_squares & -attacked_squares;
         attacked_squares &= attacked_squares -1;
 
+
         PieceType enemyPieceType = PieceType::NotAPiece;
         if (mv & enemies) 
             enemyPieceType = board.figureOutTypeOfPieceOnSquare(mv, !isWhiteTurn);
 
         bool destinationOccupiedByEnemy = enemyPieceType != PieceType::NotAPiece ? mv : 0;
         uint8_t pieceMovementBoardState = board_state::WhiteTurn;
+
+        int8_t enPassantState {board.enPassantState};
+
+        // this shortcircuit is an optimisation
+        // basically the cpu should branch here 
+        if (typeofPiece == PieceType::Knight || typeofPiece == PieceType::Bishop || typeofPiece == PieceType::Queen) {
+            auto moveToPush = isWhiteTurn 
+            ? pieceMovement{mv | piece, destinationOccupiedByEnemy ? mv : 0, typeofPiece, PieceType::NotAPiece, PieceType::NotAPiece, enemyPieceType, 
+                static_cast<uint16_t>(board.numPlys ^ (board.numPlys + 1)), enPassantState, pieceMovementBoardState} 
+            : pieceMovement{mv | piece, destinationOccupiedByEnemy ? mv : 0, PieceType::NotAPiece, typeofPiece, enemyPieceType, PieceType::NotAPiece, 
+                static_cast<uint16_t>(board.numPlys ^ (board.numPlys + 1)), enPassantState, pieceMovementBoardState};
+
+            moveStack.push(std::move(moveToPush));
+            continue;
+        }
 
         if (typeofPiece == PieceType::King) {
             auto castlingRightsLost = isWhiteTurn ? 
@@ -79,17 +66,22 @@ inline void addAttacksToStack218(uint64_t piece, uint64_t attacked_squares, Piec
             }
         }
 
-        int8_t enPassantState {board.enPassantState};
 
         if(typeofPiece == PieceType::Pawn) {
+            uint64_t secondRank {0xff000000000000};
+            uint64_t fourthRank {0xff00000000};
+            uint64_t seventhRank {0xff00};
+            uint64_t fifthRank {0xff000000};
 
-            if ((isWhiteTurn ? std::countr_zero(piece) >= 16 : std::countr_zero(piece) <= 47) && ((isWhiteTurn ? piece >> 16 : piece << 16) & mv)) {
-                int pawn_file = std::countr_zero(piece) % 8;
+            if ((isWhiteTurn ? (piece & secondRank) : (piece & seventhRank)) && 
+                    ((isWhiteTurn ? (mv & fourthRank) : (mv & fifthRank)))) {
+                // Right bit shift is legal, ie wont teleport the pawn
+                uint64_t haveRbs {0x1010101010100};
+                uint64_t haveLbs {0x80808080808000};
+                haveRbs = ~haveRbs;
+                haveLbs = ~haveLbs;
 
-                bool can_have_right_bitshift_by_1 = pawn_file != 0;
-                bool can_have_left_bitshift_by_1 = pawn_file != 7;
-
-                uint64_t passingSquares = (can_have_right_bitshift_by_1 ? mv >> 1 : 0) | (can_have_left_bitshift_by_1 ? mv << 1 : 0);
+                uint64_t passingSquares = ((mv & haveRbs) >> 1 ) | ((mv & haveLbs) << 1 );
 
                 if(board.getPiecesByColorConst(!isWhiteTurn)[PieceType::Pawn] & passingSquares) {
                     enPassantState ^= std::countr_zero(isWhiteTurn ? mv << 8 : mv >> 8);
@@ -98,12 +90,14 @@ inline void addAttacksToStack218(uint64_t piece, uint64_t attacked_squares, Piec
         }
 
         pieceMovementBoardState ^= board.m_board_state & board_state::allCastlingFields_const & pieceMovementBoardState;
-        auto moveToPush = isWhiteTurn ? pieceMovement{mv | piece, destinationOccupiedByEnemy ? mv : 0, typeofPiece, PieceType::NotAPiece, PieceType::NotAPiece, enemyPieceType, enPassantState, pieceMovementBoardState} :
-                                        pieceMovement{mv | piece, destinationOccupiedByEnemy ? mv : 0, PieceType::NotAPiece, typeofPiece, enemyPieceType, PieceType::NotAPiece, enPassantState, pieceMovementBoardState};
+        auto moveToPush = isWhiteTurn 
+        ? pieceMovement{mv | piece, destinationOccupiedByEnemy ? mv : 0, typeofPiece, PieceType::NotAPiece, PieceType::NotAPiece, enemyPieceType,
+            static_cast<uint16_t>(board.numPlys ^ (board.numPlys + 1)), enPassantState, pieceMovementBoardState} 
+        : pieceMovement{mv | piece, destinationOccupiedByEnemy ? mv : 0, PieceType::NotAPiece, typeofPiece, enemyPieceType, PieceType::NotAPiece,
+            static_cast<uint16_t>(board.numPlys ^ (board.numPlys + 1)), enPassantState, pieceMovementBoardState};
 
         moveStack.push(std::move(moveToPush));
     }
 }
-
 
 #endif

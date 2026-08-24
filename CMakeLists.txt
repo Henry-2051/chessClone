@@ -33,19 +33,20 @@ endif()
 
 # --------------------------------------------------------------------
 # Set up Catch2 via FetchContent.
-include(FetchContent)
-FetchContent_Declare(
-  catch2
-  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-  GIT_TAG v3.4.0   # use the desired version tag
-)
-FetchContent_MakeAvailable(catch2)
+# include(FetchContent)
+# FetchContent_Declare(
+#   catch2
+#   GIT_REPOSITORY https://github.com/catchorg/Catch2.git
+#   GIT_TAG v3.4.0   # use the desired version tag
+# )
+# FetchContent_MakeAvailable(catch2)
 
 add_library(misc_libraries INTERFACE)
 
 target_include_directories(misc_libraries INTERFACE
     "${CMAKE_SOURCE_DIR}/src/misc-lib"
     "${CMAKE_SOURCE_DIR}/src/shared-src-header-libs"
+    "${CMAKE_SOURCE_DIR}/src/doctest" 
 )
 
 add_library(imgui_sfml INTERFACE)
@@ -93,6 +94,17 @@ add_library(timer ./src/misc-lib/timer.cpp)
 
 add_library(pieceMovements ./src/misc-lib/pieceMovements.cpp)
 
+add_library(transpositionTable ./src/engine/transpositionTable.cpp)
+
+add_executable(test_runner
+    ./src/tests/main.cpp
+)
+
+target_include_directories(test_runner PRIVATE
+    "${CMAKE_SOURCE_DIR}/src/tests" 
+    "${CMAKE_SOURCE_DIR}/src/doctest" 
+    "${CMAKE_SOURCE_DIR}/src/perftree-debugger"
+)
 
 set_target_properties(whatnotGui PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
@@ -101,6 +113,9 @@ set_target_properties(perftree_debugger PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
 set_target_properties(engine PROPERTIES
+  RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
+
+set_target_properties(test_runner PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
 target_link_libraries(whatnotGui PRIVATE
@@ -116,9 +131,9 @@ target_link_libraries(whatnotGui PRIVATE
   misc_libraries
 )
 
-target_link_libraries(chessBoard PRIVATE
-  misc_libraries
-)
+target_link_libraries(transpositionTable PRIVATE misc_libraries)
+
+target_link_libraries(chessBoard PRIVATE misc_libraries)
 
 target_link_libraries(pieceMovements PRIVATE misc_libraries)
 
@@ -134,7 +149,10 @@ target_link_libraries(engine PRIVATE
   pieceMovements
   timer
   misc_libraries
+  transpositionTable
 )
+
+target_link_libraries(test_runner PRIVATE misc_libraries pieceMovements chessBoard)
 
 # --------------------------------------------------------------------
 # Custom Target to Build and Run the Main Application.

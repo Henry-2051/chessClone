@@ -8,6 +8,8 @@ namespace board_state {
 // valid values are between 0 and 63, when this isnt available the value will be negative
 using enPassantState = int8_t;
 
+// the transposion table hash function depends on bit placement due to the speed up of using bitshift operations 
+// rather than if statements, if changed transpositionTable.cpp also needs to be changed
 enum BoardState : uint8_t{
     WhiteTurn         = 0b00000100,
     WhiteLostCastlingRightsRight = 0b00001000,

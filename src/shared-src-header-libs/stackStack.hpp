@@ -83,18 +83,11 @@ struct pieceMovement {
     PieceType movement1BlackBB {NotAPiece};
     PieceType movement2WhiteBB {NotAPiece};
     PieceType movement2BlackBB {NotAPiece};
-    int8_t enPassantState{-1}; // en passant behavior
-                               //
-                               // represents the square that can be en passant captured into
-                               // if blacks a pawn moves 2 squares and our pawn was on b5 then 
-                               // an en passant capture square would be generated on b6 
-                               // values from 0-63 represent en passant capture 
-                               // -1 represents no en passant capture, everything else is an error 
-                               //
-                               // when we apply the move we simply xor, using the xor proprties of 
-                               // commutivity and that they cancel out, we can encode previous en passant 
-                               // states where moves work to update the boards state in a fully reversible way
-                               // meaning board.applyMove(mv).applyMove(mv) === board for any valid move 
+    uint16_t plyStateChange {0};
+    int8_t enPassantState{-1};              // en passant behavior
+                                            //
+                                            // negative means no en passant capture while positive represents the board square we can capture into
+                                            // we xor this with the boards en passant change to ensure each move is its own inverse
     
     uint8_t boardStateChange {board_state::WhiteTurn};
 
@@ -251,7 +244,7 @@ struct FastStack
         // std::size_t spaceLeft = mN - currentNumberItems; 
         // if (numberOfItems > spaceLeft) {throw std::overflow_error("stack overflow, trying to push too many items onto the stackStack"); }
         for (std::size_t i = 0; i < numberOfItems; ++ i) {
-            push(item_array[i]);
+            pushVal(item_array[i]);
         }
         return *this;
     }

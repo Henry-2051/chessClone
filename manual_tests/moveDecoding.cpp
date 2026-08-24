@@ -14,6 +14,10 @@
 #include "readTextFile.hpp"
 #include "internalMoveRepresentation.hpp"
 
+/// abandoned part of the project, this is code that I will never integrate into the rest of the engine
+/// it works at parsing chess notation but I could probably re write it to 200 lines of code by not implementing 
+/// a whole state machine
+
 enum class AlgebraicChessInput : int {
     FilePosition          = 0,
     RankPosition          = 1,

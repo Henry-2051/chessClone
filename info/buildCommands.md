@@ -1,5 +1,8 @@
-debug:
+clang-lsp:
+cmake -S . -B build -D CMAKE_BUILD_TYPE=Release -D CMAKE_CXX_FLAGS="-mbmi -mbmi2 -msse4.2"
+cmake --build builds/release -j
 
+debug:
 cmake -S . -B builds/debug -D CMAKE_BUILD_TYPE=Debug
 cmake --build builds/debug -j
 
