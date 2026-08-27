@@ -43,9 +43,10 @@ inline void moveToUci(const chessBoard& board, const pieceMovement& movement, ch
 
 template <bool noPrint>
 void perftreeRun(size_t perftnumber, chessBoard& board, size_t& numMoves) {
-    stackStack218 allMoves = chessMoves::makeAllMoves(board);
+    stackStack218 allMoves; 
+    chessMoves::makeAllMovesWithDataReturn(board, allMoves);
 
-    if(noPrint && perftnumber > 0) 
+    if(noPrint && perftnumber > 1) 
     {
         for (const auto& mv : allMoves) {
             board.applyMoveImpure(mv);
@@ -53,11 +54,11 @@ void perftreeRun(size_t perftnumber, chessBoard& board, size_t& numMoves) {
             board.applyMoveImpure(mv);
         }
     } 
-    else if (noPrint && perftnumber == 0) 
+    else if (noPrint && perftnumber == 1) 
     {
         numMoves += allMoves.numitems();
     } 
-    else if (!noPrint && perftnumber > 0) 
+    else if (!noPrint && perftnumber > 1) 
     {
         numMoves = 0;
 

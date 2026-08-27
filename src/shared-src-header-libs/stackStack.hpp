@@ -36,10 +36,6 @@ enum PieceType : uint8_t {
     NotAPiece = 0b1000,
 };
 
-// enum PieceTypePlusOne : uint8_t {
-//     Pawn = 0b1,
-//     Rook =
-// }
 
 inline std::string_view getPieceTypeString(PieceType pt) {
     switch (pt) {
@@ -75,7 +71,12 @@ enum IsCapture : uint8_t {
 
 
 struct pieceMovement {
-    // we represent all chess moves as board transformations, infact we can represent all chess moves as 2 bitwise xor operations
+    // we represent all moves as 4 possible xor operations, though in practice 1 for quiet moves, 2 for captures, castling and promotion 
+    // and 3 for capture promotion
+    //
+    // it boils down to which bitboards have changed and how have they changed 
+    //
+    // in the case of pawn promotion capture we flip the same bit on both our promotion pieces bitboard and the enemy piece bitboard
     uint64_t  movement;
     uint64_t  secondMovement;
     // Bitboard 1 {White, Black}, Bitboard 2 {White, Black}
@@ -90,9 +91,7 @@ struct pieceMovement {
                                             // we xor this with the boards en passant change to ensure each move is its own inverse
     
     uint8_t boardStateChange {board_state::WhiteTurn};
-
-    
-    //TODO halfmove and fullmove clock
+    // exactly 24 bytes
 
     bool compareForSelection(const pieceMovement& rval) const {
         // compare the move from->to unless its a pawn promotion, if pawn promotion then also compare the promotion piece

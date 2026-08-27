@@ -469,3 +469,10 @@ g1h3 4877234
        0.000000000 seconds sys
   
 
+2026-08-26 00:27
+
+while writing regression tests, found bug in movegen using perftree from 
+fen rnbqkb1r/ppp3pp/8/3pNp2/3Pn3/5P2/PPP3PP/RNBQKB1R w KQkq - 0 6
+at depth 5, 
+king can castle while in check
+

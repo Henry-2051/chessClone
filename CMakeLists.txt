@@ -63,6 +63,7 @@ add_executable(whatnotGui
 
 target_include_directories(whatnotGui PRIVATE
   "${CMAKE_SOURCE_DIR}/src/gui"
+  "${CMAKE_SOURCE_DIR}/src/engine"
 )
 
 add_executable(perftree_debugger
@@ -73,12 +74,12 @@ target_include_directories(perftree_debugger PRIVATE
   "${CMAKE_SOURCE_DIR}/src/perftree-debugger"
 )
 
-add_executable(engine
+add_executable(uciEngine
     ./src/engine/main.cpp
 )
 
-target_include_directories(engine PRIVATE
-  "${CMAKE_SOURCE_DIR}/src/engine-src"
+target_include_directories(uciEngine PRIVATE
+  "${CMAKE_SOURCE_DIR}/src/engine"
 )
 
 
@@ -96,8 +97,20 @@ add_library(pieceMovements ./src/misc-lib/pieceMovements.cpp)
 
 add_library(transpositionTable ./src/engine/transpositionTable.cpp)
 
+add_library(engine ./src/engine/engine.cpp)
+
+target_include_directories(engine PRIVATE
+  "${CMAKE_SOURCE_DIR}/src/engine"
+)
+
 add_executable(test_runner
     ./src/tests/main.cpp
+)
+
+add_library(search ./src/engine/search.cpp)
+
+target_include_directories(search PRIVATE
+  "${CMAKE_SOURCE_DIR}/src/engine"
 )
 
 target_include_directories(test_runner PRIVATE
@@ -112,7 +125,7 @@ set_target_properties(whatnotGui PROPERTIES
 set_target_properties(perftree_debugger PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
-set_target_properties(engine PROPERTIES
+set_target_properties(uciEngine PROPERTIES
   RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 
 set_target_properties(test_runner PROPERTIES
@@ -129,6 +142,7 @@ target_link_libraries(whatnotGui PRIVATE
   pieceMovements
   timer
   misc_libraries
+  engine
 )
 
 target_link_libraries(transpositionTable PRIVATE misc_libraries)
@@ -144,12 +158,25 @@ target_link_libraries(perftree_debugger PRIVATE
   misc_libraries
 )
 
-target_link_libraries(engine PRIVATE
+target_link_libraries(uciEngine PRIVATE
   chessBoard
-  pieceMovements
-  timer
+  misc_libraries
+  engine
+)
+
+target_link_libraries(search PRIVATE
   misc_libraries
   transpositionTable
+  pieceMovements
+  chessBoard
+)
+
+target_link_libraries(engine PRIVATE
+  misc_libraries
+  transpositionTable
+  pieceMovements
+  chessBoard
+  search
 )
 
 target_link_libraries(test_runner PRIVATE misc_libraries pieceMovements chessBoard)

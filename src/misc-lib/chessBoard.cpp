@@ -17,19 +17,6 @@ using annoying_return_type = std::vector<std::vector<std::pair<uint32_t, uint32_
 
 annoying_return_type chessBoard::piecePositions() const {
     annoying_return_type result = {};
-    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_white_king)));
-    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_white_queens)));
-    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_white_bishops)));
-    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_white_knights)));
-    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_white_rooks)));
-    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_white_pawns)));
-    //
-    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_black_king)));
-    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_black_queens)));
-    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_black_bishops)));
-    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_black_knights)));
-    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_black_rooks)));
-    // result.push_back(helpers::getChessCoordinates(helpers::getOnes(m_black_pawns)));
 
     result.push_back(helpers::getChessCoordinates(helpers::getOnes(bitboards[PieceType::King + 6])));
     result.push_back(helpers::getChessCoordinates(helpers::getOnes(bitboards[PieceType::Queen + 6])));

@@ -36,7 +36,7 @@ inline std::pair<std::string_view, std::optional<std::string_view>> splitWord(st
 }
 
 inline std::vector<std::pair<uint32_t, uint32_t>> getChessCoordinates(std::vector<int> ones) {
-    std::vector<std::pair<uint32_t, uint32_t>>   result = {};
+    std::vector<std::pair<uint32_t, uint32_t>>    result = {};
     for (auto p : ones) {
         int row = p / 8;
         int col = p % 8;

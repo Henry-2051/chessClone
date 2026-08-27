@@ -527,20 +527,30 @@ uint64_t singleKingMove(uint64_t king, const chessBoard& board, uint64_t attackM
     uint64_t attacked_squares {pseudoLegalKingMoves(king, friendly)};
 
     // helpers::printBitboard(retVal.normalMoves);
-    attacked_squares &= (~friendly) & (~attackMask);
 
+    attacked_squares &= ~attackMask;
+    attacked_squares &= ~friendly;
 
     return attacked_squares;
 }
 
 inline
 std::optional<pieceMovement> kingCastlingShort(uint64_t king, const chessBoard& board, bool isWhiteTurn, uint64_t all_pieces, uint64_t attackMask) {
+
     if (((board.m_board_state & (isWhiteTurn ? board_state::WhiteLostCastlingRightsRight : board_state::BlacklostCastlingRightsRight))))
         return std::nullopt;
 
     uint64_t bKingStart = 0x10, bSquaresEmptyAndNotAttacked = 0x60, bShortRookStart = 0x80;
+    uint64_t squaresNotAttacked = bKingStart | bSquaresEmptyAndNotAttacked;
+    uint64_t squaresNotOccupied = bSquaresEmptyAndNotAttacked;
     // check the squares have what they should, redundant by design with the above check
-    if(((isWhiteTurn ? bSquaresEmptyAndNotAttacked << 56 : bSquaresEmptyAndNotAttacked) & (all_pieces | attackMask)))
+    if((isWhiteTurn ? squaresNotAttacked << 56 : squaresNotAttacked) & attackMask)
+        return std::nullopt;
+
+    if ((isWhiteTurn ? squaresNotOccupied << 56 : squaresNotOccupied) & all_pieces)
+        return std::nullopt;
+
+    if (!(board.pieceToBitboardConst<PieceType::Rook>(isWhiteTurn) & (isWhiteTurn ? bShortRookStart << 56 : bShortRookStart)))
         return std::nullopt;
     
     uint8_t boardStateToXor = isWhiteTurn ? 
@@ -571,14 +581,20 @@ std::optional<pieceMovement> kingCastlingShort(uint64_t king, const chessBoard& 
 
 inline 
 std::optional<pieceMovement> kingCastlingLong(uint64_t king, const chessBoard& board, bool isWhiteTurn, uint64_t all_pieces, uint64_t attackMask) {
+
     if ((board.m_board_state & (isWhiteTurn ? board_state::WhiteLostCastlingRightsLeft : board_state::BlackLostCastlingRightsLeft)))
         return std::nullopt;
 
     uint64_t bKingStart = 0x10, bLongRookStart = 0x1, bSquareNotAttacked= 0xc, bSquaresEmpty = 0xe;
 
-    if ( ((isWhiteTurn ? bSquaresEmpty << 56 : bSquaresEmpty) & (all_pieces)) || ((isWhiteTurn ? bSquareNotAttacked << 56 : bSquareNotAttacked) & (attackMask)))
+    if ((isWhiteTurn ? bSquaresEmpty << 56 : bSquaresEmpty) & all_pieces)
         return std::nullopt;
-    
+
+    if ((isWhiteTurn ? bSquareNotAttacked << 56 : bSquareNotAttacked) & attackMask)
+        return std::nullopt;
+
+    if (!(board.pieceToBitboardConst<PieceType::Rook>(isWhiteTurn) & (isWhiteTurn ? bLongRookStart << 56 : bLongRookStart)))
+        return std::nullopt;
 
     uint8_t boardStateToXor = isWhiteTurn ? 
             board_state::WhiteTurn | board_state::WhiteLostCastlingRightsRight | board_state::WhiteLostCastlingRightsLeft : 
@@ -586,7 +602,8 @@ std::optional<pieceMovement> kingCastlingLong(uint64_t king, const chessBoard& b
 
     boardStateToXor ^= board.m_board_state & boardStateToXor & board_state::allCastlingFields_const;
 
-    return(isWhiteTurn ? 
+    return(
+        isWhiteTurn ? 
         pieceMovement{
             (bKingStart >> 2 | bKingStart) << 56, 
             (bLongRookStart | bLongRookStart << 3) << 56, 
@@ -594,7 +611,8 @@ std::optional<pieceMovement> kingCastlingLong(uint64_t king, const chessBoard& b
             PieceType::Rook, PieceType::NotAPiece, 
             static_cast<uint16_t>(board.numPlys ^ (board.numPlys + 1)),
             board.enPassantState, boardStateToXor
-        } : 
+        }
+        : 
         pieceMovement{
             bKingStart >> 2 | bKingStart, 
             bLongRookStart | bLongRookStart << 3, 
@@ -602,7 +620,8 @@ std::optional<pieceMovement> kingCastlingLong(uint64_t king, const chessBoard& b
             PieceType::NotAPiece, PieceType::Rook, 
             static_cast<uint16_t>(board.numPlys ^ (board.numPlys + 1)),
             board.enPassantState, boardStateToXor
-    });
+        }
+    );
     
     return std::nullopt;
 }
@@ -620,9 +639,9 @@ uint64_t enemyAttackmaskLoop(uint64_t friendly, uint64_t enemies, const chessBoa
             return simpleBlackPawnCapture(pieces, ~0ULL);
         }
     } else if (pt == PieceType::Knight) {
-        return chessMoves::pseudoLegalKnightMoves(pieces, enemies);
+        return chessMoves::pseudoLegalKnightMoves(pieces, 0ULL);
     } else if (pt ==PieceType::King) {
-        return pseudoLegalKingMoves(pieces, enemies);
+        return pseudoLegalKingMoves(pieces, 0ULL);
     }
 
     uint64_t attacks_mushed {0};
@@ -782,9 +801,8 @@ stackStack218 makeAllMoves(const chessBoard& board) {
     return moveStack;
 }
 
-std::pair<stackStack218, movegenEngineData> makeAllMovesWithDataReturn(const chessBoard& board) {
+movegenEngineData makeAllMovesWithDataReturn(const chessBoard& board, stackStack218& moveStack) {
     // Timer<Timers::MakeAllMoves> t {};
-    static stackStack218 moveStack {};
     moveStack.currentNumberItems = 0;
 
     // very cool check detection idea 
@@ -824,7 +842,7 @@ std::pair<stackStack218, movegenEngineData> makeAllMovesWithDataReturn(const che
     makeLegalMoves<PieceType::Queen>(enemies, friendly, enemyPawns, enemy_attacks_mushed, pinsMushed, pinLines, checkingAttacks, board, moveStack, isWhiteTurn);
     makeLegalMoves<PieceType::King>(enemies, friendly, enemyPawns, enemy_attacks_mushed, pinsMushed, pinLines, checkingAttacks, board, moveStack, isWhiteTurn);
 
-    return {moveStack, {enemy_attacks_mushed}};
+    return {enemy_attacks_mushed};
 };
 
 // when a sequence of uci moves are entered, this function applies moves until it either reaches the end 

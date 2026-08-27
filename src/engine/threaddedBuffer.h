@@ -21,29 +21,38 @@ struct interfacePrinterState{
     threaddedBuffer stdoutBuffer {};
 };
 
-// our consumer which will live in a seperate thread
+inline
+void swapLogBuffers(std::vector<std::string>& buffer1, interfacePrinterState& threaddedInput) {
+    std::unique_lock<std::mutex> consumerLock {threaddedInput.consumerLock};
 
+    {
+        std::lock_guard<std::mutex> bufferLock {threaddedInput.stdoutBuffer.bufferMutex};
+        if (threaddedInput.stdoutBuffer.buffer.size() > 0) {
+            buffer1.resize(0);
+            threaddedInput.stdoutBuffer.buffer.swap(buffer1);
+        }
+    }
+}
+
+
+// consumer permenantly owns the interface printer state
 template <size_t PollTimeMiliseconds>
 void printerProcess(std::stop_token stopToken, interfacePrinterState& sharedState)  {
+    std::vector<std::string> printItems {};
+    // this approach recycles 2 arrays between 2 vectors to maintail very low lock contention 
+    // the buffers are allowed to grow to avoid heap allocations, 
     std::unique_lock<std::mutex> printerLock {sharedState.consumerLock};
     while (!stopToken.stop_requested()) {
         sharedState.flushBuffer.wait_for(printerLock, std::chrono::milliseconds(PollTimeMiliseconds));
 
-        std::vector<std::string> printItems;
-
         {
             std::lock_guard<std::mutex> bufferLock {sharedState.stdoutBuffer.bufferMutex};
-            auto numItems {sharedState.stdoutBuffer.buffer.size()};
-
-            for (auto i {numItems}; i -- > 0;) {
-                printItems.push_back(std::move(sharedState.stdoutBuffer.buffer[i]));
-            }
-
-            sharedState.stdoutBuffer.buffer.resize(0);
+            sharedState.stdoutBuffer.buffer.swap(printItems);
         }
 
         for (auto item : printItems) {
             std::println("{}", item);
         }
+        printItems.resize(0);
     }
 }

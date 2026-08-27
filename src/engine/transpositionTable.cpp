@@ -1,5 +1,6 @@
 #include "transpositionTable.h"
 #include <cstdint>
+#include <random>
 using namespace TT;
 
 transpositionTableInterface::transpositionTableInterface(int tableSizeMB, uint64_t seed) 

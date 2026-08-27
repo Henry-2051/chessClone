@@ -1,20 +1,10 @@
-#include <bit>
-#include <cstddef>
 #include <cstdint>
-#include <functional>
-#include <optional>
-#include <ostream>
-#include <stdexcept>
 #include <sys/types.h>
-#include <tuple>
 #include <utility>
 #include "stackStack.hpp"
 #include "boardState.hpp"
 #include "chessBoard.h"
-#include "helpers.hpp"
-
-
-#include "timer.hpp"
+#pragma once
 
 namespace chessMoves {
 
@@ -50,10 +40,13 @@ struct movegenEngineData {
 
 // uint64_t dummyKingMoveGenerationNoTeleportation(uint64_t king, uint64_t friendly);
 
-// must also take into account the enemies attacked squares so we must either pass in an array of attack lines or a single bitboard of all the attacked squares, 
-// passing the array seems like the better option since 
 stackStack218 makeAllMoves(const chessBoard& boardInput);
-std::pair<stackStack218, movegenEngineData> makeAllMovesWithDataReturn(const chessBoard& boardInput);
+
+// in the above function the moveStack is a static variable, which means its the same accross all threads, 
+// if we have 2 movegens running on seperate threads they will corrupt each others data 
+// and for performance reasons we dont want to allocate and then copy out movestacks, 5.2 KB is too much and 
+// doing this measurably degrades performance
+movegenEngineData makeAllMovesWithDataReturn(const chessBoard& boardInput, stackStack218& moveStack);
 
 bool makeMovesFromUciSequence(chessBoard& board, std::string_view uciSeq);
 }

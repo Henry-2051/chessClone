@@ -1,4 +1,6 @@
+#include <cctype>
 #include <cstdint>
+#include <map>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -170,6 +172,44 @@ struct chessBoard {
     std::optional<pieceMovement> genPartialMove(std::string_view uciMove) const;
 
     std::string uciStringMove(pieceMovement move) const;
+
+    inline std::string stringBoard() const {
+        std::vector<char> otp (64, '.');
+
+        std::map<PieceType, char> ptToChar{
+            {PieceType::Pawn, 'p'},
+            {PieceType::Rook, 'r'},
+            {PieceType::Knight, 'n'},
+            {PieceType::Bishop, 'b'},
+            {PieceType::Queen, 'q'},
+            {PieceType::King, 'k'},
+        };
+
+        for (auto i {64uz}; i -- > 0;) {
+            auto pt_w {figureOutTypeOfPieceOnSquare(1ULL << i, true)};
+            auto pt_b {figureOutTypeOfPieceOnSquare(1ULL << i, false)};
+               
+            if (pt_w != PieceType::NotAPiece) {
+                otp[i] = toupper(ptToChar[pt_w]);
+            } else if (pt_b != PieceType::NotAPiece) {
+                otp[i] = ptToChar[pt_b] ;
+            }
+        }
+        
+        std::string output {""};
+        output += "0-=-=-=-=-=-=-7\n";
+        int ctr {0};
+        for (char c : otp) {
+            output += c;
+            output += ' ';
+            ctr ++;
+            if (ctr % 8 == 0) 
+                output += "\n";
+        }
+        output += "56-=-=-=-=-=-63\n";
+
+        return output;
+    }
 
     private:
     void changeRank(std::string_view fenRank, size_t rankNum);

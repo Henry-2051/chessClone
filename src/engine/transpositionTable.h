@@ -1,10 +1,7 @@
 #include "chessBoard.h"
 #include <array>
-#include <bit>
 #include <cstdint>
-#include <memory>
-#include <random>
-#include <utility>
+#pragma once
 
 namespace TT {
 // we want to know whether it is more valuable to replace a table entry, our main heuristic is how much computational work 
@@ -94,3 +91,13 @@ class transpositionTableInterface {
     uint64_t hashPosition(const chessBoard& board) const;
 };
 }
+
+struct transpositionTableAccess {
+    // if either of these are nullptr then there isnt a valid table
+    TT::transpositionTableInterface* interface {nullptr}; // holds the hash function
+    TT::tableEntry* table {nullptr};                      // holds the data 
+
+    bool isValid() const {
+        return interface != nullptr && table != nullptr;
+    }
+};

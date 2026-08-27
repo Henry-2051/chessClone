@@ -9,6 +9,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <bit>
 #include <chrono>
+#include <compare>
 #include <csignal>
 #include <imgui.h>
 #include "helpers.hpp"
@@ -34,6 +35,7 @@
 // #include "maybeResult.hpp"
 #include "loadChessAssets.hpp"
 #include "chessBoard.h"
+#include "engine.h"
 #include "chessBoardMovegenSharedDatatypes.h"
 
 
@@ -85,10 +87,6 @@ std::optional<pieceMovement> checkMoveLegal(pieceMovement move, const stackStack
     // printCustomStruct(move);
 
     return std::nullopt;
-}
-
-chessBoard applyChessMove(pieceMovement move, const chessBoard& board) {
-    return board.applyMovePure(move);
 }
 
 sf::RectangleShape rectFromTopLeftAndBottomRight(sf::Vector2f topLeft, sf::Vector2f bottomRight) {
@@ -207,6 +205,10 @@ std::pair<std::optional<pieceMovement>, PieceMovementEnum> makePieceMovementFrom
     }
 }
 
+struct infoCache {
+    std::string qSearchString {""};
+};
+
 struct windowCtx {
     sf::RenderWindow window;
     sf::Clock clock;
@@ -221,10 +223,22 @@ struct windowCtx {
     int board_square_size;
     int pieceHeight;
     std::vector<pieceMovement> gameHisory;
+    chessEngine engineState {};
+    bool displayedInfo {false};
+    infoCache cachedInfo {};
+
+    interfacePrinterState loggerThingy {};
+    std::vector<std::string> logsFromLoggerThingy {};
+
     // basically how many times the user has clicked the undo move button
     size_t movesBackFromTopGameHistory {0};
 
     chessBoard& board = boardWithExtraStuff.board;
+
+    void applyMove(const pieceMovement& mv) {
+        board.applyMoveImpure(mv);
+        std::cout << board.stringBoard();
+    }
 
     struct guiBoard& updateFen(std::string_view fen) {
         gameHisory.resize(0);
@@ -247,7 +261,7 @@ struct windowCtx {
         if (!(gameHisory.size() - movesBackFromTopGameHistory > 0))
             return false;
 
-        board.applyMoveImpure(gameHisory[gameHisory.size() -1 - movesBackFromTopGameHistory]);
+        applyMove(gameHisory[gameHisory.size() -1 - movesBackFromTopGameHistory]);
         movesBackFromTopGameHistory ++;
         return true;
     }
@@ -256,7 +270,7 @@ struct windowCtx {
         if (movesBackFromTopGameHistory == 0)
             return false;
 
-        board.applyMoveImpure(gameHisory[gameHisory.size() - movesBackFromTopGameHistory]);
+        applyMove(gameHisory[gameHisory.size() - movesBackFromTopGameHistory]);
         movesBackFromTopGameHistory --;
         return true;
     }
@@ -399,11 +413,11 @@ userInput processUserInput(userInput input, const chessBoard& board) {
 }
 
 // 
-std::pair<userInput, std::optional<pieceMovement>> consumeStagedMoveVerifyAndApply(userInput input, chessBoard& board) {
+std::pair<userInput, std::optional<pieceMovement>> consumeStagedMoveVerifyAndApply(userInput input, windowCtx& w_ctx) {
     if (input.stagedForApplicationMove.has_value()) {
 
         // auto start = std::chrono::steady_clock::now();
-        stackStack218 allMoves = chessMoves::makeAllMoves(board);
+        stackStack218 allMoves = chessMoves::makeAllMoves(w_ctx.board);
         // auto stop = std::chrono::steady_clock::now();
         // std::println("make moves took {}ns", std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start).count());
         
@@ -411,7 +425,7 @@ std::pair<userInput, std::optional<pieceMovement>> consumeStagedMoveVerifyAndApp
         input.stagedForApplicationMove = std::nullopt;
 
         if (legalCheckResult.has_value()) {
-            board = applyChessMove(legalCheckResult.value(), board);
+            w_ctx.applyMove(legalCheckResult.value());
             return {input, legalCheckResult};
         }
     }
@@ -550,6 +564,67 @@ userInput makeImguiInfoAndControlWindow(windowCtx& w_ctx, userInput input) {
         ImGui::TreePop();
     }
 
+    if (ImGui::TreeNode("chess engine")) {
+        swapLogBuffers(w_ctx.logsFromLoggerThingy, w_ctx.loggerThingy);
+        for (const auto& l : w_ctx.logsFromLoggerThingy) {
+            std::println("{}", l);
+        }
+        w_ctx.logsFromLoggerThingy.resize(0);
+        
+        if (ImGui::Button("Stop Engine")) {
+            w_ctx.engineState.stopSearching();
+        };
+
+        if (ImGui::Button("Load Board")) {
+            w_ctx.engineState.loadPosition(w_ctx.board);
+        }
+
+        if (ImGui::Button("Allocate transpositon table (16MB)")) {
+            w_ctx.engineState.allocateTranspositionTable(16);
+        }
+
+        if (ImGui::Button("Start searching")) {
+            w_ctx.engineState.startSearch(&w_ctx.loggerThingy, 2);
+        }
+
+        auto answer = w_ctx.engineState.getAnswer();
+        if (answer.has_value()){
+            ImGui::BulletText("%s", std::format("BestMove {}, Eval {} centipawns", w_ctx.board.uciStringMove(answer->bestMove), answer->eval).c_str());
+            ImGui::BulletText("%s", std::format("thinking: {}, search depth : {}", w_ctx.engineState.m_isthinking, w_ctx.engineState.m_sharedAnswer.currentDepth).c_str());
+        }
+        else 
+            ImGui::BulletText("Engine not loaded");
+
+        if (!w_ctx.displayedInfo) {
+            w_ctx.displayedInfo = true;
+            w_ctx.cachedInfo.qSearchString = std::format("quiessence search eval {}", w_ctx.engineState.quiessenceSearch(w_ctx.board));
+            ImGui::BulletText("%s", w_ctx.cachedInfo.qSearchString.c_str());
+        } else {
+            ImGui::BulletText("%s", w_ctx.cachedInfo.qSearchString.c_str());
+        }
+
+        if (ImGui::Button("Play best engine move")) {
+            auto maybeAns = w_ctx.engineState.getAnswer();
+            if (maybeAns.has_value()) {
+                auto mv = maybeAns->bestMove;
+                w_ctx.applyMove(mv);
+                w_ctx.addMoveToHistory(mv);
+
+                w_ctx.displayedInfo = false;
+                w_ctx.engineState.stopSearching();
+                w_ctx.engineState.loadPosition(w_ctx.board);
+                
+                w_ctx.engineState.startSearch();
+            }
+        }
+
+        if (ImGui::Button("Clear engine state / reset")) {
+            w_ctx.engineState.reset();
+        }
+
+        ImGui::TreePop();
+    }
+
     ImGui::End();
 
     return input; 
@@ -595,10 +670,16 @@ int main(int argc, char *argv[])
 
         {
             // we want to know the move that has been made so we can add it to the game history
-            auto res = consumeStagedMoveVerifyAndApply(input_ctx, w_ctx.board);
+            auto res = consumeStagedMoveVerifyAndApply(input_ctx, w_ctx);
             input_ctx = res.first;;
-            if(res.second.has_value())
+            if(res.second.has_value()) {
+                if (w_ctx.engineState.m_answer.has_value()) {
+                    w_ctx.engineState.loadPosition(w_ctx.board);
+                    w_ctx.engineState.startSearch();
+                }
+                w_ctx.displayedInfo = false;
                 w_ctx.addMoveToHistory(res.second.value());
+            }
         }
 
         renderBoard(w_ctx);
@@ -614,7 +695,7 @@ int main(int argc, char *argv[])
         // draw over everything in the same frame if promotion occurs and display the new piece on the squre
         if (input_ctx.pawnPromting) {
             {
-                auto res = consumeStagedMoveVerifyAndApply(input_ctx, w_ctx.board);
+                auto res = consumeStagedMoveVerifyAndApply(input_ctx, w_ctx);
                 input_ctx = res.first;;
                 if(res.second.has_value())
                     w_ctx.addMoveToHistory(res.second.value());

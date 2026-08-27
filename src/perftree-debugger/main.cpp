@@ -1,11 +1,4 @@
-#include <array>
-#include <bit>
 #include <cassert>
-#include <cstdint>
-#include <format>
-#include <map>
-#include <print>
-#include <sstream>
 #include <string>
 #include <string_view>
 #include "perftreeRun.h"
@@ -17,7 +10,7 @@ void perftree(size_t perftnumber=1, std::string_view fenArgument="rnbqkbnr/ppppp
         return;
 
     size_t numMoves;
-    perftreeRun<false>(perftnumber-1, board, numMoves);
+    perftreeRun<false>(perftnumber, board, numMoves);
     
     // Timer<Timers::SlidingAttackRook>::printAverageTimeNanoseconds();
     //
