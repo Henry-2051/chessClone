@@ -9,6 +9,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <print>
+#include <stdexcept>
 
 
 struct searchAnswerInternal {
@@ -196,18 +197,8 @@ orderMoves(const stackStack218& unorderedMoves, const chessBoard& board, const c
     return permutations;
 }
 
-enum class QuietReturnState {
-    Normal,
-    WhiteCheckmate,
-    BlackCheckmate,
-    Draw,
-};
 
-struct quiessenceSearchReturn {
-    int score;
-    SearchReturnState rState;
-};
-
+//needs some work
 inline bool isQuietAfterMove(chessBoard board, const pieceMovement& mv, uint64_t enemyAttacksMushed) {
 
     bool isWhiteTurn = (board.m_board_state & board_state::WhiteTurn);
@@ -225,11 +216,31 @@ inline bool isQuietAfterMove(chessBoard board, const pieceMovement& mv, uint64_t
     return !(friendlyPiecesNoPawn & enemyAttacksMushed);
 }
 
+int
+noMovesEvalulation(const chessBoard& board, const chessMoves::movegenEngineData& mgenData) {
+    bool isWhiteTurn = board.m_board_state & board_state::WhiteTurn;
+    uint64_t ourKing = board.pieceToBitboardConst<PieceType::King>(isWhiteTurn);
+    // std::println("nomoves");
+    // we are checkmated
+    if (mgenData.enemyAttacksMushed & ourKing) {
+        // we would rather be mated in 3 plys than 1 ply
+        
+        // we score getting checkmated at a greater depth to be better, this means that the engine
+        // always mates in as few moves as possible
+        
+        return (-pMaps::pieceScoreArray[PieceType::King].score) + board.numPlys;
+    } else {
+        // a draw is a draw
+        return 0;
+    }
+
+}
+
 // play out the most promising tactical move until there are no more promising tactical moves
 // since we are just playing out a capture chain we can discard every move other than the one 
 // we choose
 template<EvalFunction eval>
-int
+quiessenceSearchReturn
 search::quiessenceSearch(chessBoard board, stackStack218& allMovesMemory, bool _madeNullMove) {
     chessMoves::movegenEngineData metadata = chessMoves::makeAllMovesWithDataReturn(board, allMovesMemory);
     stackStack218& allMoves = allMovesMemory;
@@ -259,6 +270,10 @@ search::quiessenceSearch(chessBoard board, stackStack218& allMovesMemory, bool _
     }
 
     int staticEvalScore = isWhiteTurn ? eval(board, false) : -eval(board, false);
+
+    if (allMoves.numitems() == 0)
+        return {noMovesEvalulation(board, metadata), SearchReturnState::EndOfGame};
+
     if (bestMoveScore != 0 && bestMoveScore > 10) {
         // auto mvString = board.uciStringMove(allMoves[bestMoveIdx]);
         // std::println("playing {}", board.uciStringMove(allMoves[bestMoveIdx]));
@@ -267,83 +282,101 @@ search::quiessenceSearch(chessBoard board, stackStack218& allMovesMemory, bool _
         // this relies on the assumption that there exists a move which preserves all our material on the board
         // the idea of this is that its going to increase the strength of the engine more than it decrements it
         // futhermore we can exploit bitboards to write an optimised movegen that only considers captures
-        auto res =  std::max(-quiessenceSearch<eval>(board.applyMovePure(allMoves[bestMoveIdx]), allMovesMemory, false), staticEvalScore);
-        // std::println("score for playing {} : {}", mvString, res);
-        return res;
-    }
-    // std::println("static eval score {}", staticEvalScore);
 
-    return staticEvalScore;
+        auto q_ret = quiessenceSearch<eval>(board.applyMovePure(allMoves[bestMoveIdx]), allMovesMemory, false);
+        q_ret.score = -q_ret.score;
+        // maybe capturing that haning piece led to checkmate, an ideal maximising player would not play that move and 
+        // instead stabalise the position
+        if (q_ret.score > staticEvalScore)
+            return q_ret;
+        else 
+            return {staticEvalScore, SearchReturnState::Normal};
+
+    } else if (!_madeNullMove) {
+        pieceMovement nullMove = pieceMovement{0,0, NotAPiece, NotAPiece, NotAPiece, NotAPiece, static_cast<uint16_t>(board.numPlys ^ (board.numPlys + 1)), board.enPassantState, board_state::WhiteTurn};
+
+
+        auto q_ret = quiessenceSearch<eval>(board.applyMovePure(nullMove), allMovesMemory, true);
+
+        q_ret.score = -q_ret.score;
+        // maybe capturing that haning piece led to checkmate, an ideal maximising player would not play that move and 
+        // instead stabalise the position
+        if (q_ret.score > staticEvalScore)
+            return q_ret;
+        else 
+            return {staticEvalScore, SearchReturnState::Normal};
+    }
+
+    return {staticEvalScore, SearchReturnState::Normal};
 };
 
 template 
-int search::quiessenceSearch<pieceWiseEval>(chessBoard board, stackStack218& allMovesMemory, bool _madeNullMove);
+quiessenceSearchReturn search::quiessenceSearch<pieceWiseEval>(chessBoard board, stackStack218& allMovesMemory, bool _madeNullMove);
 
 namespace AlphaBeta {
 
-int negaMaxEval (const chessBoard& boardBefore, const pieceMovement& mv, uint64_t enemyAttacksMushed) {
-    bool isWhiteTurn = boardBefore.m_board_state & board_state::WhiteTurn;
+// int negaMaxEval (const chessBoard& boardBefore, const pieceMovement& mv, uint64_t enemyAttacksMushed) {
+//     // bool isWhiteTurn = boardBefore.m_board_state & board_state::WhiteTurn;
+//
+//     stackStack218 allMoveMem;
+//     return search::quiessenceSearch<pieceWiseEval>(boardBefore.applyMovePure(mv), allMoveMem);
+//     // return (isWhiteTurn) ? pieceWiseEval(boardBefore.applyMovePure(mv)) : -pieceWiseEval(boardBefore.applyMovePure(mv));
+//
+//     // if (!isQuietAfterMove(boardBefore, mv, enemyAttacksMushed)) 
+//     //     return search::quiessenceSearch<pieceWiseEval>(boardBefore.applyMovePure(mv), allMoveMem);
+//     // else 
+//     //     return (!isWhiteTurn) ? pieceWiseEval(boardBefore.applyMovePure(mv)) : -pieceWiseEval(boardBefore.applyMovePure(mv));
+// }
 
-    // return (isWhiteTurn) ? pieceWiseEval(boardBefore.applyMovePure(mv)) : -pieceWiseEval(boardBefore.applyMovePure(mv));
 
-    stackStack218 allMoveMem;
-    if (!isQuietAfterMove(boardBefore, mv, enemyAttacksMushed)) 
-        return -search::quiessenceSearch<pieceWiseEval>(boardBefore.applyMovePure(mv), allMoveMem);
-    else 
-        return (!isWhiteTurn) ? pieceWiseEval(boardBefore.applyMovePure(mv)) : -pieceWiseEval(boardBefore.applyMovePure(mv));
-}
-
-searchAnswer 
-noMovesEvalulation(searchState st, const chessBoard& board, const chessMoves::movegenEngineData& mgenData, int depthLeft) {
-    bool isWhiteTurn = board.m_board_state & board_state::WhiteTurn;
-    uint64_t ourKing = board.pieceToBitboardConst<PieceType::King>(isWhiteTurn);
-    std::println("nomoves");
-    // we are checkmated
-    if (mgenData.enemyAttacksMushed & ourKing) {
-        // we would rather be mated in 3 plys than 1 ply
-        // (st.rootSearchDepth - depthLeft) is how far we are from the root
-        //
-        int distanceFromRoot = st.rootSearchDepth - depthLeft;
-        return searchAnswer{(-pMaps::pieceScoreArray[PieceType::King].score) + distanceFromRoot, {}, SearchReturnState::CheckmateOrDraw};
-    } else {
-        return searchAnswer{0, {}, SearchReturnState::CheckmateOrDraw};
-    }
-
-}
-
-searchAnswerInternal
-alphaBetaDepth1(searchState st, const chessBoard& board, const stackStack218& movesForBoard, const chessMoves::movegenEngineData& mgenData, searchTelemetry* tele = nullptr) {
+searchAnswerInternal alphaBetaDepth1(searchState st, const chessBoard& board, const stackStack218& movesForBoard, const chessMoves::movegenEngineData& mgenData, searchTelemetry* tele = nullptr) { 
     if (movesForBoard.numitems() == 0) {
-        return searchAnswerInternal{noMovesEvalulation(st, board, mgenData, 1), 0, false};
+        throw std::logic_error("alpha beta depth 1 cannot be called with empty move array");
     }
 
-    searchAnswerInternal bestMove {searchAnswer{-INF, {}, SearchReturnState::Normal}};
 
+    searchAnswerInternal bestMove {searchAnswer{-INF, {}, SearchReturnState::NotAssigned}};
+    bool betaCutoff = false;
+
+
+    if (st.alpha > st.beta)
+        throw std::logic_error("error alpha cannot be greater than beta, invalid program state");
+
+    stackStack218 allMovesMem;
     for (const auto& mv : movesForBoard) {
         
-        int score = negaMaxEval(board, mv, mgenData.enemyAttacksMushed);
+        chessBoard newBoard = board.applyMovePure(mv);
+        // int score = -negaMaxEval(board, mv, mgenData.enemyAttacksMushed);
+
+        auto q_ret = search::quiessenceSearch<pieceWiseEval>(newBoard, allMovesMem);
+        q_ret.score = -q_ret.score;
+
         tele->nodes ++;
         
-        if (score > st.alpha) {
-            bestMove.answer = searchAnswer{score, mv, SearchReturnState::Normal};
+        if (q_ret.score > bestMove.answer.eval) {
+            bestMove.answer = searchAnswer{q_ret.score, mv, q_ret.rState};
         }
 
-        if (score >= st.beta) {
-            bestMove.answer.returnState = SearchReturnState::BetaCutoff;
+        if (q_ret.score >= st.beta) {
+            betaCutoff = true;
             break;
         }
 
-        if (score > st.alpha) {
-            st.alpha = score;
-        }
+        // if (score >= st.beta) {
+        //     bestMove.answer.returnState = SearchReturnState::BetaCutoff;
+        //     break;
+        // }
+        //
+        // if (score > st.alpha) {
+        //     st.alpha = score;
+        // }
     }
 
-    if (bestMove.answer.returnState != SearchReturnState::BetaCutoff) {
-        auto currentDepth = st.rootSearchDepth - 1;
-        auto &pvNode = tele->principleVariation[currentDepth];
-        auto &pvBoard= tele->boardStates[currentDepth];
-        pvNode = bestMove.answer;
-        pvBoard = board.applyMovePure(pvNode.bestMove);
+    if (!betaCutoff) {
+        auto pvArrStart = tele->pvMemoryStart;
+        auto currentEntryOffset = pvMemoryOffset(tele->searchDepth, 1);
+        *(pvArrStart + currentEntryOffset) = bestMove.answer;
+        // std::println("pv changed(1) : \n {}, offset = {}", board.uciStringMove(bestMove.answer.bestMove), currentEntryOffset);
     }
 
     return bestMove;
@@ -353,16 +386,17 @@ alphaBetaDepth1(searchState st, const chessBoard& board, const stackStack218& mo
     searchAnswerInternal 
     alphaBetaInner(searchState st, chessBoard board, int depthleft, transpositionTableAccess& tableAccess, 
             const stackStack218& allMoves, const chessMoves::movegenEngineData& mgendata, 
-            searchTelemetry* tele=nullptr, std::optional<std::stop_token> stop_token = {}, TT::tableEntry* currentTTEntryVerified = nullptr) 
+            searchTelemetry* tele=nullptr, std::optional<std::stop_token> stop_token = {}, 
+            TT::tableEntry* currentTTEntryVerified = nullptr, bool useAlphaBetaPruning = true) 
     { 
         if (allMoves.numitems() == 0) {
-            return searchAnswerInternal{noMovesEvalulation(st, board, mgendata, depthleft), 0, false};
+            return searchAnswerInternal{searchAnswer{noMovesEvalulation(board, mgendata), {}, SearchReturnState::EndOfGame}};
         }
         if (stop_token.has_value() && stop_token->stop_requested()) {
             return searchAnswerInternal{searchAnswer{-INF, {}, SearchReturnState::SearchTerminated}};
         }
 
-        std::array<ttEntryCopy, 218> ttEntries{};
+        // std::array<ttEntryCopy, 218> ttEntries{};
 
         // if (hasTranspositionTable && false) {
         //     for (auto idx {allMoves.numitems()}; idx -- > 0;) {
@@ -384,8 +418,11 @@ alphaBetaDepth1(searchState st, const chessBoard& board, const stackStack218& mo
         // };
         
         FastStack<size_t, 218> sortedPerms {orderMoves(allMoves, board, mgendata, st)};
-        searchAnswerInternal bestMove {searchAnswer{-INF, {}, SearchReturnState::Normal}};
+        searchAnswerInternal bestMove {searchAnswer{-INF, {}, SearchReturnState::NotAssigned}};
 
+        searchState dummyST {st};
+
+        bool betaCutoff = false;
         for (size_t idx : sortedPerms) {
             const pieceMovement& mv = allMoves[idx];
             st.lastMove = mv;
@@ -421,12 +458,16 @@ alphaBetaDepth1(searchState st, const chessBoard& board, const stackStack218& mo
                 {
                     stackStack218 moves;
                     chessMoves::movegenEngineData data = chessMoves::makeAllMovesWithDataReturn(newBoard, moves);
-                    if (moves.numitems() == 0)
-                        searchReturn.answer = noMovesEvalulation(st.reflectPure(), newBoard, data, depthleft - 1);
-                    else if (depthleft <= 2)
+
+                    if (moves.numitems() == 0) {
+                        int noMovesEval = noMovesEvalulation(newBoard, data);
+                        searchReturn.answer = searchAnswer{noMovesEval, {}, SearchReturnState::EndOfGame};
+                    }
+                    else if (depthleft <= 2) {
                         searchReturn = alphaBetaDepth1(st.reflectPure(), newBoard, moves, data, tele);
+                    }
                     else 
-                        searchReturn = alphaBetaInner<hasTranspositionTable>(st.reflectPure(), newBoard, depthleft-1, tableAccess, moves, data, tele, stop_token); 
+                        searchReturn = alphaBetaInner<hasTranspositionTable>(st.reflectPure(), newBoard, depthleft-1, tableAccess, moves, data, tele, stop_token, currentTTEntryVerified, useAlphaBetaPruning); 
                 }
             }
 
@@ -437,34 +478,39 @@ alphaBetaDepth1(searchState st, const chessBoard& board, const stackStack218& mo
 
             searchReturn.answer.negate();
 
+            // if (depthleft == 6) {
+            //     std::println("candiate eval {}, current eval {}, {}", searchReturn.answer.eval, bestMove.answer.eval, board.uciStringMove(mv));
+            // }
 
-            if (searchReturn.answer.eval > bestMove.answer.eval) {
+            if (searchReturn.answer.eval > bestMove.answer.eval && (searchReturn.answer.returnState != SearchReturnState::NotAssigned && searchReturn.answer.returnState != SearchReturnState::SearchTerminated)) {
+                bestMove.answer.returnState = searchReturn.answer.returnState;
                 bestMove.answer.eval= searchReturn.answer.eval;
                 bestMove.answer.bestMove = mv;
                 bestMove.bestMoveIdx = idx;
                 bestMove.hasBestMoveIdx = true;
-
-                std::println("Depthleft {} eval {}", depthleft, searchReturn.answer.eval);
             }
 
-            if (bestMove.answer.eval > st.beta) {
-                bestMove.answer.returnState = SearchReturnState::BetaCutoff;
-                break;
+            if (useAlphaBetaPruning) {
+                if (searchReturn.answer.eval >= st.beta) {
+                    betaCutoff = true;
+                    break;
+                }
+
+                st.alpha = std::max(st.alpha, bestMove.answer.eval);
             }
-
-            st.alpha = std::max(st.alpha, bestMove.answer.eval);
         }
 
-        if (bestMove.answer.returnState != SearchReturnState::BetaCutoff) {
-            auto currentDepth = st.rootSearchDepth - depthleft;
-            auto &pvNode = tele->principleVariation[currentDepth];
-            auto &pvBoard= tele->boardStates[currentDepth];
-            pvNode = bestMove.answer;
-            pvBoard = board.applyMovePure(pvNode.bestMove);
+        if (!betaCutoff && bestMove.answer.returnState != SearchReturnState::NotAssigned) {
+            searchAnswer* begin = tele->pvMemoryStart;
+
+            size_t currentNode  = pvMemoryOffset(tele->searchDepth, depthleft);
+            size_t previousNode = pvMemoryOffset(tele->searchDepth, depthleft - 1);
+            // std::println("{}, {}, {}, {}", tele->searchDepth, depthleft, currentNode, previousNode);
+
+            std::copy(begin + previousNode, begin + (previousNode + depthleft - 1), begin + (currentNode + 1));
+            *(begin + currentNode) = bestMove.answer;
+            // std::println("pv changed : \n {}, offset = {}", board.uciStringMove(bestMove.answer.bestMove), currentNode);
         }
-
-
-        std::println("Depth {}, returning", depthleft);
 
         return bestMove;
     }
@@ -472,9 +518,8 @@ alphaBetaDepth1(searchState st, const chessBoard& board, const stackStack218& mo
 
 
 
-template <EvalFunction eval>
-inline searchAnswer 
-alphaBeta(int depth, chessBoard board, transpositionTableAccess tableAccess, searchTelemetry* tele, std::optional<std::stop_token> stop_token) {
+searchAnswer 
+alphaBeta(int depth, chessBoard board, transpositionTableAccess tableAccess, searchTelemetry* tele, std::optional<std::stop_token> stop_token, bool useAlphaBetaPruning) {
     searchState st {-INF, INF, board.numPlys, static_cast<uint16_t>(depth)};
     stackStack218 allMoves;
     auto movegenData = chessMoves::makeAllMovesWithDataReturn(board, allMoves);
@@ -487,12 +532,8 @@ alphaBeta(int depth, chessBoard board, transpositionTableAccess tableAccess, sea
         bool entryVerified = zHash == entry.zHash && allMoves.numitems() == entry.numMoves;
         auto* entryPtrVerified = entryVerified ? &entry : nullptr;
 
-        return AlphaBeta::alphaBetaInner<true>(st, board, depth, tableAccess, allMoves, movegenData, tele, stop_token, entryPtrVerified).answer;
+        return AlphaBeta::alphaBetaInner<true>(st, board, depth, tableAccess, allMoves, movegenData, tele, stop_token, entryPtrVerified, useAlphaBetaPruning).answer;
     } else {
-        return AlphaBeta::alphaBetaInner<false>(st, board, depth, tableAccess, allMoves, movegenData, tele, stop_token, nullptr).answer;
+        return AlphaBeta::alphaBetaInner<false>(st, board, depth, tableAccess, allMoves, movegenData, tele, stop_token, nullptr, useAlphaBetaPruning).answer;
     }
 }
-
-template 
-searchAnswer 
-alphaBeta<pieceWiseEval>(int depth, chessBoard board, transpositionTableAccess tableAccess, searchTelemetry* tele, std::optional<std::stop_token> stop_token);

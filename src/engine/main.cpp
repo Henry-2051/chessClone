@@ -1,14 +1,13 @@
 #include "engine.h"
 #include "chessBoard.h"
-#include <chrono>
+#include "engineSharedDatatypes.hpp"
 #include <cstddef>
-#include <functional>
 #include <iostream>
+#include <ostream>
 #include <print>
 #include <ranges>
 #include <string>
 #include <string_view>
-#include <thread>
 
 // void tests() {
 //     if constexpr (false){
@@ -171,13 +170,17 @@ void engineProcess(std::optional<argumentValue> gs, interfacePrinterState& print
 int main (int argc, char *argv[]) {
     // tests();
 
-    argumentValue gs = argumentParser(argc, argv);
-    // std::println("general state : (uciMode : {}, fen : {}, moves : {})", gs.uciMode, gs.fen, gs.moves);
-    interfacePrinterState printerState {};
-    constexpr size_t pollTimeMilliseconds = 10;
-    std::jthread printerThread {printerProcess<pollTimeMilliseconds>, std::ref(printerState)};
+    // argumentValue gs = argumentParser(argc, argv);
+    // // std::println("general state : (uciMode : {}, fen : {}, moves : {})", gs.uciMode, gs.fen, gs.moves);
+    // interfacePrinterState printerState {};
+    // constexpr size_t pollTimeMilliseconds = 10;
+    // std::jthread printerThread {printerProcess<pollTimeMilliseconds>, std::ref(printerState)};
+    //
+    // engineProcess(gs, printerState);
 
-    engineProcess(gs, printerState);
-
+    int j{10};
+    for (int i {10}; i -- > 0;) {
+        std::cout << pvMemoryOffset(j, i) << std::endl;
+    }
     return 0;
 }

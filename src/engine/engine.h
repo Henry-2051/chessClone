@@ -54,7 +54,7 @@ class chessEngineTe {
     void reset();
 
     static void iterativeSearch(std::stop_token st, chessBoard board, threaddedSearchAnswer& sharedAnswer, 
-            transpositionTableAccess tableAccess, interfacePrinterState* printerState = nullptr, std::optional<int> testDepth = std::nullopt);
+            transpositionTableAccess tableAccess, interfacePrinterState* printerState = nullptr, std::optional<int> testDepth = std::nullopt, bool useAlphaBetaPruning = true);
 
     // chessEngine() = default;
 
@@ -70,7 +70,7 @@ class chessEngineTe {
     loadPosition(const chessBoard& board);
 
     // starts searching in a seperate thread
-    bool startSearch(interfacePrinterState* loggerState = nullptr, std::optional<int> testDepth = std::nullopt) ;
+    bool startSearch(interfacePrinterState* loggerState = nullptr, std::optional<int> testDepth = std::nullopt, bool useAlphaBetaPruning = true) ;
 
     // updates the internal search answer state in a thread safe manner and returns the new state
     // if the engine isnt thinking then it just returns gets the most recent answer

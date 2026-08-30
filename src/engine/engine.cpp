@@ -3,12 +3,10 @@
 #include "engineSharedDatatypes.hpp"
 #include "eval.hpp"
 #include "pieceMovements.hpp"
-#include <cstdint>
 #include <format>
+#include <memory>
 #include <optional>
-#include <print>
 #include <thread>
-#include <tuple>
 
 argumentValue argumentParser(int argc, char* argv[]) {
     argumentValue gs;
@@ -83,27 +81,27 @@ void chessEngineTe<eval>::reset() {
 
 template <EvalFunction eval>
 void 
-chessEngineTe<eval>::iterativeSearch(std::stop_token st, chessBoard board, threaddedSearchAnswer& sharedAnswer, transpositionTableAccess tableAccess, interfacePrinterState* printerState, std::optional<int> testDepth) {
+chessEngineTe<eval>::iterativeSearch(std::stop_token st, chessBoard board, threaddedSearchAnswer& sharedAnswer, transpositionTableAccess tableAccess, interfacePrinterState* printerState, std::optional<int> testDepth, bool useAlphaBetaPruning) {
     int depth {2};
     
     while(!st.stop_requested()) {
-        // std::println("Executing to depth {}", depth);
-        searchTelemetry telemetry {};
-        telemetry.principleVariation = {static_cast<size_t>(depth), searchAnswer{-INF}};
-        telemetry.boardStates.resize(depth);
-        auto start = std::chrono::steady_clock::now();
-
         searchAnswer ans;
-        if (testDepth.has_value()) {
-            telemetry.principleVariation.resize(*testDepth);
-            telemetry.boardStates.resize(*testDepth);
-            ans = alphaBeta<eval>(*testDepth, board, tableAccess, &telemetry, st);
-        } else {
-            telemetry.principleVariation.resize(depth);
-            telemetry.boardStates.resize(depth);
-            ans = alphaBeta<eval>(depth, board, tableAccess, &telemetry, st);
-        }
+        if (testDepth.has_value())
+            depth = *testDepth;
+
+        // second heap allocation
+        // we can actually use the formula (n/2) * (a_1 + a_n) to index into this 
+        // and also instead of n^2 for the size, its best to overallocate and we'll cause a stack 
+        // overflow before this becomes signifficant, we are storing a 5.2KB array on the heap for each 
+        // depth searched, after depth 200 we will have used 1MB of stack memory, overflow territory
         
+        auto pvMemory  = std::make_unique<searchAnswer[]>(depth * depth);
+
+        searchTelemetry telemetry {depth, pvMemory.get()};
+        
+        // actually there will be a stack overflow after about depth 200, need more heap allocations
+        auto start = std::chrono::steady_clock::now();
+        ans = alphaBeta(depth, board, tableAccess, &telemetry, st, useAlphaBetaPruning);
         auto stop = std::chrono::steady_clock::now();
         if (ans.returnState != SearchReturnState::SearchTerminated) {
             {
@@ -119,21 +117,34 @@ chessEngineTe<eval>::iterativeSearch(std::stop_token st, chessBoard board, threa
 
                 double nodesPerSecond = (telemetry.nodes / static_cast<double>(std::max((int)searchTimeMs, 1))) / 1000.0;
                 std::string info = std::format("info currmove {} depth {} searchtime_ms {} MNodes {} MNodes per second {}", board.uciStringMove(ans.bestMove), depth, searchTimeMs, telemetry.nodes / 1000000, nodesPerSecond);
-                std::string variation {"variation "};
-                size_t i {0};
-                for (const searchAnswer& bestAnswer: telemetry.principleVariation) {
-                    chessBoard board {telemetry.boardStates[i]};
-                    variation += std::format("(best mv {}, eval {}, qEval after {})", board.uciStringMove(bestAnswer.bestMove), bestAnswer.eval, chessEngine::quiessenceSearch(board.applyMoveImpure(bestAnswer.bestMove)));
-                    i++;
+                auto begin = telemetry.pvMemoryStart;
+                auto end = begin + telemetry.searchDepth;
+
+                chessBoard boardCopy {board};
+
+                std::string variation {"principle variation:\n"};
+                for (searchAnswer* it = begin; it != end; it ++) {
+                    searchAnswer ans = *it;
+                    stackStack218 allMoves;
+                    chessMoves::makeAllMovesWithDataReturn(boardCopy, allMoves);
+                    for (const auto& mv : allMoves) {
+                        // ensure the moves in the principle variation are legal moves
+                        if (mv.compareForSelection(ans.bestMove)) {
+                            variation += std::format("move : {}, engineEval : {}, quiessenceEval: {}\n", boardCopy.uciStringMove(mv), ans.eval, chessEngine::quiessenceSearch(boardCopy.applyMovePure(mv)));
+                            break;
+                        }
+                    }
+
+                    boardCopy.applyMoveImpure(ans.bestMove);
                 }
 
                 {
                 std::lock_guard<std::mutex> lock {printerState->stdoutBuffer.bufferMutex};
                 printerState->stdoutBuffer.buffer.push_back(std::move(info));
                 printerState->stdoutBuffer.buffer.push_back(std::move(variation));
-                for (const auto& b : telemetry.boardStates) {
-                    printerState->stdoutBuffer.buffer.push_back(std::format("{} {}\n", b.stringBoard(), chessEngine::quiessenceSearch(b)));
-                }
+                // for (const auto& b : telemetry.boardStates) {
+                //     printerState->stdoutBuffer.buffer.push_back(std::format("{} {}\n", b.stringBoard(), chessEngine::quiessenceSearch(b)));
+                // }
                 }
 
                 printerState->flushBuffer.notify_one();
@@ -186,7 +197,7 @@ chessEngineTe<eval>::loadPosition(const chessBoard& board) {
 
 // starts searching in a seperate thread
 template <EvalFunction eval>
-bool chessEngineTe<eval>::startSearch(interfacePrinterState* loggerState, std::optional<int> testDepth) {
+bool chessEngineTe<eval>::startSearch(interfacePrinterState* loggerState, std::optional<int> testDepth, bool useAlphaBetaPruning) {
     if (m_isthinking)
         return false;
     transpositionTableAccess tableAccess {};
@@ -195,9 +206,9 @@ bool chessEngineTe<eval>::startSearch(interfacePrinterState* loggerState, std::o
     }
     
     if(loggerState == nullptr)
-        m_searchThread = std::jthread(chessEngineTe<eval>::iterativeSearch,  m_chessBoard, std::ref(m_sharedAnswer), tableAccess, m_printerState, testDepth);
+        m_searchThread = std::jthread(chessEngineTe<eval>::iterativeSearch,  m_chessBoard, std::ref(m_sharedAnswer), tableAccess, m_printerState, testDepth, useAlphaBetaPruning);
     else 
-        m_searchThread = std::jthread(chessEngineTe<eval>::iterativeSearch,  m_chessBoard, std::ref(m_sharedAnswer), tableAccess, loggerState, testDepth);
+        m_searchThread = std::jthread(chessEngineTe<eval>::iterativeSearch,  m_chessBoard, std::ref(m_sharedAnswer), tableAccess, loggerState, testDepth, useAlphaBetaPruning);
 
     m_isthinking = true;
     bool sucess = true;
@@ -221,7 +232,7 @@ template <EvalFunction eval>
 int chessEngineTe<eval>::quiessenceSearch(chessBoard board) {
     // bool isWhiteTurn = board.m_board_state & board_state::WhiteTurn;
     stackStack218 allMoveMem;
-    return search::quiessenceSearch<eval>(board, allMoveMem);
+    return search::quiessenceSearch<eval>(board, allMoveMem).score;
     // return isWhiteTurn ? search::quiessenceSearchMut<eval>(board, allMoveMem) : -search::quiessenceSearchMut<eval>(board, allMoveMem);
 }
 

@@ -1,6 +1,5 @@
 #include "chessBoard.h"
 #include <cstdint>
-#include <string>
 #pragma once
 
 #define INF 1000000000
@@ -9,9 +8,14 @@ using EvalFunction = int (*) (const chessBoard&, bool);
 
 enum class SearchReturnState : char {
     Normal,
-    BetaCutoff,
+    NotAssigned,
     SearchTerminated,
-    CheckmateOrDraw,
+    EndOfGame
+};
+
+struct quiessenceSearchReturn {
+    int score;
+    SearchReturnState rState;
 };
 
 // enum class EvalReturnState : char {
@@ -55,9 +59,19 @@ struct searchState {
 };
 
 struct searchTelemetry {
+    const int searchDepth;
+    searchAnswer* const pvMemoryStart;
     size_t numEvals{0};
     size_t numMovegens {0};
     size_t nodes {0};
-    std::vector<searchAnswer> principleVariation {};
-    std::vector<chessBoard> boardStates {};
 };
+
+// currentDepth = searchDepth - depthLeft
+inline size_t pvMemoryOffset(int searchDepth, int depthLeft) {
+    // I adapted / invented a formula ;w; 
+    // if search depth = a_n === 4  and current depth = a_m === 10 then pvMemoryOffset(a_n, a_m) = pvMemoryOffset(4,10) = sum(10 + 9 + 8 + 7 + 6 + 5)
+    // if a_n = 10, a_m = 10 then pvMemoryOffset(10,10) = 0, pvMemoryOffset(9,10) = 10, pvMemoryOffset(8, 10) = 19 ect
+    // this is a special indexing system to make an array with non constant increment
+    
+    return ((((double)searchDepth - (double)depthLeft + 1.0) / 2.0) * ((double)searchDepth + (double)depthLeft)) - (double)depthLeft;
+}

@@ -7,12 +7,9 @@
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/System/Time.hpp>
 #include <SFML/System/Vector2.hpp>
-#include <bit>
-#include <chrono>
-#include <compare>
+#include <SFML/Window/Keyboard.hpp>
 #include <csignal>
 #include <imgui.h>
-#include "helpers.hpp"
 #include "imgui-sfml/imgui-SFML.h"
 #include <array>
 #include <cstdint>
@@ -20,7 +17,6 @@
 #include <optional>
 #include <ostream>
 #include <print>
-#include <stack>
 #include <stdexcept>
 #include <string>
 #include <string_view>
@@ -32,11 +28,10 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include <vector>
-// #include "maybeResult.hpp"
 #include "loadChessAssets.hpp"
 #include "chessBoard.h"
 #include "engine.h"
-#include "chessBoardMovegenSharedDatatypes.h"
+#include "engineSharedDatatypes.hpp"
 
 
 enum PieceColor : bool {
@@ -227,6 +222,10 @@ struct windowCtx {
     bool displayedInfo {false};
     infoCache cachedInfo {};
 
+    bool searchToSetDepth {true};
+    int depthSearched {2};
+    bool useAlphaBetaPruning {true};
+
     interfacePrinterState loggerThingy {};
     std::vector<std::string> logsFromLoggerThingy {};
 
@@ -237,6 +236,7 @@ struct windowCtx {
 
     void applyMove(const pieceMovement& mv) {
         board.applyMoveImpure(mv);
+        displayedInfo = false;
         std::cout << board.stringBoard();
     }
 
@@ -390,11 +390,11 @@ userInput processUserInput(userInput input, const chessBoard& board) {
     // triggers if the user has clicked and dragged to move a piece, changes the input state
     if (input.movePositions.first.has_value() && input.movePositions.second.has_value()) {
         auto [__enteredMove, __moveCtx] = makePieceMovementFromBoardPosition(board, input.movePositions.first.value(), input.movePositions.second.value());
-        if(__enteredMove.has_value()) {
-            std::println("move created by chess gui :");
-            __enteredMove.value().printThis();
-            std::println("\n");
-        }
+        // if(__enteredMove.has_value()) {
+        //     std::println("move created by chess gui :");
+        //     __enteredMove.value().printThis();
+        //     std::println("\n");
+        // }
         input.workingOnInputtedMove= __enteredMove;
         input.pawnPromotionState = __moveCtx;
         input.movePositions.first  = std::nullopt;
@@ -583,8 +583,16 @@ userInput makeImguiInfoAndControlWindow(windowCtx& w_ctx, userInput input) {
             w_ctx.engineState.allocateTranspositionTable(16);
         }
 
+        ImGui::Checkbox("search to finite depth", &w_ctx.searchToSetDepth);
+
+        ImGui::InputInt("search depth", &w_ctx.depthSearched);
+
         if (ImGui::Button("Start searching")) {
-            w_ctx.engineState.startSearch(&w_ctx.loggerThingy, 2);
+            if (w_ctx.searchToSetDepth) {
+                w_ctx.engineState.startSearch(&w_ctx.loggerThingy, w_ctx.depthSearched, w_ctx.useAlphaBetaPruning);
+            } else {
+                w_ctx.engineState.startSearch(&w_ctx.loggerThingy, std::nullopt, w_ctx.useAlphaBetaPruning);
+            }
         }
 
         auto answer = w_ctx.engineState.getAnswer();
@@ -597,7 +605,7 @@ userInput makeImguiInfoAndControlWindow(windowCtx& w_ctx, userInput input) {
 
         if (!w_ctx.displayedInfo) {
             w_ctx.displayedInfo = true;
-            w_ctx.cachedInfo.qSearchString = std::format("quiessence search eval {}", w_ctx.engineState.quiessenceSearch(w_ctx.board));
+            w_ctx.cachedInfo.qSearchString = std::format("quiessence search eval {}", chessEngine::quiessenceSearch(w_ctx.board));
             ImGui::BulletText("%s", w_ctx.cachedInfo.qSearchString.c_str());
         } else {
             ImGui::BulletText("%s", w_ctx.cachedInfo.qSearchString.c_str());
@@ -621,6 +629,8 @@ userInput makeImguiInfoAndControlWindow(windowCtx& w_ctx, userInput input) {
         if (ImGui::Button("Clear engine state / reset")) {
             w_ctx.engineState.reset();
         }
+
+        ImGui::Checkbox("alpha beta pruning", &w_ctx.useAlphaBetaPruning);
 
         ImGui::TreePop();
     }
@@ -673,10 +683,10 @@ int main(int argc, char *argv[])
             auto res = consumeStagedMoveVerifyAndApply(input_ctx, w_ctx);
             input_ctx = res.first;;
             if(res.second.has_value()) {
-                if (w_ctx.engineState.m_answer.has_value()) {
-                    w_ctx.engineState.loadPosition(w_ctx.board);
-                    w_ctx.engineState.startSearch();
-                }
+                // if (w_ctx.engineState.m_answer.has_value()) {
+                //     w_ctx.engineState.loadPosition(w_ctx.board);
+                //     w_ctx.engineState.startSearch();
+                // }
                 w_ctx.displayedInfo = false;
                 w_ctx.addMoveToHistory(res.second.value());
             }
